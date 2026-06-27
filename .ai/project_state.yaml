@@ -13,13 +13,13 @@ project:
 # Current Progress
 # ==========================================================
 
-current_phase: "Curriculum Planning"
+current_phase: "Curriculum Content Generation"
 
-current_stage: "Curriculum Architecture Design"
+current_stage: "Lesson Authoring"
 
-current_agent: "Curriculum Architect"
+current_agent: "Lesson Author"
 
-current_task: "Design overall curriculum structure, module map, and learning order"
+current_task: "Generate individual lesson markdown files based on curriculum specification and canonical templates"
 
 # ==========================================================
 # Milestones
@@ -37,10 +37,10 @@ milestones:
     status: completed
 
   curriculum:
-    status: in_progress
+    status: completed
 
   modules:
-    status: pending
+    status: in_progress
 
   website:
     status: pending
@@ -82,6 +82,8 @@ completed:
 
   template_generation: true
 
+  curriculum_design: true
+
 # ==========================================================
 # Current Outputs
 # ==========================================================
@@ -95,7 +97,17 @@ generated:
     - "standards/templates/TEMPLATE_QUIZ.md"
     - "standards/templates/TEMPLATE_CHEATSHEET.md"
 
-  curriculum: []
+  curriculum:
+    - "curriculum/roadmap.md"
+    - "curriculum/analysis.md"
+    - "curriculum/curriculum.md"
+    - "curriculum/learning-order.md"
+    - "curriculum/module-map.md"
+    - "curriculum/module-dependencies.md"
+    - "curriculum/milestones.md"
+    - "curriculum/capstone-roadmap.md"
+    - "curriculum/skill-matrix.md"
+    - "curriculum/competencies.md"
 
   lessons: []
 
@@ -109,10 +121,9 @@ generated:
 
 next_tasks:
 
-  - "Invoke Curriculum Architect"
-  - "Generate curriculum/curriculum.md"
-  - "Generate curriculum/module-map.md"
-  - "Generate curriculum/learning-order.md"
+  - "Invoke Lesson Author"
+  - "Generate Stage 1: Foundations lessons in output/generated/"
+  - "Validate generated lessons against TEMPLATE_LESSON.md"
 
 # ==========================================================
 # Blockers
@@ -148,10 +159,10 @@ quality_gates:
 # Last Update
 # ==========================================================
 
-last_updated: "2026-06-27"
+last_updated: "2026-06-28"
 
-updated_by: "Template Architect"
+updated_by: "Curriculum Architect"
 
 notes: >
-  Canonical templates successfully generated and validated against project standards.
-  Template Generation stage is complete. Handoff to Curriculum Architect ready.
+  Complete curriculum architecture successfully designed, validated against project standards, and reviewed.
+  Curriculum Planning stage is complete. Handoff to Lesson Author ready.
