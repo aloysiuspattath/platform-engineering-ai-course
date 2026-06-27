@@ -173,3 +173,18 @@ Good
 * Use horizontal rules (`---`) to separate major sections.
 * Wrap all commands and configurations in fenced code blocks with appropriate syntax highlighting (`bash`, `yaml`, `text`).
 * Keep paragraphs concise (2-4 sentences max).
+
+
+Bad
+
+Linux uses system calls executed through ring transitions into kernel mode where...
+
+Good
+
+When you type:
+
+ls
+
+Linux asks the operating system to show the files in the current folder.
+
+Later in the course we'll learn how this request travels through the Linux kernel.

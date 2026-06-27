@@ -170,3 +170,14 @@ Approve or Reject.
 # Guiding Principle
 
 A lesson is considered complete only when it can stand as a world-class, technically authoritative educational artifact that empowers learners to solve real-world engineering problems with confidence.
+
+# Educational Review
+
+Before approving a lesson verify:
+
+- Does the lesson assume too much prior knowledge?
+- Are concepts introduced before implementation?
+- Is the difficulty appropriate for this module?
+- Are advanced topics deferred appropriately?
+- Can a motivated beginner complete this lesson confidently?
+- Is technical depth proportional to the learner's current stage?

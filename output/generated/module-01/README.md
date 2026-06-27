@@ -8,43 +8,57 @@ Version: 1.0.0
 
 Welcome to **Module 01: Linux Fundamentals for Platform Engineers**. 
 
-In modern cloud and platform engineering, the Linux operating system is the universal foundation upon which all containerization (Docker), orchestration (Kubernetes), and AI infrastructure (vLLM, Ollama) execute. To build resilient, automated platforms, a platform engineer cannot view Linux as a black box of magical commands. You must understand the underlying kernel architecture, system call interfaces, process hierarchies, and resource management mechanics.
+In modern cloud and platform engineering, the Linux operating system is the bedrock upon which all higher-level abstractions—such as Docker containers, Kubernetes clusters, service meshes, and AI inference engines—execute. Without a deep, uncompromising understanding of the Linux kernel, system calls, process trees, storage mechanisms, and security boundaries, a platform engineer cannot effectively troubleshoot production outages, optimize resource utilization, or build reliable Internal Developer Platforms (IDPs).
 
-This module guides you through the internal anatomy of Linux, empowering you to debug performance bottlenecks, automate production workflows, secure execution environments, and make robust architectural trade-off decisions.
-
----
-
-# Module Syllabus
-
-This module comprises six sequential, deeply practical lessons:
-
-* **[Lesson 01: Linux Architectural Fundamentals & Kernel Anatomy](lesson-01.md)** — User Space vs. Kernel Space, system calls (`syscalls`), hardware rings, and `strace`.
-* **[Lesson 02: User, Group, and Permission Management (DAC & RBAC)](lesson-02.md)** — Discretionary Access Control, ACLs, `sudoers`, and Enterprise Privilege Governance.
-* **[Lesson 03: Process Management, Daemons, and Systemd Initialization](lesson-03.md)** — Fork/Exec models, signals, zombie processes, Systemd units, and journals.
-* **[Lesson 04: Advanced Bash Scripting & Production Automation](lesson-04.md)** — Idempotent script design, trap handling, subshells, and production automation patterns.
-* **[Lesson 05: Linux Logging, System Monitoring & Diagnostics](lesson-05.md)** — `journalctl`, `htop`, `iostat`, `vmstat`, `lsof`, and isolating resource saturation.
-* **[Lesson 06: Linux Networking, Socket States & Kernel Firewalling](lesson-06.md)** — Network namespaces, `ss`, `ip`, Netfilter, and underlying container networking mechanics.
+This module is designed to transform you from a basic Linux user into a confident systems architect capable of diagnosing kernel bottlenecks, automating robust production tasks, and hardening enterprise infrastructure.
 
 ---
 
-# Career Milestone Alignment
+# Module Metadata
 
-* **Milestone:** Milestone 1 — IT Foundations
-* **Target Roles:** Junior Linux Administrator, Systems Administrator, Junior Platform Engineer
-* **Core Competencies:** Linux navigation, process debugging, robust bash automation, permission governance, and root-cause analysis.
-
----
-
-# Learning Tracks
-
-Every lesson in this module explicitly delineates content across three depth tiers:
-
-* 🟢 **Core:** Required foundational commands, core theories, and essential labs.
-* 🔵 **Professional:** Production edge cases, high-concurrency performance considerations, troubleshooting rubrics, and interview prep.
-* 🟣 **Expert:** Kernel data structures, advanced trace points, system internals, and low-level optimization trade-offs.
+* **Module ID:** MOD-LINUX
+* **Title:** Linux Fundamentals for Platform Engineers
+* **Difficulty:** Beginner to Intermediate (with Advanced/Expert deep dives)
+* **Estimated Duration:** 15–20 Hours
+* **Learning Tracks:** 🟢 Core / 🔵 Professional / 🟣 Expert
+* **Version:** 1.0.0
+* **Last Updated:** 2026-06-28
 
 ---
 
-# Recommended Next Steps
+# Curricular Learning Objectives
 
-Upon completing all six lessons in this module, proceed to the standalone hands-on verification lab (`labs/linux-automation.md`) to build your portfolio asset before advancing to **Module 02: Networking Fundamentals**.
+By the end of this module, you will be able to:
+
+1. **Explain Kernel Mechanics:** Differentiate between User Space and Kernel Space, trace system calls using `strace`, and interpret hardware execution rings.
+2. **Govern System Access:** Configure Discretionary Access Control (DAC), Access Control Lists (ACLs), and enterprise `sudoers` restrictions.
+3. **Manage Service Lifecycles:** Inspect process hierarchies, analyze memory maps, and write idempotent Systemd service units and timers.
+4. **Automate Production Tasks:** Develop production-grade Bash scripts featuring robust error handling, exit trapping, and syslog integration.
+5. **Debug Production Outages:** Analyze system utilization and log journals using `htop`, `iostat`, `vmstat`, `strace`, and `journalctl` to perform rapid root-cause analysis.
+6. **Enforce Kernel Security:** Configure Linux Control Groups (`cgroups v2`), isolate processes via namespaces, and restrict root execution using Linux Capabilities.
+
+---
+
+# Lesson Directory
+
+| Lesson ID | Lesson Title | Target Concepts | Estimated Time |
+| :--- | :--- | :--- | :--- |
+| **`lesson-01.md`** | Linux Architectural Fundamentals & Kernel Anatomy | Kernel vs. User Space, `syscalls`, Hardware Rings, `strace` | 45 Minutes |
+| **`lesson-02.md`** | User, Group, and Permission Management (DAC & RBAC) | File permissions, Octal/Symbolic modes, ACLs, `sudoers` | 45 Minutes |
+| **`lesson-03.md`** | Process Management, Daemons, and Systemd Initialization | Process states, Signals, Fork/Exec, Systemd Units & Timers | 60 Minutes |
+| **`lesson-04.md`** | Advanced Bash Scripting & Production Automation | Idempotency, Error Trapping, Logging, `set -euo pipefail` | 60 Minutes |
+| **`lesson-05.md`** | Linux Logging, System Monitoring & Diagnostics | `journalctl`, `iostat`, `vmstat`, Syslog, Bottleneck isolation | 60 Minutes |
+| **`lesson-06.md`** | Enterprise Linux Security, Cgroups & Capability Hardening | `cgroups v2`, Kernel Namespaces, Linux Capabilities (`setcap`) | 60 Minutes |
+
+---
+
+# Prerequisites
+
+* **Hardware/Environment:** Access to a Linux environment (Ubuntu 22.04 LTS / Debian 12 / RHEL 9 or a local virtual machine / WSL2 instance).
+* **Base Knowledge:** Familiarity with opening a terminal and running basic navigational commands (`ls`, `cd`, `pwd`). No prior systems engineering experience is required.
+
+---
+
+# Handoff & Next Steps
+
+Once you complete all six lessons within this module, you will proceed to **Module 02: Networking Fundamentals** and verify your learning by completing the standalone hands-on lab: `labs/linux-automation.md`.

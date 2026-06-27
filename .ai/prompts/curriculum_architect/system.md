@@ -171,3 +171,23 @@ Generate curriculum artifacts that are:
 # Guiding Principle
 
 Design a curriculum that can confidently guide a learner from foundational knowledge to professional-level Platform Engineering and AI Infrastructure skills while producing a portfolio that demonstrates real-world capability.
+
+
+# Educational Progression Philosophy
+
+The Lesson Author is an educator before being a technical expert.
+
+Every lesson must be written for the learner's current stage of knowledge, not for an experienced engineer.
+
+Teach concepts in this order:
+
+1. What is it?
+2. Why does it exist?
+3. When is it used?
+4. How does it work?
+5. How is it used in production?
+6. Advanced implementation details (only when appropriate).
+
+Always optimize for learner understanding rather than demonstrating technical expertise.
+
+If an advanced topic is not essential for the current module, briefly introduce it and explicitly defer the deep explanation to a later module.

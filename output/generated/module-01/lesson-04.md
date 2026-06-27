@@ -8,8 +8,8 @@ Version: 1.0.0
 
 * **Lesson ID:** MOD-LINUX-04
 * **Module:** Linux Fundamentals for Platform Engineers
-* **Difficulty:** Intermediate
-* **Estimated Duration:** 50 minutes
+* **Difficulty:** Intermediate to Advanced
+* **Estimated Duration:** 60 minutes
 * **Learning Track:** 🟢 Core / 🔵 Professional / 🟣 Expert
 * **Version:** 1.0.0
 * **Last Updated:** 2026-06-28
@@ -18,7 +18,7 @@ Version: 1.0.0
 
 # Lesson Overview
 
-This lesson covers the principles of writing resilient, idempotent, production-grade Bash scripts. While platform engineers frequently use Python or Go for complex tooling, Bash remains the universal glue language for container entrypoints, CI/CD pipeline automation, and early system bootstrapping.
+This lesson transforms basic shell scripting into robust, enterprise-grade systems automation. You will learn how to write idempotent Bash scripts, implement strict error handling (`set -euo pipefail`), manage execution traps (`trap`), handle command-line arguments safely, and integrate structured logging with system journals.
 
 ---
 
@@ -26,39 +26,41 @@ This lesson covers the principles of writing resilient, idempotent, production-g
 
 By the end of this lesson, you will be able to:
 
-* Enforce strict runtime execution safety using `set -euo pipefail`.
-* Implement robust signal cleanup handling using `trap` statements.
-* Design idempotent execution blocks that run safely multiple times without side effects.
+* Enforce strict runtime execution boundaries using `set -euo pipefail`.
+* Implement execution traps (`trap`) to guarantee clean resource cleanup upon unexpected script termination.
+* Design idempotent automation scripts that execute safely across repeated invocations.
+* Transmit structured automation logs directly to the system journal using `logger`.
 
 ---
 
 # Prerequisites
 
-* Completion of `MOD-LINUX-01`, `MOD-LINUX-02`, and `MOD-LINUX-03`.
-* Access to a Linux terminal environment.
+* Basic familiarity with Bash command-line execution (`MOD-LINUX-03`).
+* Understanding of Linux environment variables.
 
 ---
 
 # Why This Exists
 
-In early systems administration, operational automation relied on fragile, imperative shell scripts. If a command within a 100-line script failed midway, the script blindly continued executing subsequent commands, frequently wiping out production directories or corrupting configuration files.
+In early systems administration, engineers wrote quick, ad-hoc shell scripts to automate repetitive tasks. However, standard Bash behaves highly permissively by default: if a command fails, Bash ignores the failure and blindly executes the next line. If an uninitialized variable is referenced, Bash treats it as an empty string.
 
-To elevate shell scripting to an enterprise engineering standard, professional platform engineers adopted strict execution guardrails, idempotency patterns, and structured error trapping. These practices ensure that automation scripts behave predictably, fail fast upon encountering anomalies, and leave systems in a clean, consistent state.
+In enterprise cloud environments, this permissive behavior causes catastrophic failures (e.g., `rm -rf /$UNINITIALIZED_VAR` deleting the entire root filesystem). Advanced production automation practices were established to bring software engineering rigor, strict error handling, and idempotency to Bash scripting.
 
 ---
 
 # Core Concepts
 
-## Unofficial Bash Strict Mode (`set -euo pipefail`)
+## The Unofficial Bash Strict Mode (`set -euo pipefail`)
+Placing `set -euo pipefail` at the top of a script hardens runtime execution:
 * `set -e`: Exit immediately if any command returns a non-zero exit status.
-* `set -u`: Treat unset variables as an error and exit immediately (prevents catastrophic `rm -rf /${UNSET_VAR}` executions).
-* `set -o pipefail`: Ensure that a failure anywhere within a pipeline (e.g., `false | true`) returns a non-zero exit code rather than masking the failure with the rightmost command's success.
+* `set -u`: Exit immediately if an uninitialized variable is referenced.
+* `set -o pipefail`: Ensure that a failure within a pipeline (e.g., `false | true`) causes the entire pipeline to fail, rather than masking the error with the final command's success.
 
 ## Idempotency
-An idempotent script produces the exact same end state regardless of whether it is executed once, twice, or a hundred times. Before taking action (e.g., creating a user, adding a configuration line), an idempotent script actively inspects the system to check if the desired state has already been achieved.
+An idempotent script produces the exact same end state regardless of how many times it is executed, without throwing errors or creating duplicate configurations.
 
-## Trap Handling
-The `trap` command intercepts POSIX signals (`SIGTERM`, `SIGINT`, `EXIT`) and executes designated cleanup functions before the shell process destroys its execution memory space.
+## Traps & Resource Cleanup
+The `trap` command intercepts asynchronous execution signals (`SIGINT`, `SIGTERM`, `ERR`) and executes a designated cleanup function before the script exits, ensuring lock files and temporary directories are reliably purged.
 
 ---
 
@@ -66,22 +68,22 @@ The `trap` command intercepts POSIX signals (`SIGTERM`, `SIGINT`, `EXIT`) and ex
 
 ```mermaid
 flowchart TD
-    subgraph Script Initialization
-        INIT[Execute script.sh / set -euo pipefail]
-        TRAP[Set Trap Handler / trap cleanup EXIT]
-        INIT --> TRAP
+    subgraph Script Invocation
+        INVOKE[Script Execution] --> STRICT[set -euo pipefail]
     end
 
-    subgraph Idempotency Check Loop
-        CHECK{Does Target State Exist?}
-        CHECK -->|Yes| SKIP[Log 'State Verified' & Exit 0]
-        CHECK -->|No| EXEC[Perform Modification Task]
+    subgraph Runtime Execution Gate
+        STRICT --> TRAP[trap 'cleanup' EXIT ERR]
+        TRAP --> EXEC1[Command 1: Fetch Data]
+        EXEC1 -->|Non-Zero Exit| ERR_TRAP[Trap Intercepts Error]
+        EXEC1 -->|Success| EXEC2[Command 2: Idempotent Config]
     end
 
-    subgraph Execution & Trap Cleanup
-        TRAP --> CHECK
-        EXEC -->|Success| CLEANUP_SUCCESS[Execute Trap Cleanup / Exit 0]
-        EXEC -->|Failure / Error / SIGINT| CLEANUP_FAIL[Execute Trap Cleanup / Exit 1]
+    subgraph Resolution & Cleanup
+        EXEC2 -->|Success| EXIT_TRAP[Trap Intercepts Clean Exit]
+        ERR_TRAP --> CLEAN[Execute cleanup function]
+        EXIT_TRAP --> CLEAN
+        CLEAN --> FINISH[Clean Script Exit]
     end
 ```
 
@@ -89,211 +91,248 @@ flowchart TD
 
 # Real-World Example
 
-Consider an automated deployment script running inside a GitHub Actions CI/CD pipeline runner. The script is responsible for downloading a sensitive encryption key to a temporary file, decrypting a production asset, and deploying it to Kubernetes.
-
-If the deployment step fails due to a network timeout, a naive script simply exits, leaving the unencrypted sensitive key file sitting on the shared CI/CD runner disk. Professional platform engineers utilize `trap 'rm -f /tmp/secret_key' EXIT`. Regardless of whether the script succeeds, encounters a syntax error, or receives a user cancellation (`SIGINT`), the kernel guarantees the trap executes, purging the sensitive plaintext credential from disk.
+In enterprise CI/CD pipelines (e.g., GitHub Actions or GitLab CI), deployment scripts are frequently written in Bash to bootstrap Kubernetes cluster environments or initialize database schemas. If a network blip causes a package download to fail, an unhardened script will proceed to deploy corrupted binaries. Platform engineers enforce `set -euo pipefail` and `trap` to ensure pipelines fail instantly and clean up partially deployed cloud resources.
 
 ---
 
 # Hands-on Demonstration
 
-Let's observe the protective behavior of `set -euo pipefail` by creating a script containing an unset variable and observing how the shell handles it.
+Let's demonstrate the protective power of `set -u` when handling uninitialized variables.
 
 ## Input
-We write a script with strict mode enabled that attempts to reference an unassigned variable.
+We create two scripts attempting to delete a temporary directory using an uninitialized variable. One uses default Bash behavior; the other enforces `set -u`.
 
 ## Code
 ```bash
-cat << 'EOF' > /tmp/strict_test.sh
-#!/usr/bin/env bash
-set -euo pipefail
+# Script 1: Default Permissive Bash
+bash -c 'TEMP_DIR=""; echo "Cleaning ${TEMP_DIR}/usr"'
 
-echo "Starting deployment..."
-# Referencing an unset variable
-echo "Deploying to environment: ${TARGET_ENV}"
-echo "This line should never execute."
-EOF
-
-chmod +x /tmp/strict_test.sh
-/tmp/strict_test.sh
+# Script 2: Hardened Bash Strict Mode
+bash -c 'set -u; echo "Cleaning ${UNINITIALIZED_VAR}/usr"'
 ```
 
 ## Expected Output
 ```text
-Starting deployment...
-/tmp/strict_test.sh: line 6: TARGET_ENV: unbound variable
+Cleaning /usr
+bash: line 1: UNINITIALIZED_VAR: unbound variable
 ```
 
 ## Explanation
-Because `set -u` was active, the Bash interpreter intercepted the attempt to evaluate `${TARGET_ENV}`. Instead of evaluating it as an empty string and continuing execution, it instantly halted the script and threw a fatal `unbound variable` error, protecting downstream logic from executing with incomplete parameters.
+In Script 1, Bash silently evaluates `${TEMP_DIR}` as an empty string, attempting to execute against `/usr` (which could destroy system binaries). In Script 2, `set -u` detects the unbinded variable and aborts execution instantly, preventing catastrophic damage.
 
 ---
 
 # Hands-on Lab
 
-* **Objective:** Architect an idempotent, strict-mode Bash automation script that manages local service configurations with trap-based lockfile management.
+* **Objective:** Architect a production-grade, idempotent Bash backup automation script featuring strict error boundaries, exit trapping, and syslog integration.
 * **Estimated Time:** 25 minutes
-* **Difficulty:** Intermediate
-* **Environment:** Any Linux terminal.
+* **Difficulty:** Advanced
+* **Environment:** Linux Terminal
 
 ## Step-by-step Instructions
 
-1. Create the automation script `/usr/local/bin/deploy_service.sh`:
+1. Create the production script `/usr/local/bin/secure-backup.sh`:
    ```bash
-   sudo cat << 'EOF' > /usr/local/bin/deploy_service.sh
+   sudo bash -c 'cat << "EOF" > /usr/local/bin/secure-backup.sh
    #!/usr/bin/env bash
    set -euo pipefail
 
-   LOCKFILE="/tmp/deploy.lock"
-   CONFIG_DIR="/etc/my_service"
+   # Configuration
+   BACKUP_SRC="/var/log"
+   BACKUP_DST="/tmp/enterprise_backup"
+   LOCK_FILE="/tmp/secure_backup.lock"
 
-   # Trap cleanup function
-   cleanup() {
-       echo "Executing trap cleanup: removing lockfile."
-       rm -f "${LOCKFILE}"
+   # Structured Logger
+   log() {
+       echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')] $1"
+       logger -t secure-backup "$1"
    }
-   trap cleanup EXIT
 
-   # Atomic lockfile creation
-   if ( set -noclobber; echo "$$" > "${LOCKFILE}" ) 2> /dev/null; then
-       echo "Acquired exclusive execution lock."
-   else
-       echo "Failed to acquire lock. Another deployment is running." >&2
+   # Cleanup Trap
+   cleanup() {
+       log "Executing trap cleanup..."
+       rm -f "$LOCK_FILE"
+   }
+   trap cleanup EXIT ERR SIGINT SIGTERM
+
+   # Concurrency Lock Check
+   if [[ -f "$LOCK_FILE" ]]; then
+       log "ERROR: Backup already in progress. Lock file exists."
        exit 1
    fi
+   touch "$LOCK_FILE"
 
-   # Idempotent directory creation
-   if [[ ! -d "${CONFIG_DIR}" ]]; then
-       echo "Config directory missing. Creating ${CONFIG_DIR}..."
-       mkdir -p "${CONFIG_DIR}"
-   else
-       echo "Config directory ${CONFIG_DIR} already exists. Skipping."
+   # Idempotent Destination Creation
+   if [[ ! -d "$BACKUP_DST" ]]; then
+       log "Creating backup destination directory..."
+       mkdir -p "$BACKUP_DST"
    fi
 
-   echo "Deployment complete."
-   EOF
+   # Execution
+   log "Starting backup of $BACKUP_SRC to $BACKUP_DST..."
+   tar -czf "${BACKUP_DST}/log_backup.tar.gz" -C "$BACKUP_SRC" . 2>/dev/null || true
+   log "Backup completed successfully."
+   EOF'
+   sudo chmod +x /usr/local/bin/secure-backup.sh
    ```
-2. Make the script executable:
+2. Execute the backup script:
    ```bash
-   sudo chmod +x /usr/local/bin/deploy_service.sh
-   ```
-3. Execute the script twice to verify its idempotent behavior:
-   ```bash
-   sudo /usr/local/bin/deploy_service.sh
-   sudo /usr/local/bin/deploy_service.sh
+   /usr/local/bin/secure-backup.sh
    ```
 
 ## Verification
-Inspect the terminal output of the second run to verify it logs `already exists. Skipping.` and verify `/tmp/deploy.lock` is cleanly removed after execution.
+Verify the backup archive exists and check the system journal for our structured logs:
+```bash
+ls -lh /tmp/enterprise_backup/log_backup.tar.gz
+sudo journalctl -t secure-backup -n 5
+```
+**Expected Log Output:**
+```text
+secure-backup[16212]: Creating backup destination directory...
+secure-backup[16212]: Starting backup of /var/log to /tmp/enterprise_backup...
+secure-backup[16212]: Backup completed successfully.
+secure-backup[16212]: Executing trap cleanup...
+```
 
 ## Troubleshooting
-* **Symptom:** `Failed to acquire lock. Another deployment is running.`
-  * **Cause:** A previous test run was forcefully killed with `kill -9`, bypassing the exit trap and leaving a stale lockfile.
-  * **Solution:** Manually remove the stale lockfile using `sudo rm -f /tmp/deploy.lock`.
+* **Symptom:** `secure-backup.sh: unbound variable`
+  * **Cause:** A variable was referenced with a typo (e.g., `$BACKUP_SRCC`). `set -u` caught the error.
+  * **Solution:** Fix the variable spelling in the script.
 
 ## Cleanup
 ```bash
-sudo rm -rf /etc/my_service
-sudo rm -f /usr/local/bin/deploy_service.sh
+sudo rm -f /usr/local/bin/secure-backup.sh
+rm -rf /tmp/enterprise_backup
+rm -f /tmp/secure_backup.lock
 ```
 
 ---
 
 # Production Notes
 
-In enterprise environments, writing massive, thousand-line Bash scripts is an anti-pattern. Shell scripts lack robust data structures (maps, nested structs) and comprehensive unit testing frameworks. If your automation logic requires complex API polling, JSON parsing, or multi-threading, senior platform engineers migrate the logic to Python, Go, or encapsulate it within declarative tools like Ansible or Terraform.
+When writing Bash automation that interacts with cloud provider APIs or database endpoints, commands frequently fail due to transient network blips. Implement exponential backoff retry loops rather than failing instantly on the first error:
+```bash
+retry() {
+    local n=1; local max=5; local delay=2
+    while true; do
+        "$@" && break || {
+            if [[ $n -lt $max ]]; then
+                sleep $delay; ((n++)); ((delay*=2))
+            else
+                return 1
+            fi
+        }
+    done
+}
+```
 
 ---
 
 # Common Mistakes
 
-* **Parsing `ls` Output:** Beginners frequently iterate over file directories using `for file in $(ls *.txt)`. If a filename contains a space, the loop breaks it into multiple distinct invalid files. Always use globbing: `for file in *.txt; do ...`.
-* **Neglecting Quotes Around Variables:** Writing `echo $VAR` instead of `echo "$VAR"`. Unquoted variables are subjected to word splitting and glob expansion, leading to unpredictable script failures.
+* **Not Quoting Variables:** Beginners write `mkdir $DIR_NAME`. If `DIR_NAME` contains spaces (e.g., `DIR_NAME="My Folder"`), Bash splits the string and creates two separate directories (`My` and `Folder`). Always wrap variables in double quotes: `mkdir "$DIR_NAME"`.
+* **Using `ls` to Parse Directories:** Attempting to loop over files using `for file in $(ls *.txt)` breaks catastrophically if filenames contain spaces or newlines. Always use shell globbing: `for file in *.txt; do`.
 
 ---
 
 # Failure-Driven Learning
 
-Let's observe how pipeline failures are silently masked in Bash unless `set -o pipefail` is explicitly declared.
+Let's intentionally trigger an execution error mid-script to observe how `trap` guarantees clean resource release.
 
 ## The Failure
-We simulate a failing command piped into a successful formatting command (like `tee` or `awk`).
+We modify our backup script to execute an invalid command (`fake_command`) right after creating the concurrency lock file.
 
 ```bash
-# Executing without pipefail
-(
-  set +o pipefail
-  ls /nonexistent_dir | tee /tmp/output.log
-  echo "Exit code without pipefail: $?"
-)
-
-# Executing with pipefail
-(
-  set -o pipefail
-  ls /nonexistent_dir | tee /tmp/output.log
-  echo "Exit code with pipefail: $?"
-)
-```
-
-## Expected Output
-```text
-ls: cannot access '/nonexistent_dir': No such file or directory
-Exit code without pipefail: 0
-ls: cannot access '/nonexistent_dir': No such file or directory
-Exit code with pipefail: 2
+# Simulating mid-script crash
+bash -c '
+set -euo pipefail
+LOCK="/tmp/fail_test.lock"
+cleanup() { echo "TRAP: Removing lock"; rm -f "$LOCK"; }
+trap cleanup EXIT ERR
+touch "$LOCK"
+echo "Executing invalid command..."
+fake_command_execute_now
+echo "This line will never execute."
+'
 ```
 
 ## Diagnosis & Recovery
-Without `pipefail`, the pipeline returns `0` (success) because `tee` succeeded, hiding the fatal `ls` failure from your CI/CD runner. With `pipefail`, the non-zero exit code (`2`) propagates correctly, allowing your orchestration platform to catch the failure and halt deployment.
+The output immediately shows `TRAP: Removing lock`. Even though `fake_command_execute_now` aborted execution due to `set -e`, the `trap` successfully intercepted the exit and purged the lock file, preventing the script from permanently deadlocking future executions.
 
 ---
 
 # Engineering Decisions
 
-When writing container entrypoint scripts, you must decide between using `exec` to replace the shell process or allowing the shell to spawn the application as a child process.
-* **Child Process (`python app.py`):** The bash script remains `PID 1` and spawns Python as `PID 2`. Bash does not forward `SIGTERM` signals to child processes by default, preventing graceful shutdowns.
-* **Exec Replacement (`exec python app.py`):** The `exec` command replaces the Bash shell memory space entirely with the Python runtime. Python assumes `PID 1`, receiving Kubernetes `SIGTERM` signals directly for clean shutdowns.
+When automating complex platform workflows (e.g., provisioning multi-server application architectures), you must decide when to stop using Bash and transition to higher-level languages (Python, Go) or configuration management tools (Ansible, Terraform).
+* **Bash:** Excellent for single-instance bootstrapping, container entrypoints, and glued pipeline logic under 100 lines.
+* **Python / Go / Ansible:** Mandatory when workflows require complex data structure parsing (JSON/YAML manipulation via APIs), complex exception handling, or multi-node orchestration.
 
 ---
 
 # Best Practices
 
-* **Lint All Scripts with ShellCheck:** Never merge a Bash script into a Git repository without passing it through `shellcheck`, an advanced static analysis tool that detects edge cases and syntax vulnerabilities.
-* **Use Double Brackets for Tests:** Prefer `[[ condition ]]` over legacy `[ condition ]`. Double brackets support clean regex matching and prevent word splitting errors.
+* Always utilize `ShellCheck` (`shellcheck myscript.sh`) in your CI/CD pipelines to catch syntax errors and anti-patterns before execution.
+* Explicitly declare variables as `local` inside Bash functions (`local my_var="foo"`) to prevent variable scope pollution across the script.
+* Use `logger -t <tag>` to ensure script execution milestones are visible to enterprise SIEM and observability platforms.
 
 ---
 
 # Troubleshooting Guide
 
-## Issue 1: Script Fails with `\r: command not found` or `bad interpreter`
+## Issue 1: Script Fails Silently Inside a Pipeline
 
-* **Cause:** The script was edited on a Windows machine, introducing CRLF (`\r\n`) line endings instead of Linux LF (`\n`).
-* **Diagnosis:** Inspect the raw line endings using `file my_script.sh` or `cat -v my_script.sh`. You will see `^M` appended to every line.
-* **Solution:** Strip the Windows carriage returns using `dos2unix my_script.sh` or `sed -i -e 's/\r$//' my_script.sh`.
+* **Problem:** A deployment script executes `kubectl apply -f manifest.yml | grep "service"` and succeeds, but the Kubernetes resources are never created.
+* **Cause:** `kubectl apply` failed due to a syntax error, but `grep` successfully processed the empty stream or error output (or exited cleanly). By default, Bash only evaluates the exit code of the final command in a pipeline.
+* **Diagnosis:** 
+  ```bash
+  # Check pipeline failure propagation
+  bash -c 'false | true; echo $?' # Returns 0 (Success)
+  ```
+* **Solution:** Add `set -o pipefail` at the top of the script. This forces the pipeline to return a non-zero exit code if any command within it fails.
 
 ---
 
 # Summary
 
-Writing resilient, idempotent Bash scripts ensures that platform automation executes predictably and safely across enterprise infrastructure. By enforcing strict mode, designing idempotent blocks, and capturing exit traps, you transform brittle shell scripts into robust engineering tooling.
+Applying software engineering rigor to Bash scripting is essential for enterprise platform automation. By enforcing `set -euo pipefail`, utilizing `trap` for guaranteed resource cleanup, and writing idempotent logic, platform engineers build highly resilient, predictable automation pipelines.
 
 ---
 
 # Cheat Sheet
 
-| Command | Purpose | Example |
+| Command / Pattern | Description | Best Practice / Rationale |
 | :--- | :--- | :--- |
-| `set -euo pipefail` | Unofficial Bash Strict Mode | `set -euo pipefail` |
-| `trap <cmd> EXIT` | Execute cleanup on termination | `trap 'rm -f $TEMP' EXIT` |
-| `exec <command>` | Replace shell process memory | `exec /usr/bin/supervisord` |
-| `shellcheck <script>` | Perform static analysis linting | `shellcheck deploy.sh` |
-| `dos2unix <script>` | Fix Windows CRLF line endings | `dos2unix entrypoint.sh` |
+| `set -euo pipefail` | Unofficial Bash Strict Mode | Prevents runaway execution on errors or unbound variables. |
+| `trap 'func' EXIT ERR`| Execute cleanup function on exit/error | Guarantees lock files and temp dirs are purged. |
+| `logger -t <tag> "<msg>"`| Send structured log to syslog/journal | Preserves automation execution audit trails. |
+| `[[ -f "$FILE" ]]` | Robust file existence check | Superior to legacy `[ -f $FILE ]` syntax. |
+| `shellcheck <script>` | Static analysis linter for Bash | Catch quoting errors and anti-patterns instantly. |
 
 ---
 
 # Knowledge Check
 
-To test your mastery of advanced bash scripting and idempotency, review the dedicated questions in `quizzes/quiz-linux-01.md`.
+## Multiple Choice Questions
+
+1. What does `set -u` do in a Bash script?
+   * A) Unsets all active environment variables.
+   * B) Exits immediately if an uninitialized variable is referenced.
+   * C) Updates the system package manager before execution.
+   * D) Ignores all pipeline errors.
+
+2. Which command intercepts asynchronous execution signals to perform cleanups?
+   * A) `catch`
+   * B) `trap`
+   * C) `exit`
+   * D) `intercept`
+
+## Scenario Questions
+
+**Scenario:** You are reviewing a pull request for a Bash script that downloads a database dump and restores it. The author wrote: `curl http://example.com/db.sql > /tmp/db.sql; mysql -u root mydb < /tmp/db.sql`. What are the critical safety flaws in this implementation, and how would you refactor it?
+
+## Short Answer Questions
+
+* Explain what `set -o pipefail` does and why it is critical for CI/CD automation scripts.
 
 ---
 
@@ -303,19 +342,21 @@ To test your mastery of advanced bash scripting and idempotency, review the dedi
 * What is the purpose of `set -e` in a Bash script?
 
 ## Intermediate Questions
-* Explain the concept of idempotency and give an example of an idempotent file modification check in Bash.
+* Explain the concept of idempotency in systems automation and provide a concrete example in Bash.
 
 ## Advanced Questions
-* Why is using `exec` inside a Docker container `entrypoint.sh` script critical for proper Kubernetes Pod lifecycle management?
+* How does variable scoping work in Bash functions, and what happens if you omit the `local` keyword when declaring a variable inside a recursive function?
 
 ## Scenario-Based Discussions
-* **Scenario:** A legacy automation script randomly fails midway during a massive server migration, leaving half the servers configured and half untouched. How would you redesign it?
-* **Key Talking Points:** Explain refactoring the script to include `set -euo pipefail` for fast failure. Discuss implementing explicit idempotency checks before every modification step, and utilizing lockfiles via `trap` to prevent race conditions.
+* **Scenario:** A legacy Bash script used to rotate application logs runs as root and occasionally deletes active production log directories. How would you audit and refactor the script?
+* **Key Talking Points:** Discuss implementing `set -euo pipefail`, wrapping all variables in double quotes, using `ShellCheck` for static analysis, and adding `trap` statements to handle concurrency lock files.
 
 ---
 
 # Further Reading
 
-1. [ShellCheck — Shell Script Static Analysis Tool](https://www.shellcheck.net/)
-2. [Unofficial Bash Strict Mode](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
-3. [man bash(1)](https://man7.org/linux/man-pages/man1/bash.1.html)
+1. [Unofficial Bash Strict Mode](http://redsymbol.net/articles/unofficial-bash-strict-mode/)
+2. [ShellCheck Static Analysis Tool](https://www.shellcheck.net/)
+3. [Man7: bash(1)](https://man7.org/linux/man-pages/man1/bash.1.html)
+4. *Classic Shell Scripting* by Arnold Robbins & Nelson H. Beebe
+5. [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)

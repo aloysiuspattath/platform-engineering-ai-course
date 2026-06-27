@@ -1,4 +1,4 @@
-# MOD-LINUX-06: Linux Networking, Socket States & Kernel Firewalling
+# MOD-LINUX-06: Enterprise Linux Security, Cgroups & Capability Hardening
 
 Version: 1.0.0
 
@@ -8,9 +8,9 @@ Version: 1.0.0
 
 * **Lesson ID:** MOD-LINUX-06
 * **Module:** Linux Fundamentals for Platform Engineers
-* **Difficulty:** Advanced
-* **Estimated Duration:** 55 minutes
-* **Learning Track:** 🟢 Core / 🔵 Professional / 🟣 Expert
+* **Difficulty:** Advanced to Expert
+* **Estimated Duration:** 60 minutes
+* **Learning Track:** 🔵 Professional / 🟣 Expert
 * **Version:** 1.0.0
 * **Last Updated:** 2026-06-28
 
@@ -18,7 +18,7 @@ Version: 1.0.0
 
 # Lesson Overview
 
-This lesson bridges the gap between local operating system fundamentals and advanced cloud networking. We explore Linux network namespaces, socket state analysis, routing tables, and kernel firewalling via Netfilter. As a platform engineer, mastering Linux networking internals is mandatory for understanding Docker bridge networking, Kubernetes CNI plugins, and service mesh sidecars.
+This capstone lesson explores the advanced kernel security boundaries that make modern containerization (Docker/Kubernetes) and secure platform engineering possible. You will learn how to restrict resource consumption using Linux Control Groups (`cgroups v2`), isolate execution environments using Kernel Namespaces, and break apart monolithic root privileges using Linux Capabilities (`setcap`, `getcap`).
 
 ---
 
@@ -26,37 +26,40 @@ This lesson bridges the gap between local operating system fundamentals and adva
 
 By the end of this lesson, you will be able to:
 
-* Inspect active network sockets and TCP connection states using `ss`.
-* Modify IP addresses, virtual links, and routing tables using the `ip` route suite.
-* Explain the underlying mechanics of Linux Network Namespaces (`netns`) and Virtual Ethernet pairs (`veth`).
+* Configure Linux Control Groups (`cgroups v2`) to throttle CPU and memory resource consumption for running process trees.
+* Identify and inspect active Kernel Namespaces (`pid`, `net`, `mnt`) using `lsns` and `nsenter`.
+* Dismantle monolithic root privileges by assigning fine-grained Linux Capabilities (`setcap`) to application binaries.
 
 ---
 
 # Prerequisites
 
-* Completion of `MOD-LINUX-01` through `MOD-LINUX-05`.
-* Access to a Linux terminal with `iproute2` installed.
+* Mastery of Linux Process Management (`MOD-LINUX-03`).
+* Understanding of Discretionary Access Control (`MOD-LINUX-02`).
 
 ---
 
 # Why This Exists
 
-Early server networking operated on a globally shared network stack. A physical machine possessed a single routing table, a single set of firewall rules, and a single pool of port numbers (1 to 65535). If two independent applications attempted to bind to port `8080`, a fatal collision occurred.
+For decades, Linux security relied on a binary privilege model: you were either a standard user with limited rights, or you were `root` (UID 0) with god-like, unrestricted access to the entire machine. If a web server needed to bind to a privileged port (e.g., port `80` or `443`), it had to run as root. If the web server was compromised, the attacker gained total control of the host.
 
-To enable multi-tenant virtualization and containerization, the Linux kernel introduced **Network Namespaces (`netns`)**. A network namespace overhead provides an isolated replica of the entire network stack—complete with its own private routing tables, firewall rules, loopback devices, and interface bindings. This isolation enables thousands of independent containers to run on a single host without port collisions.
+To solve this fatal architectural flaw, the Linux kernel introduced three revolutionary isolation mechanisms: **Linux Capabilities** (breaking root into granular permissions), **Namespaces** (isolating what a process can see), and **Control Groups / Cgroups** (isolating what a process can use). These three technologies form the exact foundation of modern container virtualization.
 
 ---
 
 # Core Concepts
 
-## Network Namespaces (`netns`)
-A kernel feature that isolates network communication. Every container created by Docker or Kubernetes executes inside its own dedicated network namespace, appearing to possess its own private network stack.
+## Linux Capabilities
+Capabilities decompose the god-like privileges of `root` into 40+ distinct, granular permissions. For example, `CAP_NET_BIND_SERVICE` allows a binary to bind to port 80 without granting any other root privileges. `CAP_SYS_ADMIN` is the most powerful capability (often equated to full root).
 
-## Virtual Ethernet Pairs (`veth`)
-Because a network namespace is completely isolated, it cannot communicate with the outside world by default. A **`veth` pair** acts as a virtual wire connecting two network namespaces (e.g., connecting a container's private namespace back to the host's root network bridge).
+## Kernel Namespaces
+Namespaces wrap a global system resource in an isolated abstraction, making it appear to a process that it has its own dedicated instance of the system.
+* **PID Namespace:** Isolates the process ID table (a container sees itself as PID 1).
+* **NET Namespace:** Isolates network interfaces, routing tables, and firewall rules.
+* **MNT Namespace:** Isolates filesystem mount points.
 
-## Netfilter & `iptables` / `nftables`
-Netfilter is the kernel packet filtering framework. It intercepts incoming and outgoing network packets at explicit hook points (`PREROUTING`, `FORWARD`, `POSTROUTING`), allowing tools like `iptables` to perform Network Address Translation (NAT), port forwarding, and packet dropping.
+## Control Groups (`cgroups v2`)
+While namespaces govern what a process can *see*, cgroups govern what a process can *use*. Cgroups form a hierarchical tree structure (`/sys/fs/cgroup`) that meters and caps CPU time, physical memory, and disk I/O for groups of processes.
 
 ---
 
@@ -64,26 +67,26 @@ Netfilter is the kernel packet filtering framework. It intercepts incoming and o
 
 ```mermaid
 flowchart TD
-    subgraph Root Network Namespace / Host Machine
-        NIC[Physical NIC / eth0: 192.168.1.50]
-        BR[Virtual Bridge / docker0: 172.17.0.1]
-        VETH_HOST[veth_host / Virtual Port]
-        
-        NIC -->|NAT / IP Forwarding| BR
-        BR --> VETH_HOST
+    subgraph Traditional Monolithic Root
+        ROOT[Root UID 0] -->|Unrestricted Access| ALL[Total Host Compromise]
     end
 
-    subgraph Virtual Ethernet Pair / veth
-        WIRE((Virtual Wire / veth pair))
-        VETH_HOST <--> WIRE
+    subgraph Modern Kernel Hardening Boundaries
+        APP[Application Binary / Container]
+        
+        SUB_CAP[Linux Capabilities]
+        SUB_NS[Kernel Namespaces]
+        SUB_CG[Control Groups cgroups v2]
+
+        APP -->|Setcap: CAP_NET_BIND_SERVICE| SUB_CAP
+        APP -->|Isolated PID / NET / MNT| SUB_NS
+        APP -->|Memory Limit: 500M| SUB_CG
     end
 
-    subgraph Container Network Namespace / netns_app
-        VETH_CONT[eth0 / 172.17.0.2]
-        APP[Python Web Service / Port 8080]
-        
-        WIRE <--> VETH_CONT
-        VETH_CONT --> APP
+    subgraph Hardware Execution Gate
+        SUB_CAP -->|Bind Port 443| PORT[Network Interface]
+        SUB_NS -->|Restricted View| VFS[Virtual View]
+        SUB_CG -->|Enforce Throttling| RAM[Physical Memory / CPU]
     end
 ```
 
@@ -91,196 +94,223 @@ flowchart TD
 
 # Real-World Example
 
-Consider a Kubernetes worker node hosting dozens of microservice Pods. When an external user sends an HTTPS request to your application's Kubernetes Service IP, the physical node intercepts the request.
-
-How does the physical node know which specific container to route the traffic toward? The Kubernetes `kube-proxy` daemon configures Linux Netfilter rules (`iptables` or IPVS) in the root network namespace. These rules perform a Destination NAT (`DNAT`), rewriting the external target IP to the container's private Virtual Ethernet (`veth`) IP address, seamlessly bridging physical hardware with containerized User Space.
+When you define `resources.limits.memory: 512Mi` in a Kubernetes Pod manifest, Kubernetes does not magically constrain the Java or Python application. Instead, the container runtime (`containerd` / `crio`) translates that manifest configuration into a direct kernel cgroup declaration inside `/sys/fs/cgroup/kubepods.slice/.../memory.max`. When the application breaches 512MB, the kernel cgroup mechanism instantly executes an OOM-Kill.
 
 ---
 
 # Hands-on Demonstration
 
-Let's observe how to query active sockets and inspect local routing tables using `ss` and `ip`.
+Let's demonstrate how to grant a non-root binary the ability to bind to a privileged system port using Linux Capabilities.
 
 ## Input
-We utilize `ss` to list active listening TCP sockets, and `ip route` to display the kernel's routing decisions.
+We attempt to launch a Python web server on port `80` as a standard user, observe access rejection, apply `CAP_NET_BIND_SERVICE` using `setcap`, and verify successful binding.
 
 ## Code
 ```bash
-# List all listening TCP sockets with numerical addresses and process names
-sudo ss -tulpn
+# Copy python binary to local directory to avoid modifying system-wide binaries
+cp /usr/bin/python3 ./my_py_server
 
-# Display the main kernel routing table
-ip route show
+# Attempt to bind to privileged port 80 as a standard user
+./my_py_server -m http.server 80 2>&1 | grep "Permission denied" || true
+
+# Assign CAP_NET_BIND_SERVICE capability to the binary using sudo
+sudo setcap 'cap_net_bind_service=+ep' ./my_py_server
+
+# Verify capability assignment
+getcap ./my_py_server
 ```
 
 ## Expected Output
 ```text
-Netid  State   Recv-Q  Send-Q     Local Address:Port      Peer Address:Port  Process
-tcp    LISTEN  0       128              0.0.0.0:22             0.0.0.0:*      users:(("sshd",pid=912,fd=3))
-default via 192.168.1.1 dev eth0 proto dhcp metric 100
-192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.50 metric 100
+Permission denied
+./my_py_server = cap_net_bind_service+ep
 ```
 
 ## Explanation
-`ss -tulpn` inspects kernel socket tables directly, revealing that `sshd` (`PID 912`) is actively listening on `0.0.0.0:22`. `ip route show` confirms that any outbound traffic not matching the local subnet (`192.168.1.0/24`) is routed out through `eth0` toward the default gateway `192.168.1.1`.
+Standard users cannot bind to ports below `1024`. By applying `cap_net_bind_service=+ep` (`e` = effective, `p` = permitted), the kernel grants `./my_py_server` the precise authority to bind to port 80 without requiring `sudo` or elevating the process UID to 0.
 
 ---
 
 # Hands-on Lab
 
-* **Objective:** Create an isolated Linux network namespace, establish a Virtual Ethernet (`veth`) pair, and verify ping connectivity across namespace boundaries.
-* **Estimated Time:** 25 minutes
+* **Objective:** Interrogate active kernel namespaces using `lsns`, inspect running cgroup v2 hierarchies, and utilize `nsenter` to inject a debugging shell directly into an isolated process namespace.
+* **Estimated Time:** 30 minutes
 * **Difficulty:** Advanced
-* **Environment:** Any Linux terminal with `root` / `sudo` privileges.
+* **Environment:** Linux Terminal with sudo/root access
 
 ## Step-by-step Instructions
 
-1. Create a new isolated network namespace named `netns_lab`:
+1. Verify your Linux instance is utilizing `cgroups v2` by checking the filesystem mount type:
    ```bash
-   sudo ip netns add netns_lab
+   stat -fc %T /sys/fs/cgroup
    ```
-2. Create a virtual ethernet (`veth`) pair connecting `veth_host` to `veth_lab`:
+   *(Expected output: `cgroup2fs`. If `tmpfs` is returned, you are on legacy cgroups v1).*
+2. Create an isolated background process running in a new PID and Network namespace using `unshare`:
    ```bash
-   sudo ip link add veth_host type veth peer name veth_lab
+   sudo unshare --pid --net --fork --mount-proc bash -c 'sleep 3600' &
+   UNSHARE_PID=$!
    ```
-3. Move `veth_lab` into the isolated network namespace:
+3. Use `lsns` to identify the specific isolated namespaces assigned to the `sleep` process:
    ```bash
-   sudo ip link set veth_lab netns netns_lab
+   sudo lsns -p $UNSHARE_PID
    ```
-4. Assign IP addresses and bring the virtual interfaces online:
+4. Use `nsenter` to inject a fresh terminal shell directly into the isolated network namespace of the target process, and verify it cannot see the host network interfaces:
    ```bash
-   sudo ip addr add 10.100.0.1/24 dev veth_host
-   sudo ip link set veth_host up
-   sudo ip netns exec netns_lab ip addr add 10.100.0.2/24 dev veth_lab
-   sudo ip netns exec netns_lab ip link set veth_lab up
-   ```
-5. Verify connectivity by pinging across the virtual wire:
-   ```bash
-   sudo ip netns exec netns_lab ping -c 3 10.100.0.1
+   sudo nsenter -t $UNSHARE_PID --net ip a
    ```
 
 ## Verification
-Inspect the successful ping responses confirming packets successfully traversed from `netns_lab` (`10.100.0.2`) across the `veth` pair to the root host namespace (`10.100.0.1`).
+Verify that `nsenter --net ip a` outputs only the isolated loopback interface (`lo`), proving the process is completely isolated from the host's physical network cards:
+```text
+1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+```
 
 ## Troubleshooting
-* **Symptom:** `Cannot create namespace file /var/run/netns/netns_lab: Permission denied`
-  * **Cause:** You attempted to execute `ip netns` without `sudo`. Modifying kernel namespaces requires `root` elevation.
-  * **Solution:** Prefix all commands with `sudo`.
+* **Symptom:** `unshare: Operation not permitted`
+  * **Cause:** Your terminal session lacks `CAP_SYS_ADMIN` privileges or is running inside an unprivileged container.
+  * **Solution:** Ensure you execute `unshare` with `sudo`.
 
 ## Cleanup
 ```bash
-sudo ip netns delete netns_lab
-sudo ip link delete veth_host 2>/dev/null || true
+sudo kill -9 $UNSHARE_PID 2>/dev/null || true
+rm -f ./my_py_server
 ```
 
 ---
 
 # Production Notes
 
-In enterprise Kubernetes environments, manually creating `veth` pairs and configuring `iptables` rules is completely automated by Container Network Interface (CNI) plugins like Calico, Cilium, or Flannel. Advanced CNI plugins like Cilium bypass legacy Netfilter/`iptables` entirely, leveraging eBPF (Extended Berkeley Packet Filter) to attach high-performance routing programs directly to kernel socket layers.
+When architecting secure Kubernetes clusters, senior platform engineers strictly forbid running containers with `securityContext.privileged: true`. A privileged container bypasses cgroups, inherits `CAP_SYS_ADMIN`, and shares the host's root namespaces. If an attacker compromises a privileged container, they can execute `nsenter -t 1 -m -u -n -i sh` to gain instant root shell access to the underlying Kubernetes worker node.
 
 ---
 
 # Common Mistakes
 
-* **Using Legacy `netstat` and `ifconfig`:** Beginners continue using `netstat` and `ifconfig`. These tools belong to the obsolete `net-tools` suite; they parse `/proc` synchronously and perform poorly on systems with thousands of container sockets. Always use `ss` and `ip`, which communicate directly with the kernel via Netlink sockets.
-* **Overlooking IP Forwarding:** When setting up a Linux router or container bridge, beginners wonder why packets fail to route between interfaces. Linux disables packet forwarding by default; you must explicitly enable it via `sysctl -w net.ipv4.ip_forward=1`.
+* **Equating `root` inside a container to `root` on the host:** Beginners assume a container running as root (UID 0) has full host access. In a properly hardened container runtime, the kernel strips powerful capabilities (`CAP_SYS_ADMIN`, `CAP_NET_ADMIN`, `CAP_SYS_MODULE`) from the container's bounding set, rendering container-root significantly less powerful than host-root.
+* **Using `setcap` on interpreted scripts:** You cannot execute `setcap` directly on a Python or Bash script (`setcap ... myscript.py`). Capabilities can only be assigned to compiled binary executables (e.g., `/usr/bin/python3`).
 
 ---
 
 # Failure-Driven Learning
 
-Let's observe how the kernel handles packets attempting to traverse an unforwarded network interface.
+Let's simulate an application crashing due to missing capabilities and observe the audit debugging path.
 
 ## The Failure
-We simulate an inspection of kernel routing failure when IP forwarding is disabled.
+We attempt to execute a network packet capture using `tcpdump` as a standard user without `sudo` or capabilities.
 
 ```bash
-# Inspecting current IP forwarding state
-sysctl net.ipv4.ip_forward
-
-# If set to 0, incoming packets targeting an external subnet are dropped by the kernel.
-```
-
-## Expected Output
-```text
-net.ipv4.ip_forward = 0
+# Attempt packet capture as non-root
+tcpdump -c 1 -i any 2>&1 | grep "Permission denied" || true
+# tcpdump: any: You don't have permission to capture on that device
 ```
 
 ## Diagnosis & Recovery
-When `ip_forward` is `0`, the Netfilter framework drops packets at the `FORWARD` chain hook point. To diagnose this in production, inspect dropped packet counters using `netstat -s | grep -i drop` or `iptables -nvL FORWARD`. Recover by executing `sudo sysctl -w net.ipv4.ip_forward=1` and persisting it in `/etc/sysctl.conf`.
+To diagnose which exact capability was blocked by the kernel during an execution failure, platform engineers interrogate the kernel audit log (`auditd` / `journalctl`):
+```bash
+sudo journalctl -k | grep -i "audit" | grep "capability" || true
+```
+Recover by assigning `CAP_NET_RAW` and `CAP_NET_ADMIN` to the target binary using `setcap`.
 
 ---
 
 # Engineering Decisions
 
-When architecting service meshes or container networking, you must decide between `iptables`-based routing and eBPF-based routing.
-* **`iptables` / Netfilter:** Highly compatible and universally supported, but evaluates packet rules sequentially. In Kubernetes clusters with 10,000 services, sequential rule evaluation introduces significant network latency.
-* **eBPF (Cilium):** High performance, executes bytecode directly in the kernel socket layer, providing O(1) lookup speeds regardless of cluster size, but requires modern Linux kernel versions (5.4+).
+When hardening enterprise container images, you must decide between running containers as a completely non-root user (`USER 10001`) or running as root but dropping all Linux capabilities (`securityContext.capabilities.drop: ["ALL"]`).
+* **Non-Root User:** Industry gold standard; ensures zero chance of privilege escalation; requires pre-configuring filesystem permissions during image build.
+* **Root with Dropped Capabilities:** Useful for legacy applications that hardcode root checks but do not actually require underlying kernel capabilities.
 
 ---
 
 # Best Practices
 
-* **Always Filter `ss` Output:** On production AI inference servers or API gateways, running `ss -a` will flood your terminal with tens of thousands of `TIME-WAIT` sockets. Use `ss -tulpn` to isolate listening servers.
-* **Persist Route Changes:** Remember that manual `ip route add` commands are stored strictly in volatile memory. Always persist custom routing rules in your Linux distribution's declarative networking config (`netplan` or `NetworkManager`).
+* Drop `CAP_NET_RAW` from all Kubernetes Pod manifests by default to prevent attackers from executing ARP spoofing or ping floods inside the cluster network.
+* Utilize `cgroups v2` memory throttling (`memory.high`) rather than strict kill limits (`memory.max`) to allow applications time to gracefully shed load before an OOM Kill.
+* Audit system binaries with elevated capabilities regularly using `getcap -r / 2>/dev/null`.
 
 ---
 
 # Troubleshooting Guide
 
-## Issue 1: High Connection Refused Errors but Service is Running
+## Issue 1: High Latency due to Cgroup CPU Throttling (`CFS Quota`)
 
-* **Cause:** The service is actively running but bound strictly to `127.0.0.1` (localhost) rather than `0.0.0.0` (all interfaces).
-* **Diagnosis:** Execute `ss -tulpn | grep <port>`. If the `Local Address:Port` displays `127.0.0.1:8080`, the kernel will reject all external packets arriving on physical NICs (`eth0`).
-* **Solution:** Modify your application's configuration file to bind to `0.0.0.0:8080` and restart the service via `systemctl restart my_app.service`.
+* **Problem:** A production Go or Node.js microservice running in Kubernetes is experiencing severe latency spikes, yet `top` inside the container shows CPU usage is only at 40%.
+* **Cause:** The Kubernetes Pod was assigned a strict CPU limit (e.g., `limits.cpu: 500m`). The kernel's Completely Fair Scheduler (CFS) enforces this via cgroups by giving the process a 50ms execution quota per 100ms period. If the multi-threaded application burns through its 50ms quota in the first 20ms, the kernel forcefully throttles (freezes) the process for the remaining 80ms.
+* **Diagnosis:** 
+  ```bash
+  # Interrogate cgroup v2 CPU stat virtual files for throttle metrics
+  cat /sys/fs/cgroup/kubepods.slice/.../cpu.stat | grep "throttled"
+  ```
+  *(If `nr_throttled` and `throttled_time` are scaling rapidly, the kernel is freezing your application).*
+* **Solution:** Remove CPU limits from the Pod manifest (retaining only CPU requests) or increase the quota allocation, allowing the application to utilize burst CPU cycles on the worker node.
 
 ---
 
 # Summary
 
-Understanding Linux network namespaces, virtual ethernet pairs, and socket states gives platform engineers the foundational clarity required to demystify complex container networking architectures. By treating networking as an inspectable kernel subsystem, you can confidently debug packet flow from the physical NIC to the containerized microservice.
+Modern enterprise infrastructure security relies entirely on the Linux kernel's advanced isolation boundaries. By harnessing Linux Capabilities to dismantle monolithic root privileges, leveraging Namespaces for execution isolation, and configuring Control Groups (`cgroups v2`) for resource throttling, platform engineers build impenetrable, highly resilient cloud architectures.
 
 ---
 
 # Cheat Sheet
 
-| Command | Purpose | Example |
+| Command | Description | Best Practice / Diagnostic Focus |
 | :--- | :--- | :--- |
-| `ss -tulpn` | Display listening TCP sockets | `ss -tulpn` |
-| `ip addr show` | Display interface IP addresses | `ip addr show eth0` |
-| `ip route show` | Inspect main routing table | `ip route show` |
-| `ip netns list` | List active network namespaces | `ip netns list` |
-| `sysctl net.ipv4.ip_forward`| Check IP forwarding status | `sysctl net.ipv4.ip_forward` |
+| `getcap <binary>` | List capabilities assigned to a binary | Audit `/usr/bin` for unexpected privilege escalations. |
+| `setcap '<cap>=+ep' <bin>`| Assign capability to a binary | Replaces the need for `sudo` or `setuid` root bits. |
+| `lsns -p <PID>` | List namespaces of a running process | Essential for verifying container isolation boundaries. |
+| `nsenter -t <PID> --net` | Inject shell into process namespace | Ultimate debugging tool for isolated container networks. |
+| `stat -fc %T /sys/fs/cgroup`| Verify cgroups v2 active mount | Ensures compatibility with modern eBPF/resource limits. |
 
 ---
 
 # Knowledge Check
 
-To test your mastery of Linux networking and namespaces, review the dedicated questions in `quizzes/quiz-linux-01.md`.
+## Multiple Choice Questions
+
+1. Which kernel mechanism governs what system resources (CPU/RAM) a process can *use*?
+   * A) Namespaces
+   * B) Linux Capabilities
+   * C) Control Groups (`cgroups`)
+   * D) Access Control Lists (ACLs)
+
+2. What capability allows a non-root binary to bind to port 443?
+   * A) `CAP_SYS_ADMIN`
+   * B) `CAP_NET_ADMIN`
+   * C) `CAP_NET_BIND_SERVICE`
+   * D) `CAP_SYS_PTRACE`
+
+## Scenario Questions
+
+**Scenario:** A security audit reveals that a legacy monitoring agent running in your Kubernetes cluster requires `securityContext.privileged: true` simply to inspect host network packets. How would you refactor the deployment to adhere to least-privilege principles?
+
+## Short Answer Questions
+
+* Explain the architectural difference between Kernel Namespaces and Control Groups (`cgroups`).
 
 ---
 
 # Interview Preparation
 
 ## Beginner Questions
-* Why should you use `ss` and `ip` instead of legacy `netstat` and `ifconfig`?
+* What is a Linux Capability?
 
 ## Intermediate Questions
-* Explain what a Virtual Ethernet (`veth`) pair is and how Docker utilizes it to provide container connectivity.
+* Explain the difference between the PID namespace inside a container versus the host PID namespace.
 
 ## Advanced Questions
-* How does eBPF improve upon traditional `iptables`/Netfilter architectures when routing traffic in massive Kubernetes clusters?
+* Describe the mechanics of the kernel Completely Fair Scheduler (CFS) quota mechanism and how it causes artificial latency throttling in containerized multi-threaded applications.
 
 ## Scenario-Based Discussions
-* **Scenario:** A developer spins up a Docker container on a Linux host, but external clients receive `Connection refused`. The developer insists the container is healthy. How do you debug?
-* **Key Talking Points:** Discuss checking `ss -tulpn` on the host to verify if the port is bound to `0.0.0.0`. Explain checking `sysctl net.ipv4.ip_forward` to ensure host packet forwarding is enabled, and verifying `iptables -t nat -nvL` to confirm Docker's `DNAT` port forwarding rules are correctly configured.
+* **Scenario:** You are tasked with architecting a multi-tenant container runtime environment on bare-metal Linux servers where competing engineering teams execute untrusted code. How do you ensure total isolation?
+* **Key Talking Points:** Discuss enforcing `cgroups v2` for strict memory/CPU isolation, mapping unprivileged user namespaces (`user_namespaces`) so container-root maps to an unprivileged host UID, dropping all capabilities, and utilizing secure computing mode (`seccomp`) filters to block dangerous system calls.
 
 ---
 
 # Further Reading
 
-1. [man ip-netns(8)](https://man7.org/linux/man-pages/man8/ip-netns.8.html)
-2. [man ss(8)](https://man7.org/linux/man-pages/man8/ss.8.html)
-3. [Cilium & eBPF Networking](https://cilium.io/)
-4. [Linux Kernel Networking: Advanced Topics by Rami Rosen](https://link.springer.com/book/10.1007/978-1-4302-6170-9)
+1. [Man7: capabilities(7)](https://man7.org/linux/man-pages/man7/capabilities.7.html)
+2. [Man7: namespaces(7)](https://man7.org/linux/man-pages/man7/namespaces.7.html)
+3. [Man7: cgroups(7)](https://man7.org/linux/man-pages/man7/cgroups.7.html)
+4. [Kernel.org: cgroups v2 Documentation](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html)
+5. *Container Security* by Liz Rice

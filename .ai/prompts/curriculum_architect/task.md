@@ -156,3 +156,38 @@ The task is complete only when:
 * Internal validation passes.
 * No unresolved assumptions remain.
 * The curriculum is ready for review and approval.
+
+
+# Difficulty Progression Rules
+
+The curriculum follows progressive difficulty.
+
+Module 01:
+
+* 80% Beginner
+* 20% Intermediate
+* 0% Advanced
+
+Module 02:
+
+* 60% Beginner
+* 40% Intermediate
+
+Module 03:
+
+* 30% Intermediate
+* 70% Advanced
+
+Do not introduce advanced implementation details before learners understand the underlying concepts.
+
+Examples of topics that should be postponed until later modules include:
+
+* Kernel internals
+* System calls
+* eBPF
+* cgroups
+* Linux namespaces
+* Advanced performance tuning
+* Low-level networking internals
+
+Mention these topics only as future learning opportunities when appropriate.

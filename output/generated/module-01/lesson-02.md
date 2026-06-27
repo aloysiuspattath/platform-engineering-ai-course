@@ -8,7 +8,7 @@ Version: 1.0.0
 
 * **Lesson ID:** MOD-LINUX-02
 * **Module:** Linux Fundamentals for Platform Engineers
-* **Difficulty:** Beginner
+* **Difficulty:** Beginner to Intermediate
 * **Estimated Duration:** 45 minutes
 * **Learning Track:** 🟢 Core / 🔵 Professional / 🟣 Expert
 * **Version:** 1.0.0
@@ -18,7 +18,7 @@ Version: 1.0.0
 
 # Lesson Overview
 
-This lesson explores how Linux manages identity, privilege authorization, and file access control. In platform engineering, least-privilege identity governance is the cornerstone of secure container execution, CI/CD pipeline automation, and zero-trust internal developer platforms.
+This lesson covers the core mechanisms of Linux security governance: Discretionary Access Control (DAC), file permission bits, Access Control Lists (ACLs), and the configuration of privileged execution via `sudoers`. You will learn how to secure filesystems and implement least-privilege role-based access.
 
 ---
 
@@ -26,44 +26,43 @@ This lesson explores how Linux manages identity, privilege authorization, and fi
 
 By the end of this lesson, you will be able to:
 
-* Configure Discretionary Access Control (DAC) file permissions using octal and symbolic notation.
-* Implement granular Access Control Lists (ACLs) for multi-tenant file sharing.
-* Secure administrative escalation privileges using `/etc/sudoers` and `visudo`.
+* Calculate and apply octal and symbolic file permissions using `chmod` and `chown`.
+* Configure fine-grained access control using Access Control Lists (`setfacl`, `getfacl`).
+* Enforce least-privilege administration by configuring secure `/etc/sudoers` rules.
 
 ---
 
 # Prerequisites
 
+* Basic understanding of Linux directory navigation (`ls`, `cd`).
 * Completion of `MOD-LINUX-01`.
-* Access to a Linux terminal environment.
 
 ---
 
 # Why This Exists
 
-Early multi-user operating systems suffered from a lack of secure file boundary enforcement. If one user created a sensitive file, any other user logged into the same minicomputer could read, modify, or delete it.
+In early computing, multi-user systems faced the immediate threat of users reading or modifying each other's private files. Linux adopted the Unix Discretionary Access Control (DAC) model, which assigns an owner and a group to every filesystem object. 
 
-To resolve this vulnerability, Linux adopted the Unix security model of Discretionary Access Control (DAC). Every file on the filesystem is owned by a specific User (UID) and Group (GID), accompanied by strict permission bits governing Read, Write, and Execute operations. This architecture ensures that unprivileged users cannot compromise core system binaries or access neighboring users' data.
+As enterprise computing evolved, the standard `User/Group/Others` triad proved too inflexible for complex organizations. Access Control Lists (ACLs) and `sudo` were introduced to provide granular, least-privilege security governance without sharing the root password.
 
 ---
 
 # Core Concepts
 
 ## Discretionary Access Control (DAC)
-Linux evaluates access based on three distinct entities:
-* **User (`u`):** The individual owner of the file.
-* **Group (`g`):** The designated group ownership assigned to the file.
-* **Others (`o`):** Every other user on the system not matching the owner or group.
+Every file and directory in Linux possesses an owner (User) and a Group. Access is determined by three sets of permission bits:
+* **User (u):** Permissions for the file owner.
+* **Group (g):** Permissions for members of the file's group.
+* **Others (o):** Permissions for anyone else on the system.
 
-## Permission Bits (Octal Notation)
-* **Read (`r` / `4`):** Permission to view file contents or list directory contents.
-* **Write (`w` / `2`):** Permission to modify file contents or add/delete files within a directory.
-* **Execute (`x` / `1`):** Permission to run a file as a program or traverse into a directory.
+## Permission Bits (Octal & Symbolic)
+Permissions are represented symbolically (`rwx`) or as octal numbers:
+* `r` (Read = 4): View file contents / list directory contents.
+* `w` (Write = 2): Modify file contents / create/delete files in a directory.
+* `x` (Execute = 1): Run a file as a program / traverse into a directory.
 
-## Special Permission Flags
-* **SUID (`4000`):** Executes binary with the privileges of the file owner (e.g., `/usr/bin/passwd`).
-* **SGID (`2000`):** New files created in a directory inherit the directory's group ownership.
-* **Sticky Bit (`1000`):** Only the file owner or root can delete files within the directory (e.g., `/tmp`).
+## Access Control Lists (ACLs)
+ACLs extend DAC by allowing you to assign specific permissions to individual users or groups who are not the primary owner or group of the file.
 
 ---
 
@@ -71,25 +70,30 @@ Linux evaluates access based on three distinct entities:
 
 ```mermaid
 flowchart TD
-    subgraph Process Authorization Request
-        PROC[Running Process / UID: 1001 / GID: 1001]
-        FILE[Target File / u:rwx / g:r-x / o:r--]
-        PROC -->|Requests file access| EVAL
+    subgraph Access Request
+        USER[User: 'alice']
+        GROUP[Group: 'devs']
     end
 
-    subgraph Kernel DAC Evaluation Loop
-        EVAL{Is Process UID == File Owner UID?}
-        EVAL -->|Yes| EVAL_U[Check User Permissions]
-        EVAL -->|No| EVAL_G{Is Process GID in File Group?}
+    subgraph Kernel Permission Evaluation
+        FILE[Target File: /var/log/app.log]
+        DAC[DAC Check: Owner -> Group -> Others]
+        ACL[ACL Check: Extended User/Group Entries]
+        SUDO[Sudoers Check: /etc/sudoers]
+
+        USER -->|Direct File Access| DAC
+        DAC -->|No Match| ACL
+        USER -->|Sudo Execution| SUDO
+    end
+
+    subgraph Resolution
+        GRANT[Access Granted]
+        DENY[Permission Denied EACCES]
         
-        EVAL_G -->|Yes| EVAL_GP[Check Group Permissions]
-        EVAL_G -->|No| EVAL_O[Check Other Permissions]
-    end
-
-    subgraph Access Result
-        EVAL_U -->|Pass| GRANT[Access Granted]
-        EVAL_GP -->|Fail| DENY[EACCES: Permission Denied]
-        EVAL_O -->|Pass| GRANT
+        DAC -->|Pass| GRANT
+        ACL -->|Pass| GRANT
+        ACL -->|Fail| DENY
+        SUDO -->|Authorized| GRANT
     end
 ```
 
@@ -97,195 +101,223 @@ flowchart TD
 
 # Real-World Example
 
-When running a containerized microservice using Docker or Kubernetes, running processes inside the container as the default `root` user (`UID 0`) introduces catastrophic security risks. If an attacker discovers a container breakout vulnerability, they escape onto the underlying Kubernetes worker node as `root`.
-
-Professional platform engineers enforce a strict `securityContext` in Kubernetes, mandating `runAsUser: 10001` and `runAsNonRoot: true`. Understanding underlying Linux DAC mechanisms allows you to properly configure container volume mount permissions (`fsGroup`) so that the unprivileged containerized process can successfully read and write to persistent storage without throwing fatal `EACCES` errors.
+In enterprise Kubernetes environments, containerized microservices frequently share mounted persistent storage volumes. If the container executes as a non-root user (e.g., UID 10001) but the mounted volume is owned by root (UID 0) with strict `700` permissions, the microservice will crash with a `Permission Denied` error upon initialization. Platform engineers rely on robust DAC and `fsGroup` configurations to harmonize container storage access.
 
 ---
 
 # Hands-on Demonstration
 
-Let's observe how Linux evaluates Discretionary Access Control (DAC) by creating a file and restricting its permission bits.
+Let's demonstrate how to restrict file access using octal permissions and verify access rejection.
 
 ## Input
-We create a sensitive configuration file, modify its permission bits to `0600` (read/write by owner only), and attempt to read it as an unprivileged secondary user.
+We create a confidential configuration file, set strict permissions allowing only the owner to read/write (`600`), and verify access.
 
 ## Code
 ```bash
-# Create file as root or primary user
-echo "DB_PASSWORD=SuperSecretPass" > /tmp/db_secret.conf
-chmod 0600 /tmp/db_secret.conf
-
-# Verify permissions
-ls -l /tmp/db_secret.conf
-
-# Attempt to read as an unprivileged user 'nobody'
-sudo -u nobody cat /tmp/db_secret.conf
+echo "DATABASE_SECRET=supersecret" > config.env
+chmod 600 config.env
+ls -l config.env
 ```
 
 ## Expected Output
 ```text
--rw------- 1 primary_user primary_user 30 Jun 28 00:55 /tmp/db_secret.conf
-cat: /tmp/db_secret.conf: Permission denied
+-rw------- 1 aloysius aloysius 28 Jun 28 01:25 config.env
 ```
 
 ## Explanation
-The kernel evaluates the `cat` process spawned by user `nobody`. It verifies that `nobody` is not the file owner (`primary_user`) and does not belong to the file's group. It drops to the `Others` permission bits (`---`), instantly halting execution and returning an `EACCES (Permission denied)` error to User Space.
+The `-rw-------` output confirms that the user `aloysius` has read (`4`) and write (`2`) permissions (`4+2=6`). The group and others have `0` permissions (`---`). If any other user attempts to `cat config.env`, the kernel immediately throws a `Permission Denied` error.
 
 ---
 
 # Hands-on Lab
 
-* **Objective:** Implement granular multi-tenant shared directory access using Access Control Lists (ACLs) and Set-GID (SGID).
+* **Objective:** Create multiple users, assign them to dedicated engineering groups, and establish granular file sharing using Access Control Lists (ACLs).
 * **Estimated Time:** 20 minutes
-* **Difficulty:** Beginner
-* **Environment:** Any Linux terminal.
+* **Difficulty:** Intermediate
+* **Environment:** Linux Terminal with root/sudo access
 
 ## Step-by-step Instructions
 
-1. Create a shared engineering directory:
+1. Create a shared project directory and two simulated users:
    ```bash
-   sudo mkdir -p /var/shared/engineering
-   sudo groupadd -f eng_group
-   sudo chown root:eng_group /var/shared/engineering
+   sudo mkdir -p /opt/eng-project
+   sudo useradd -m dev_charlie
+   sudo useradd -m audit_dave
    ```
-2. Enable Set-GID (SGID) so all new files inherit `eng_group`:
+2. Set base permissions on the directory to restrict general access:
    ```bash
-   sudo chmod 2775 /var/shared/engineering
+   sudo chmod 750 /opt/eng-project
    ```
-3. Set an ACL granting specific read access to an external auditor user (`backup_user`):
+3. Use `setfacl` to grant `audit_dave` read-only access to the directory without changing the primary owner/group:
    ```bash
-   sudo useradd -m backup_user
-   sudo setfacl -m u:backup_user:r-x /var/shared/engineering
+   sudo setfacl -m u:audit_dave:r-x /opt/eng-project
    ```
 
 ## Verification
-Execute `getfacl /var/shared/engineering` to verify the explicit ACL rules and SGID flag.
+Use `getfacl` to verify that the extended ACL entry was successfully applied:
+```bash
+getfacl /opt/eng-project
+```
+**Expected Output:**
+```text
+# file: /opt/eng-project
+# owner: root
+# group: root
+user::rwx
+user:audit_dave:r-x
+group::r-x
+mask::r-x
+other::---
+```
 
 ## Troubleshooting
 * **Symptom:** `setfacl: Operation not supported`
-  * **Cause:** The underlying filesystem mount option lacks `acl` support.
-  * **Solution:** Remount the filesystem with ACL enabled (`sudo mount -o remount,acl /`).
+  * **Cause:** The underlying filesystem (e.g., legacy ext3 or tmpfs) was mounted without the `acl` flag.
+  * **Solution:** Remount the filesystem with ACL support: `sudo mount -o remount,acl /`.
 
 ## Cleanup
 ```bash
-sudo rm -rf /var/shared/engineering
-sudo userdel -r backup_user
+sudo userdel -r dev_charlie
+sudo userdel -r audit_dave
+sudo rm -rf /opt/eng-project
 ```
 
 ---
 
 # Production Notes
 
-In enterprise platform engineering, local manual Linux user accounts (`/etc/passwd`) are an anti-pattern. Maintaining hundreds of standalone servers with local SSH keys creates massive audit and compliance vulnerabilities. Senior engineers integrate Linux servers with centralized Identity Providers (IdPs) via OpenLDAP, Kerberos, or HashiCorp Vault SSH dynamic certificate engines to manage ephemeral access dynamically.
+When configuring CI/CD runners (such as GitHub Actions or GitLab CI) on Linux instances, never grant the runner binary passwordless `sudo ALL` privileges in `/etc/sudoers`. If a malicious pull request executes arbitrary code in the pipeline, it instantly compromises the entire host. Instead, configure explicit, command-level sudo rules:
+```text
+gitlab-runner ALL=(root) NOPASSWD: /usr/bin/systemctl restart myapp
+```
 
 ---
 
 # Common Mistakes
 
-* **Abusing `chmod 777`:** When encountering a `Permission denied` error, beginners often execute `chmod 777` to force the application to work. This exposes the file to world-writable exploitation. Always isolate the exact UID/GID executing the process and grant least-privilege access.
-* **Directly Editing `/etc/sudoers`:** Beginners edit `/etc/sudoers` directly with `nano` or `vim`. If a syntax error is introduced, all administrative `sudo` escalation is permanently broken. Always use `visudo`, which locks the file and validates syntax before saving.
+* **Abusing `chmod 777`:** When beginners encounter `Permission Denied` errors, they frequently run `chmod -R 777 /var/www`. This grants world-write and world-execute permissions to every user and process on the system, creating a massive security vulnerability.
+* **Misunderstanding Directory Execute (`x`) Permissions:** Removing `x` from a directory prevents users from using `cd` into it or accessing any files inside it, even if the files themselves have read permissions.
 
 ---
 
 # Failure-Driven Learning
 
-Let's observe how misconfiguring directory traversal permissions breaks file access, even if the file itself is world-readable.
+Let's intentionally lock ourselves out of a file using strict ownership and observe the diagnostic recovery path.
 
 ## The Failure
-We create a world-readable file inside a directory where the execute (`x`) traversal bit has been removed.
-
 ```bash
-mkdir -p /tmp/locked_dir
-echo "Data" > /tmp/locked_dir/public.txt
-chmod 0644 /tmp/locked_dir/public.txt
-
-# Remove execute (traversal) permission from directory
-chmod 0600 /tmp/locked_dir
-
-# Attempt to read the world-readable file inside
-cat /tmp/locked_dir/public.txt
-```
-
-## Expected Output
-```text
-cat: /tmp/locked_dir/public.txt: Permission denied
+sudo touch /etc/app_config.yml
+sudo chown root:root /etc/app_config.yml
+sudo chmod 600 /etc/app_config.yml
+# Attempting to append as a standard user:
+echo "debug: true" >> /etc/app_config.yml
+# bash: /etc/app_config.yml: Permission denied
 ```
 
 ## Diagnosis & Recovery
-To diagnose this, senior engineers inspect the full directory path using `namei -mo /tmp/locked_dir/public.txt`. The output reveals that `/tmp/locked_dir` lacks the `x` (traverse) bit. Recover by executing `chmod 0700 /tmp/locked_dir`.
+The append fails because the shell attempts to open `/etc/app_config.yml` before executing `sudo` (if used incorrectly). Recover by using `tee` to elevate the write stream:
+```bash
+echo "debug: true" | sudo tee -a /etc/app_config.yml > /dev/null
+```
 
 ---
 
 # Engineering Decisions
 
-When architecting shared build servers or jump hosts, you must decide between standard Linux DAC/ACLs and Mandatory Access Control (MAC) systems like SELinux or AppArmor.
-* **DAC / ACLs:** Highly flexible, easy to configure, and broadly understood, but relies on users exercising good security discretion.
-* **MAC (SELinux / AppArmor):** Enforces strict kernel-level security policies regardless of user file permissions, preventing container breakout and 0-day exploitation, but introduces complex policy management overhead.
+When designing shared storage architectures for development teams, you must decide between traditional Linux Groups and Access Control Lists (ACLs).
+* **Linux Groups:** Simpler to audit and manage via automation (Ansible/Terraform); limited when a file requires different permissions for different teams.
+* **ACLs:** Highly granular; can become difficult to audit at scale without dedicated tooling.
 
 ---
 
 # Best Practices
 
-* **Audit SUID Binaries Regularly:** Keep track of files with SUID bits set using `find / -perm /4000 -print`, as these represent potential privilege escalation vectors.
-* **Enforce `sudo` Principle of Least Privilege:** When granting `sudo` access in `visudo`, never use `ALL=(ALL:ALL) ALL`. Specify the exact binary path required (e.g., `app_user ALL=(root) NOPASSWD: /usr/bin/systemctl restart app.service`).
+* Always adhere to the Principle of Least Privilege (PoLP).
+* Validate `/etc/sudoers` modifications exclusively using `visudo` to prevent syntax errors from locking administrators out of the system.
+* Use `setgid` (`chmod g+s <dir>`) on shared team directories so newly created files inherit the parent directory's group ownership automatically.
 
 ---
 
 # Troubleshooting Guide
 
-## Issue 1: Unprivileged User Cannot Start Service on Port 80 or 443
+## Issue 1: Developer Cannot Access Shared Key File
 
-* **Cause:** Linux strictly reserves network ports below `1024` (privileged ports) for `root` execution only.
-* **Diagnosis:** Inspect application startup logs for `bind: Permission denied` or `EACCES` on port 80/443.
-* **Solution:** Do not run the application as `root`. Instead, grant the specific binary the `CAP_NET_BIND_SERVICE` Linux capability using `sudo setcap 'cap_net_bind_service=+ep' /usr/bin/my_app`.
+* **Problem:** A developer is a member of the `devops` group, but attempting to read `/etc/keys/app.key` (owned by `root:devops` with `640` permissions) returns `Permission Denied`.
+* **Cause:** The developer was added to the `devops` group in `/etc/group`, but their active terminal session has not refreshed its security tokens.
+* **Diagnosis:** 
+  ```bash
+  # Check active session groups
+  groups
+  ```
+* **Solution:** Have the user execute `newgrp devops` or log out and log back in to refresh their active kernel group tokens.
 
 ---
 
 # Summary
 
-Mastering Linux user, group, and permission governance enables platform engineers to enforce bulletproof security boundaries across infrastructure. By combining DAC permission bits, ACLs, and strict `sudoers` rules, you ensure that running workloads adhere strictly to the principle of least privilege.
+Linux permission governance relies on Discretionary Access Control (DAC), octal permission bits, and Access Control Lists (ACLs) to protect filesystem boundaries. By enforcing explicit file permissions and hardening `/etc/sudoers`, platform engineers prevent unauthorized lateral movement across enterprise systems.
 
 ---
 
 # Cheat Sheet
 
-| Command | Purpose | Example |
+| Command | Description | Example |
 | :--- | :--- | :--- |
-| `chmod <mode> <file>` | Modify file permission bits | `chmod 0755 script.sh` |
-| `chown <user>:<group> <file>`| Change file ownership | `chown app_user:app_group data/` |
+| `chmod <octal> <file>` | Change file permissions using octal mode | `chmod 644 index.html` |
+| `chown <user>:<group> <file>` | Change file owner and group | `chown nginx:www-data app.py` |
+| `getfacl <file>` | View Access Control Lists | `getfacl /var/log` |
+| `setfacl -m u:<user>:<perms> <file>` | Add/modify an ACL rule for a user | `setfacl -m u:alice:rwx app` |
 | `visudo` | Safely edit `/etc/sudoers` | `sudo visudo` |
-| `getfacl <file>` | Display access control lists | `getfacl shared_dir/` |
-| `setfacl -m u:<user>:<perm>`| Add or modify ACL rule | `setfacl -m u:dev_user:rwx file` |
 
 ---
 
 # Knowledge Check
 
-To test your mastery of Linux permissions and ACLs, review the dedicated questions in `quizzes/quiz-linux-01.md`.
+## Multiple Choice Questions
+
+1. What octal permission represents read (`r`) and execute (`x`) without write (`w`)?
+   * A) 5
+   * B) 6
+   * C) 7
+   * D) 4
+
+2. Which command must be used to safely edit `/etc/sudoers`?
+   * A) `nano /etc/sudoers`
+   * B) `vim /etc/sudoers`
+   * C) `visudo`
+   * D) `chown sudoers`
+
+## Scenario Questions
+
+**Scenario:** An automated deployment script needs to restart the `nginx` service via Systemd as root, but you cannot provide the script with a sudo password. How would you configure this securely?
+
+## Short Answer Questions
+
+* Explain why running `chmod -R 777` on a web server directory is a critical security vulnerability.
 
 ---
 
 # Interview Preparation
 
 ## Beginner Questions
-* What do the permission bits `0755` and `0600` represent in octal notation?
+* What do the permission bits `755` represent?
 
 ## Intermediate Questions
-* Explain the purpose of the SUID, SGID, and Sticky bits on a Linux filesystem.
+* What is the purpose of the `setgid` bit on a directory, and how does it affect newly created files?
 
 ## Advanced Questions
-* How do Linux Capabilities (e.g., `CAP_NET_BIND_SERVICE`) improve upon the traditional SUID binary security model?
+* Explain the exact evaluation order the Linux kernel follows when a user accesses a file that has both standard DAC permissions and extended ACL rules.
 
 ## Scenario-Based Discussions
-* **Scenario:** A developer complains that they cannot read a log file located at `/var/log/myapp/app.log`, even though `ls -l /var/log/myapp/app.log` shows `-rw-r--r--`. How would you troubleshoot this?
-* **Key Talking Points:** Explain that directory traversal requires execute (`x`) permissions on every parent directory in the path. Mention utilizing `namei -mo /var/log/myapp/app.log` to quickly verify permissions across the entire directory tree.
+* **Scenario:** A junior engineer accidentally ran `chmod 700 /` on a staging server, breaking all non-root logins and services. How would you recover the system?
+* **Key Talking Points:** Discuss booting into single-user mode or attaching the root volume to a rescue instance, then restoring default root directory permissions (`chmod 755 /`).
 
 ---
 
 # Further Reading
 
-1. [man chmod(1)](https://man7.org/linux/man-pages/man1/chmod.1.html)
-2. [man acl(5)](https://man7.org/linux/man-pages/man5/acl.5.html)
-3. [man sudoers(5)](https://man7.org/linux/man-pages/man5/sudoers.5.html)
-4. [man capabilities(7)](https://man7.org/linux/man-pages/man7/capabilities.7.html)
+1. [Man7: chmod(1)](https://man7.org/linux/man-pages/man1/chmod.1.html)
+2. [Man7: acl(5)](https://man7.org/linux/man-pages/man5/acl.5.html)
+3. [Man7: sudoers(5)](https://man7.org/linux/man-pages/man5/sudoers.5.html)
+4. *Practical Linux System Administration* by Kenneth Hess
+5. [Red Hat: Linux File Permissions Explained](https://www.redhat.com/en/blog/linux-file-permissions-explained)

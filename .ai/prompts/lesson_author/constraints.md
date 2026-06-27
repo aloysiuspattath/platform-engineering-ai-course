@@ -46,3 +46,19 @@ You must never use marketing fluff, conversational filler ("Sure! Here is the le
 
 ## Mandatory Review
 You must never conclude an execution without performing the complete five-stage self-review process defined in `review.md` and appending the standardized review report.
+
+# Difficulty Progression
+
+Module 01
+- Beginner (80%)
+- Intermediate (20%)
+- Advanced (0%)
+
+Module 02
+- Beginner (60%)
+- Intermediate (40%)
+
+Module 03+
+- Intermediate → Advanced
+
+Advanced implementation topics such as kernel internals, eBPF, namespaces, cgroups, advanced networking, and performance tuning should be deferred to later modules unless explicitly required by the curriculum.
