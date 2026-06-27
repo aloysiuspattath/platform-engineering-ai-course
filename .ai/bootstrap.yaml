@@ -1,0 +1,161 @@
+```yaml
+# ==========================================================
+# AI Platform Bootstrap Configuration
+# ==========================================================
+
+version: "1.0.0"
+
+project:
+  name: "Platform Engineering & AI Infrastructure Course"
+  repository: "platform-engineering-ai-course"
+  status: "active"
+
+# ==========================================================
+# Execution
+# ==========================================================
+
+execution:
+  mode: "single-agent"          # single-agent | multi-agent
+  entry_agent: "TemplateArchitect"
+  review_enabled: true
+  update_project_state: true
+  stop_on_failure: true
+
+# ==========================================================
+# Context Loading Order
+# ==========================================================
+
+context:
+
+  load_order:
+    - ".ai/project_state.yaml"
+    - ".ai/context.md"
+    - ".ai/workflow.md"
+    - ".ai/agents.md"
+    - ".ai/commands.md"
+
+  standards:
+    directory: "standards/"
+
+  curriculum:
+    directory: "curriculum/"
+
+  references:
+    directory: "reference/"
+
+# ==========================================================
+# Active Agent
+# ==========================================================
+
+agent:
+
+  name: "TemplateArchitect"
+
+  definition: ".ai/agents/TemplateArchitect.md"
+
+  prompt_directory: ".ai/prompts/template_architect/"
+
+  prompt_modules:
+    - "system.md"
+    - "task.md"
+    - "constraints.md"
+    - "examples.md"
+    - "review.md"
+
+# ==========================================================
+# Input Directories
+# ==========================================================
+
+inputs:
+
+  standards: "standards/"
+
+  curriculum: "curriculum/"
+
+  reference: "reference/"
+
+  examples: "examples/"
+
+# ==========================================================
+# Output Pipeline
+# ==========================================================
+
+outputs:
+
+  generated: "output/generated/"
+
+  reviewed: "output/reviewed/"
+
+  approved: "output/approved/"
+
+  published:
+    modules: "modules/"
+    labs: "labs/"
+    projects: "projects/"
+    quizzes: "quizzes/"
+    cheatsheets: "cheatsheets/"
+
+# ==========================================================
+# Quality Gates
+# ==========================================================
+
+quality_gates:
+
+  technical_review: true
+
+  qa_validation: true
+
+  approval_required: true
+
+# ==========================================================
+# Error Handling
+# ==========================================================
+
+failure_policy:
+
+  stop_execution: true
+
+  report_errors: true
+
+  request_clarification: true
+
+  preserve_outputs: true
+
+# ==========================================================
+# Success Handling
+# ==========================================================
+
+success_policy:
+
+  update_project_state: true
+
+  generate_summary: true
+
+  recommend_next_agent: true
+
+# ==========================================================
+# Logging
+# ==========================================================
+
+logging:
+
+  enabled: true
+
+  level: "info"
+
+# ==========================================================
+# Future Expansion
+# ==========================================================
+
+extensions:
+
+  allow_multi_agent: true
+
+  allow_parallel_execution: true
+
+  allow_plugin_agents: true
+
+# ==========================================================
+# End of Bootstrap Configuration
+# ==========================================================
+```
