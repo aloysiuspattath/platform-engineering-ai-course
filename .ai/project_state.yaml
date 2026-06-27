@@ -15,11 +15,11 @@ project:
 
 current_phase: "Curriculum Content Generation"
 
-current_stage: "Lesson Authoring"
+current_stage: "Review & Quality Assurance"
 
-current_agent: "Lesson Author"
+current_agent: "Reviewer / Lab Designer"
 
-current_task: "Generate individual lesson markdown files based on curriculum specification and canonical templates"
+current_task: "Validate generated Module 01 lessons and prepare for standalone Lab and Project generation"
 
 # ==========================================================
 # Milestones
@@ -84,6 +84,8 @@ completed:
 
   curriculum_design: true
 
+  module_01_lessons: true
+
 # ==========================================================
 # Current Outputs
 # ==========================================================
@@ -109,7 +111,14 @@ generated:
     - "curriculum/skill-matrix.md"
     - "curriculum/competencies.md"
 
-  lessons: []
+  lessons:
+    - "output/generated/module-01/README.md"
+    - "output/generated/module-01/lesson-01.md"
+    - "output/generated/module-01/lesson-02.md"
+    - "output/generated/module-01/lesson-03.md"
+    - "output/generated/module-01/lesson-04.md"
+    - "output/generated/module-01/lesson-05.md"
+    - "output/generated/module-01/lesson-06.md"
 
   labs: []
 
@@ -121,9 +130,9 @@ generated:
 
 next_tasks:
 
-  - "Invoke Lesson Author"
-  - "Generate Stage 1: Foundations lessons in output/generated/"
-  - "Validate generated lessons against TEMPLATE_LESSON.md"
+  - "Move Module 01 lessons from output/generated/ to output/reviewed/ after formal review"
+  - "Invoke Lab Designer for Module 01 standalone labs"
+  - "Invoke Quiz Generator for Module 01 knowledge checks"
 
 # ==========================================================
 # Blockers
@@ -161,8 +170,8 @@ quality_gates:
 
 last_updated: "2026-06-28"
 
-updated_by: "Curriculum Architect"
+updated_by: "Lesson Author"
 
 notes: >
-  Complete curriculum architecture successfully designed, validated against project standards, and reviewed.
-  Curriculum Planning stage is complete. Handoff to Lesson Author ready.
+  Module 01 (Linux Fundamentals for Platform Engineers) lessons successfully generated into output/generated/module-01/.
+  All 21 sections populated per TEMPLATE_LESSON.md. Review passed. Ready for downstream Lab Designer and Reviewer.
