@@ -1,8 +1,8 @@
 # Observable & Measurable Competencies
 
-Version: 1.0.0
+Version: 2.0.0
 
-Purpose: Unambiguous specification of observable engineering behaviors, capabilities, and execution standards required for curriculum mastery.
+Purpose: Unambiguous specification of observable engineering behaviors, capabilities, and execution standards required for curriculum mastery. Optimized for mastery learning and capability verification.
 
 Required Inputs: Learning objectives, skill matrix, career milestones.
 
@@ -16,16 +16,17 @@ Every technical competency in this curriculum must be demonstrable through obser
 
 ---
 
-# 1. Linux & Operating Systems Competency
+# 1. Linux Foundations & Internals Competency (`MOD-LINUX-BEG`, `MOD-LINUX-ADM`, `MOD-LINUX-INT`)
 
 ## Observable Capabilities
-* **System Diagnostics:** The learner can diagnose high CPU, memory, or disk I/O utilization in a running Linux instance using `strace`, `htop`, `iostat`, and `journalctl` within 10 minutes of incident isolation.
+* **System Interaction:** The learner can install a Linux environment, navigate the terminal, create directory structures, and inspect file contents using basic pipes (`cat`, `grep`, `ls`) without UI interaction.
+* **Server Administration:** The learner can manage user permissions (`chmod`, `chown`), inspect active processes (`ps`, `top`, `kill`), and configure system daemons (`systemctl`).
+* **Advanced Diagnostics:** The learner can intercept application system calls using `strace` to debug failing processes and identify active cgroups and kernel namespaces in a running system.
 * **Production Automation:** The learner can write an idempotent Bash script that automates service health checks, logs output to syslog, and executes on a schedule via Systemd timers.
-* **Kernel & Security:** The learner can restrict user execution privileges using sudoers configurations and identify running kernel namespaces for isolated process trees.
 
 ---
 
-# 2. Networking & Version Control Competency
+# 2. Networking & Version Control Competency (`MOD-NET`, `MOD-GIT`)
 
 ## Observable Capabilities
 * **Traffic Debugging:** The learner can intercept, inspect, and analyze TCP packet handshakes and DNS lookups using `tcpdump` and Wireshark to isolate network failure root causes.
@@ -34,7 +35,7 @@ Every technical competency in this curriculum must be demonstrable through obser
 
 ---
 
-# 3. Containerization & Security Competency
+# 3. Containerization & Security Competency (`MOD-DOCKER`, `MOD-SEC`)
 
 ## Observable Capabilities
 * **Optimized Packaging:** The learner can refactor a monolithic Dockerfile into a secure, multi-stage build that reduces image size by at least 50% and executes as a non-root user.
@@ -43,7 +44,7 @@ Every technical competency in this curriculum must be demonstrable through obser
 
 ---
 
-# 4. Infrastructure as Code & Cloud Competency
+# 4. Infrastructure as Code & Cloud Competency (`MOD-TF`, `MOD-CLOUD`)
 
 ## Observable Capabilities
 * **Declarative Provisioning:** The learner can write clean, modular Terraform HCL code to provision a secure 3-tier Virtual Private Cloud (VPC) with public/private subnets and NAT gateways.
@@ -52,7 +53,7 @@ Every technical competency in this curriculum must be demonstrable through obser
 
 ---
 
-# 5. Kubernetes & CI/CD Competency
+# 5. Kubernetes & CI/CD Competency (`MOD-K8S`, `MOD-CICD`)
 
 ## Observable Capabilities
 * **Cluster Deployment:** The learner can deploy a highly available, multi-node Kubernetes application environment utilizing Custom Resource Definitions (CRDs), Helm charts, and Ingress controllers.
@@ -61,7 +62,7 @@ Every technical competency in this curriculum must be demonstrable through obser
 
 ---
 
-# 6. Observability & SRE Competency
+# 6. Observability & SRE Competency (`MOD-OBS`, `MOD-SRE`)
 
 ## Observable Capabilities
 * **Telemetry Instrumentation:** The learner can configure Prometheus scrape targets and OpenTelemetry collectors to gather application metrics, structured logs, and distributed traces.
@@ -70,7 +71,7 @@ Every technical competency in this curriculum must be demonstrable through obser
 
 ---
 
-# 7. AI Infrastructure & MLOps Competency
+# 7. AI Infrastructure & MLOps Competency (`MOD-AI`, `MOD-MLOPS`)
 
 ## Observable Capabilities
 * **Enterprise Inference Serving:** The learner can deploy a production-ready vLLM or Ollama inference container to a Kubernetes cluster, configuring correct GPU memory limits and continuous batching parameters.
@@ -79,7 +80,7 @@ Every technical competency in this curriculum must be demonstrable through obser
 
 ---
 
-# 8. Enterprise Platform Engineering Competency
+# 8. Enterprise Platform Engineering Competency (`MOD-IDP`, `MOD-ADV`, `MOD-CAP`, `MOD-CAR`)
 
 ## Observable Capabilities
 * **Golden Path Scaffolding:** The learner can design a self-service Internal Developer Platform (IDP) portal that enables developers to scaffold, provision, and deploy an application within 5 minutes.

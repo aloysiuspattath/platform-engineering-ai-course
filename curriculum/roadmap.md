@@ -1,8 +1,8 @@
 # Master Curriculum Roadmap
 
-Version: 1.0.0
+Version: 2.0.0
 
-Purpose: High-level visual representation and structural roadmap of the Platform Engineering & AI Infrastructure Curriculum.
+Purpose: High-level visual representation and structural roadmap of the Platform Engineering & AI Infrastructure Curriculum. Optimized for mastery learning, progressive complexity, and capability building.
 
 Required Inputs: Project specifications, learning objectives, career milestones.
 
@@ -12,17 +12,21 @@ Outputs: End-to-end learning path roadmap for self-paced learning and AI agent g
 
 # Curricular Overview
 
-The Open Platform Engineering & AI Infrastructure Curriculum is designed to guide learners from foundational system administration to advanced enterprise platform architecture and AI infrastructure management.
+The Open Platform Engineering & AI Infrastructure Curriculum is designed to guide learners from zero Linux experience to advanced enterprise platform architecture and AI infrastructure management through clear, capability-driven milestones.
 
 ```mermaid
 flowchart TD
-    subgraph S1 [Stage 1: Foundations]
-        L1[Linux & Operating Systems] --> N1[Networking Fundamentals]
-        N1 --> V1[Version Control with Git]
+    subgraph S1 [Stage 1: IT Foundations]
+        L1[Getting Started with Linux] --> L2[Linux Administration]
+        L2 --> L3[Linux Internals]
+        L2 --> N1[Networking Fundamentals]
+        L1 --> V1[Version Control with Git]
     end
 
     subgraph S2 [Stage 2: Core Platform Engineering]
-        V1 --> C1[Containers & Docker]
+        L3 --> C1[Containers & Docker]
+        N1 --> C1
+        V1 --> C1
         C1 --> S2_SEC[Security Fundamentals]
     end
 
@@ -75,4 +79,4 @@ The roadmap is bifurcated across three optional depth tiers to accommodate diver
 
 # Strategic Progression
 
-The roadmap guarantees that foundational prerequisites are fully mastered before introducing higher-level abstractions. Learners will spend the majority of their time building, deploying, breaking, and troubleshooting real infrastructure systems.
+The roadmap guarantees that foundational prerequisites are fully mastered before introducing higher-level abstractions. Learners will spend the majority of their time building, deploying, breaking, and troubleshooting real infrastructure systems with absolute confidence.

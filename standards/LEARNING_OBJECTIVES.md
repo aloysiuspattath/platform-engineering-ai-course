@@ -1,346 +1,140 @@
-# LEARNING OBJECTIVES
+# LEARNING OBJECTIVES & CAPABILITY MASTER MATRIX
 
-# Graduate Profile
+Version: 2.0.0
 
-By completing this curriculum, learners will be able to design, build, deploy, secure, operate, and troubleshoot modern Platform Engineering and AI Infrastructure systems using industry best practices.
+# Graduate Profile & Transformation Journey
 
-Graduates should possess the practical knowledge, engineering mindset, and portfolio expected of junior-to-mid-level Platform Engineers, Cloud Engineers, DevOps Engineers, Site Reliability Engineers (SREs), and AI Infrastructure Engineers.
+By completing this curriculum, learners undergo a comprehensive professional transformation from complete beginners with zero Linux experience into highly confident, production-ready Platform Engineers and AI Infrastructure Engineers.
 
----
+The learning journey follows a clear evolution:
+**Beginner → Linux User → Linux Administrator → Infrastructure Engineer → Platform Engineer → Senior Platform Engineer → AI Infrastructure Engineer**
 
-# Technical Competencies
-
-## Linux & Operating Systems
-
-Learners will be able to:
-
-* Navigate Linux efficiently
-* Manage files, users, groups, and permissions
-* Configure services
-* Automate administration with Bash
-* Monitor and troubleshoot Linux systems
-* Analyze logs and diagnose failures
+Graduates possess the practical capabilities, deep conceptual intuition, and verifiable portfolio required to operate modern enterprise platforms with absolute confidence.
 
 ---
 
-## Networking
+# Capability Statements & Technical Competencies
 
-Learners will be able to:
+Every module is organized around an explicit, verifiable **Capability Statement** answering: *"If the learner finishes this module, what can they confidently do that they couldn't do before?"*
 
-* Explain TCP/IP fundamentals
-* Configure DNS, HTTP, HTTPS, SSH, and TLS
-* Troubleshoot connectivity issues
-* Analyze network traffic
+## Stage 1: IT Foundations
 
----
+### Getting Started with Linux (`MOD-LINUX-BEG`)
+* **Capability Statement:** "I can install Linux, navigate the terminal, and manage files."
+* **Core Skills:** Shell navigation, directory structure creation, basic text viewing (`cat`), and searching (`grep`).
 
-## Version Control
+### Linux Administration (`MOD-LINUX-ADM`)
+* **Capability Statement:** "I can administer a Linux server, manage permissions, automate simple tasks, and troubleshoot common issues."
+* **Core Skills:** Multi-user permission management (`chmod`, `chown`), process inspection (`ps`, `top`, `kill`), daemon configuration (`systemctl`), and basic Bash automation.
 
-Learners will be able to:
+### Linux Internals (`MOD-LINUX-INT`)
+* **Capability Statement:** "I understand how Linux works internally and can debug complex system behavior."
+* **Core Skills:** System call interception (`strace`), `/proc` filesystem inspection, resource isolation (`cgroups v2`), and kernel namespaces.
 
-* Use Git confidently
-* Work with branches and pull requests
-* Resolve merge conflicts
-* Follow professional Git workflows
+### Networking Fundamentals (`MOD-NET`)
+* **Capability Statement:** "I can configure network connections, manage DNS, set up a secure web proxy, and analyze network traffic."
+* **Core Skills:** TCP/IP socket mechanics, IP subnetting, CoreDNS routing, Nginx/Envoy reverse proxies, TLS encryption, and packet analysis (`tcpdump`, Wireshark).
 
----
-
-## Containers
-
-Learners will be able to:
-
-* Build optimized Docker images
-* Use Docker Compose
-* Debug containerized applications
-* Understand container networking and storage
+### Version Control with Git (`MOD-GIT`)
+* **Capability Statement:** "I can track code changes, collaborate with engineering teams, resolve conflicts, and automate commit workflows."
+* **Core Skills:** Git internal trees, Trunk-Based vs. GitFlow strategies, interactive rebasing, merge conflict resolution, and pre-commit hook automation.
 
 ---
 
-## Kubernetes
+## Stage 2: Core Platform Engineering
 
-Learners will be able to:
+### Containers & Docker (`MOD-DOCKER`)
+* **Capability Statement:** "I can containerize applications, build highly optimized images, and manage multi-container microservices."
+* **Core Skills:** Container virtualization mechanics, multi-stage optimized Dockerfiles, Docker Compose orchestration, and volume storage persistence.
 
-* Deploy production-ready workloads
-* Configure Services and Ingress
-* Manage ConfigMaps and Secrets
-* Implement autoscaling
-* Troubleshoot Kubernetes clusters
-
----
-
-## Infrastructure as Code
-
-Learners will be able to:
-
-* Provision infrastructure using Terraform
-* Create reusable modules
-* Manage state securely
-* Apply Infrastructure as Code best practices
+### Security Fundamentals (`MOD-SEC`)
+* **Capability Statement:** "I can secure container workloads, manage infrastructure secrets safely, and verify software supply chains."
+* **Core Skills:** Threat modeling, container vulnerability scanning (Trivy), secret encryption (SOPS/Vault), and supply chain provenance (SLSA, SBOMs).
 
 ---
 
-## CI/CD
+## Stage 3: Cloud & Infrastructure Automation
 
-Learners will be able to:
+### Infrastructure as Code (Terraform) (`MOD-TF`)
+* **Capability Statement:** "I can provision immutable cloud infrastructure using declarative code and build reusable Terraform modules."
+* **Core Skills:** HCL declarative syntax, remote state backends, dynamic state locking, reusable module architecture, and GitOps refactoring.
 
-* Build automated pipelines
-* Implement testing
-* Automate deployments
-* Configure rollback strategies
-
----
-
-## Observability
-
-Learners will be able to:
-
-* Collect logs, metrics, and traces
-* Build dashboards
-* Configure alerts
-* Investigate production incidents
+### Cloud Platforms & Architecture (`MOD-CLOUD`)
+* **Capability Statement:** "I can design secure, highly available cloud foundation architectures and manage cloud access governance."
+* **Core Skills:** Cloud VPC design, public/private subnetting, least-privilege IAM roles, highly available object storage, and FinOps cost optimization.
 
 ---
 
-## Cloud Platforms
+## Stage 4: Containerization & Orchestration
 
-Learners will be able to:
+### Kubernetes Engineering (`MOD-K8S`)
+* **Capability Statement:** "I can deploy, scale, operate, and troubleshoot production-grade Kubernetes cluster environments."
+* **Core Skills:** Control plane reconciliation loops, Deployments, Services, Ingress controllers, Persistent Volume Claims (PVCs), ConfigMaps/Secrets, workload autoscaling (HPA, VPA, KEDA), and crash diagnostics.
 
-* Deploy workloads to cloud environments
-* Configure networking and storage
-* Apply cost-conscious infrastructure design
-
----
-
-## AI Infrastructure
-
-Learners will be able to:
-
-* Deploy LLM inference servers
-* Build Retrieval-Augmented Generation (RAG) pipelines
-* Work with vector databases
-* Monitor AI workloads
-* Optimize AI infrastructure
+### CI/CD Pipelines & Automation (`MOD-CICD`)
+* **Capability Statement:** "I can build automated CI/CD pipelines that build, test, scan, and deploy applications using GitOps principles."
+* **Core Skills:** Declarative GitHub Actions workflows, automated container build/scan pipelines, progressive delivery (Canary, Blue/Green), and rollback automation (ArgoCD).
 
 ---
 
-## Platform Engineering
+## Stage 5: Observability & Reliability
 
-Learners will be able to:
+### Observability (Prometheus & Grafana) (`MOD-OBS`)
+* **Capability Statement:** "I can instrument distributed systems with metrics, logs, and traces, and build mission-critical dashboards."
+* **Core Skills:** Three pillars (Metrics, Logs, Traces), Prometheus PromQL time-series instrumentation, dynamic Grafana dashboard design, OpenTelemetry distributed tracing, and AlertManager routing.
 
-* Design Internal Developer Platforms (IDPs)
-* Improve developer experience
-* Automate platform provisioning
-* Build reusable platform templates
-
----
-
-## Security
-
-Learners will be able to:
-
-* Apply least-privilege principles
-* Secure containers and Kubernetes workloads
-* Manage secrets safely
-* Apply supply-chain security fundamentals
+### Site Reliability Engineering (SRE) (`MOD-SRE`)
+* **Capability Statement:** "I can manage production incident lifecycles, calculate error budgets, and conduct blameless root cause analyses."
+* **Core Skills:** SLI/SLO/SLA error budget calculations, incident command workflows, structured blameless postmortems (RCAs), and Chaos Engineering.
 
 ---
 
-## Troubleshooting
+## Stage 6: AI Infrastructure
 
-Learners will be able to:
+### AI Infrastructure & LLM Serving (`MOD-AI`)
+* **Capability Statement:** "I can deploy, serve, autoscale, and monitor production LLM inference engines on GPU-enabled Kubernetes clusters."
+* **Core Skills:** AI hardware architecture (GPUs, CUDA, Memory Bandwidth), local Ollama runtimes, production vLLM serving with continuous batching, KEDA event-driven GPU autoscaling, and LLM telemetry monitoring (TTFT, throughput).
 
-* Diagnose infrastructure failures
-* Debug distributed systems
-* Perform structured root-cause analysis
-* Resolve production issues methodically
-
----
-
-## Professional Skills
-
-Learners will be able to:
-
-* Read technical documentation
-* Write technical documentation
-* Communicate engineering decisions
-* Collaborate using Git workflows
-* Continue learning independently
+### MLOps & Vector Databases (`MOD-MLOPS`)
+* **Capability Statement:** "I can build highly scalable Retrieval-Augmented Generation (RAG) infrastructure and deploy vector database clusters."
+* **Core Skills:** RAG infrastructure pipeline design, vector database deployment (Qdrant, Milvus, pgvector), automated model weight ingestion, and MLOps artifact provenance.
 
 ---
 
-# Career Milestones
+## Stage 7: Enterprise Platform Engineering
 
-## Milestone 1 — IT Foundations
+### Internal Developer Platforms (IDPs) (`MOD-IDP`)
+* **Capability Statement:** "I can design self-service developer portals that provide automated infrastructure scaffolding and golden paths."
+* **Core Skills:** Developers-as-customers principles, Backstage developer portals, automated software templates, golden paths, and DevEx telemetry.
 
-Representative Roles
-
-* IT Support Engineer
-* Junior Linux Administrator
-* Junior Systems Administrator
-
-Outcome
-
-Confidently work in Linux, networking, and Git.
+### Advanced Systems & Scaling (`MOD-ADV`)
+* **Capability Statement:** "I can architect multi-region distributed platform topologies and manage high-throughput distributed systems."
+* **Core Skills:** Highly available multi-region active-active architectures, distributed caching/sharding, and Kubernetes Cluster Mesh.
 
 ---
 
-## Milestone 2 — Infrastructure Engineering
+## Stage 8 & 9: Synthesis & Career Mastery
 
-Representative Roles
+### Capstone Portfolio (`MOD-CAP`)
+* **Capability Statement:** "I can synthesize end-to-end curriculum knowledge into production-grade architectural blueprints and portfolio assets."
+* **Core Skills:** Building complete, reproducible Enterprise IDPs and Scalable AI Inference Engines from scratch.
 
-* Infrastructure Engineer
-* Systems Engineer
-* Junior DevOps Engineer
-
-Outcome
-
-Deploy and manage containerized infrastructure.
-
----
-
-## Milestone 3 — Cloud & DevOps
-
-Representative Roles
-
-* Cloud Engineer
-* DevOps Engineer
-* Platform Operations Engineer
-
-Outcome
-
-Provision infrastructure and automate deployments.
-
----
-
-## Milestone 4 — Kubernetes Engineering
-
-Representative Roles
-
-* Kubernetes Administrator
-* Platform Engineer
-* Site Reliability Engineer
-
-Outcome
-
-Operate production-ready Kubernetes environments.
-
----
-
-## Milestone 5 — Observability & Reliability
-
-Representative Roles
-
-* Reliability Engineer
-* Observability Engineer
-* SRE
-
-Outcome
-
-Monitor, troubleshoot, and improve production systems.
-
----
-
-## Milestone 6 — AI Infrastructure
-
-Representative Roles
-
-* AI Infrastructure Engineer
-* MLOps Engineer
-* AI Platform Engineer
-
-Outcome
-
-Deploy and operate modern AI infrastructure.
-
----
-
-## Milestone 7 — Senior Platform Engineering
-
-Representative Roles
-
-* Senior Platform Engineer
-* Staff Platform Engineer
-* Principal Infrastructure Engineer
-
-Outcome
-
-Design scalable internal platforms and engineering systems.
+### Career & System Design (`MOD-CAR`)
+* **Capability Statement:** "I can articulate complex architectural trade-offs on a whiteboard and confidently navigate engineering interviews."
+* **Core Skills:** Structured system design frameworks, whiteboard architecture presentations, behavioral communication, and portfolio refinement.
 
 ---
 
 # Learning Tracks
 
-Every lesson is divided into three optional depth levels.
+Every lesson is divided into three optional depth levels to accommodate diverse learner backgrounds:
 
-## 🟢 Core
-
-Required for every learner.
-
-Focus:
-
-* Fundamentals
-* Essential theory
-* Basic labs
-* Core concepts
-
----
-
-## 🔵 Professional
-
-Recommended for learners preparing for engineering roles.
-
-Focus:
-
-* Production practices
-* Troubleshooting
-* Real-world labs
-* Portfolio projects
-* Interview preparation
-
----
-
-## 🟣 Expert
-
-Optional advanced material.
-
-Focus:
-
-* System internals
-* Performance optimization
-* Architecture deep dives
-* Advanced troubleshooting
-* Research-level topics
-
----
-
-# Optional Proof of Competency
-
-Each Career Milestone includes an optional portfolio project.
-
-These projects are strongly recommended but not required to complete the curriculum.
-
-Every competency project should:
-
-* Solve a realistic engineering problem
-* Be maintained in Git
-* Include a README
-* Include architecture diagrams where appropriate
-* Document design decisions
-* Be reproducible
-* Demonstrate production-quality engineering practices
-
-Examples include:
-
-* Linux Administration Toolkit
-* Containerized Multi-Service Application
-* Terraform Infrastructure Deployment
-* Production Kubernetes Platform
-* Observability Stack
-* AI Inference Platform
-* Internal Developer Platform (IDP)
+* 🟢 **Core:** Essential theory, fundamental commands, and foundational labs. Required for all students.
+* 🔵 **Professional:** Production practices, troubleshooting workflows, real-world edge cases, and portfolio projects.
+* 🟣 **Expert:** System internals, performance optimization, advanced architecture deep dives, and research topics.
 
 ---
 
 # Final Graduate Outcome
 
-A graduate who completes the Core and Professional tracks—and optionally completes the Proof of Competency projects—should possess the practical skills, portfolio, and confidence to pursue modern Platform Engineering, DevOps, Cloud Engineering, Site Reliability Engineering, and AI Infrastructure roles.
+A graduate who completes the Core and Professional tracks—and optionally completes the Proof of Competency capstones—possesses the verifiable capabilities, elite portfolio, and absolute confidence required to excel in modern Platform Engineering, DevOps, Cloud Engineering, Site Reliability Engineering, and AI Infrastructure roles.

@@ -1,8 +1,8 @@
 # Comprehensive Skill Matrix
 
-Version: 1.0.0
+Version: 2.0.0
 
-Purpose: Tabular mapping of technical competencies across the Beginner, Intermediate, Advanced, and Production depth tiers.
+Purpose: Tabular mapping of technical competencies across the Beginner, Intermediate, Advanced, and Production depth tiers. Optimized for mastery learning and capability tracking.
 
 Required Inputs: Learning objectives, module map, learning tracks.
 
@@ -14,8 +14,9 @@ Outputs: Granular skill tracking matrix for self-assessment and QA validation.
 
 | Technical Skill | Beginner | Intermediate | Advanced | Production / Enterprise |
 | :--- | :--- | :--- | :--- | :--- |
-| **Linux File & User Mgmt** | ✓ Basic bash commands | ✓ Permissions & ACLs | ✓ PAM & Secure boot | ✓ Enterprise RBAC & Auditing |
-| **Linux Process & Services** | ✓ `ps`, `top`, `kill` | ✓ Systemd units & journals | ✓ Kernel tuning (`sysctl`) | ✓ Cgroup resource limitation |
+| **Linux Terminal Basics** | ✓ Navigate CLI, `ls`, `cd` | ✓ Piping & redirection | ✓ Shell environment config | ✓ Automated immutable setup |
+| **Linux File & User Mgmt** | ✓ `mkdir`, `cp`, user concepts| ✓ Permissions & ACLs | ✓ PAM & Secure boot | ✓ Enterprise RBAC & Auditing |
+| **Linux Process & Services** | ✓ `ps`, `top`, `kill` | ✓ Systemd units & journals | ✓ `strace`, cgroups, namespaces| ✓ Enterprise kernel isolation |
 | **Networking & Routing** | ✓ IP addressing, DNS | ✓ Subnetting, custom routes| ✓ BGP, TCP socket tuning | ✓ Multi-region global routing |
 | **Proxy & Load Balancing** | ✓ Basic HTTP server | ✓ Nginx / Envoy reverse proxy | ✓ Mutual TLS (mTLS) setup | ✓ Global Anycast & WAF setup |
 

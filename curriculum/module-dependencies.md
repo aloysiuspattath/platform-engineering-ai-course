@@ -1,8 +1,8 @@
 # Explicit Module Dependencies
 
-Version: 1.0.0
+Version: 2.0.0
 
-Purpose: Directed acyclic dependency graph specification ensuring zero knowledge gaps and preventing circular dependencies across the curriculum.
+Purpose: Directed acyclic dependency graph specification ensuring zero knowledge gaps, progressive difficulty escalation, and absolute learner confidence across the curriculum.
 
 Required Inputs: Module map, learning progression order.
 
@@ -14,7 +14,9 @@ Outputs: Verification criteria for lesson authors to ensure prerequisites are sa
 
 ```mermaid
 graph TD
-    MOD-LINUX[MOD-LINUX: Linux Fundamentals]
+    MOD-LINUX-BEG[MOD-LINUX-BEG: Getting Started with Linux]
+    MOD-LINUX-ADM[MOD-LINUX-ADM: Linux Administration]
+    MOD-LINUX-INT[MOD-LINUX-INT: Linux Internals]
     MOD-NET[MOD-NET: Networking]
     MOD-GIT[MOD-GIT: Version Control]
     
@@ -33,7 +35,12 @@ graph TD
     MOD-CAP[MOD-CAP: Capstone Portfolio]
     MOD-CAR[MOD-CAR: Career & System Design]
 
-    MOD-LINUX --> MOD-DOCKER
+    MOD-LINUX-BEG --> MOD-LINUX-ADM
+    MOD-LINUX-ADM --> MOD-LINUX-INT
+    MOD-LINUX-ADM --> MOD-NET
+    MOD-LINUX-BEG --> MOD-GIT
+
+    MOD-LINUX-INT --> MOD-DOCKER
     MOD-NET --> MOD-DOCKER
     MOD-GIT --> MOD-DOCKER
 
@@ -71,25 +78,41 @@ graph TD
 
 # Explicit Prerequisite Declarations
 
+## MOD-LINUX-ADM
+* **Prerequisites:** `MOD-LINUX-BEG`
+* **Rationale:** Requires fundamental terminal navigation and file management before introducing multi-user permissions and system daemons.
+
+## MOD-LINUX-INT
+* **Prerequisites:** `MOD-LINUX-ADM`
+* **Rationale:** Requires solid administration and process management experience before diving into kernel system calls, cgroups, and namespaces.
+
+## MOD-NET
+* **Prerequisites:** `MOD-LINUX-ADM`
+* **Rationale:** Requires command-line familiarity and basic package management to install and configure network diagnostic tools and proxies.
+
+## MOD-GIT
+* **Prerequisites:** `MOD-LINUX-BEG`
+* **Rationale:** Requires directory navigation and text editing skills to initialize repositories and execute commits.
+
 ## MOD-DOCKER
-* **Prerequisites:** `MOD-LINUX`, `MOD-NET`, `MOD-GIT`
-* **Rationale:** Requires understanding of Linux cgroups/namespaces, IP routing/ports, and git repository cloning.
+* **Prerequisites:** `MOD-LINUX-INT`, `MOD-NET`, `MOD-GIT`
+* **Rationale:** Direct application of Linux cgroups and namespaces, port binding, and git repository cloning for container builds.
 
 ## MOD-SEC
-* **Prerequisites:** `MOD-DOCKER`, `MOD-LINUX`
-* **Rationale:** Requires practical container execution knowledge to conduct vulnerability scanning and image signing.
+* **Prerequisites:** `MOD-DOCKER`, `MOD-LINUX-ADM`
+* **Rationale:** Requires practical container execution and Linux permission models to implement vulnerability scanning and secret encryption.
 
 ## MOD-TF
 * **Prerequisites:** `MOD-SEC`, `MOD-GIT`
-* **Rationale:** Requires understanding of least-privilege identity concepts and declarative configuration versioning.
+* **Rationale:** Requires understanding of least-privilege identity concepts and declarative code versioning.
 
 ## MOD-CLOUD
 * **Prerequisites:** `MOD-TF`, `MOD-NET`
-* **Rationale:** Cloud infrastructure must be provisioned via Terraform rather than manual console clicking; requires VPC subnetting knowledge.
+* **Rationale:** Cloud infrastructure must be provisioned via Terraform rather than manual console interaction; requires VPC subnetting knowledge.
 
 ## MOD-K8S
 * **Prerequisites:** `MOD-CLOUD`, `MOD-DOCKER`
-* **Rationale:** Requires robust containerization and cloud infrastructure fundamentals to understand the control plane and node worker architectures.
+* **Rationale:** Requires robust containerization and cloud infrastructure fundamentals to master control plane and worker node architectures.
 
 ## MOD-CICD
 * **Prerequisites:** `MOD-K8S`, `MOD-GIT`
@@ -108,5 +131,5 @@ graph TD
 * **Rationale:** Internal Developer Platforms stitch together Terraform templates, Kubernetes namespaces, and CI/CD workflows into self-service portals.
 
 ## MOD-CAP & MOD-CAR
-* **Prerequisites:** All prior modules (`MOD-LINUX` through `MOD-ADV`)
+* **Prerequisites:** All prior modules (`MOD-LINUX-BEG` through `MOD-ADV`)
 * **Rationale:** Master capstone implementation and whiteboard system design require comprehensive synthesis of the entire curriculum.
