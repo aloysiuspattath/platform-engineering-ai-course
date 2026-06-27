@@ -1,14 +1,14 @@
 # Lesson Author — Task
 
-Version: 1.0.0
+Version: 2.0.0
 
 ---
 
 # Objective
 
-Generate production-quality markdown lessons for the **Platform Engineering & AI Infrastructure Course** based on the approved curriculum blueprint.
+Generate production-quality, highly instructional markdown lessons for the **Platform Engineering & AI Infrastructure Course** based on the approved curriculum blueprint.
 
-Every lesson must strictly adhere to the structural layout defined in `TEMPLATE_LESSON.md` and uphold the rigorous writing standards of the Style Guide.
+Every lesson must strictly adhere to the structural layout defined in `TEMPLATE_LESSON.md`, embody the Version 2.0 educational philosophy of a world-class technical instructor, and enforce the formal Difficulty Progression Model.
 
 Write generated lessons into `output/generated/`.
 
@@ -18,11 +18,11 @@ Do not generate standalone labs, projects, quizzes, cheat sheets, or website con
 
 # Deliverables
 
-Generate the specific lesson markdown files assigned in the current execution queue (e.g., Stage 1: Foundations lessons) into:
+Generate the specific lesson markdown files assigned in the current execution queue into:
 
 `output/generated/`
 
-Each file must be named according to its canonical lesson ID (e.g., `output/generated/MOD-LINUX-01.md`).
+Each file must be named according to its canonical lesson ID (e.g., `output/generated/module-02/lesson-01.md`).
 
 ---
 
@@ -58,37 +58,38 @@ Before generating any lesson content, read and analyze:
 
 # Lesson Generation Requirements
 
-For every assigned lesson, you must populate all 21 standard sections defined in `TEMPLATE_LESSON.md`:
+For every assigned lesson, you must populate all 21 standard sections defined in `TEMPLATE_LESSON.md` while embedding the Version 2.0 teaching framework:
 
 1. Lesson Metadata
 2. Lesson Overview
 3. Learning Objectives
-4. Prerequisites
-5. Why This Exists
-6. Core Concepts
-7. Architecture (Mermaid / ASCII)
-8. Real-World Example
-9. Hands-on Demonstration
+4. Prerequisites (Relying *only* on preceding lessons)
+5. Why This Exists (Motivation before implementation)
+6. Core Concepts (Mental models before syntax)
+7. Architecture (Clear Mermaid / ASCII diagrams)
+8. Real-World Example (Production perspective)
+9. Hands-on Demonstration (Input → Code → Expected Output → Explanation)
 10. Hands-on Lab (Summary & pointer to standalone lab)
-11. Production Notes
-12. Common Mistakes
-13. Failure-Driven Learning
-14. Engineering Decisions
-15. Best Practices
-16. Troubleshooting Guide
-17. Summary
+11. Production Notes (High-level context appropriate for the module level)
+12. Common Mistakes (Empathetic guidance)
+13. Failure-Driven Learning (Safe, instructive failure simulation)
+14. Engineering Decisions (Trade-off intuition)
+15. Best Practices (Actionable rules)
+16. Troubleshooting Guide (Problem → Cause → Diagnosis → Solution)
+17. Summary (Key takeaways)
 18. Cheat Sheet (Summary & pointer to standalone cheat sheet)
 19. Knowledge Check (Pointer to standalone quiz)
-20. Interview Preparation
-21. Further Reading
+20. Interview Preparation (Appropriate depth tiers)
+21. Further Reading (Signposting advanced deep-dives)
 
 ---
 
-# Execution Scope
+# Execution Scope & Progression
 
-* **Write with Authority:** Explain underlying mechanics, kernel interactions, network packets, or execution models clearly.
-* **Keep Examples Realistic:** Use production-grade configuration snippets rather than trivial toy examples.
-* **Maintain Track Scoping:** Delineate content clearly across 🟢 Core, 🔵 Professional, and 🟣 Expert depths.
+When authoring a lesson, inspect its parent module and enforce the correct difficulty ratio:
+* **Module 01:** 80% Beginner / 20% Intermediate / 0% Advanced. Keep explanations deeply intuitive. Omit deep kernel tracing or complex C-library mechanics.
+* **Module 02:** 60% Beginner / 40% Intermediate / 0% Advanced. Focus on clear networking foundations.
+* **Module 03+:** Intermediate → Advanced. Ramp up production complexity as prerequisite knowledge accumulates.
 
 ---
 
@@ -101,7 +102,7 @@ Do not:
 * Generate standalone project files in `projects/`.
 * Generate standalone quiz files in `quizzes/`.
 * Generate standalone cheat sheets in `cheatsheets/`.
-* Skip prerequisite declarations or invent unsupported technical claims.
+* Introduce senior-level production internals prematurely in beginner lessons.
 
 If any project documents conflict or required information is missing, stop and report the issue instead of making assumptions.
 
@@ -112,15 +113,16 @@ If any project documents conflict or required information is missing, stop and r
 Before completing the task, verify:
 
 * Every generated lesson perfectly matches `TEMPLATE_LESSON.md`.
+* The six core questions (What, Why, When, How, Production, Advanced Signposting) are fully answered.
 * Code blocks are syntactically valid and include expected outputs.
-* Diagrams are valid Mermaid syntax.
-* Content meets the definition of done established in `STYLE_GUIDE.md`.
+* Diagrams are valid Mermaid syntax and easy to understand.
+* Content meets the Version 2.0 educational quality gates.
 
 ---
 
 # Expected Output
 
-Return fully populated, production-ready markdown lesson files written directly into `output/generated/`.
+Return fully populated, highly instructional markdown lesson files written directly into `output/generated/`.
 
 ---
 
@@ -129,6 +131,6 @@ Return fully populated, production-ready markdown lesson files written directly 
 The task is complete only when:
 
 * All assigned lessons in the execution batch have been generated into `output/generated/`.
-* Internal validation against `TEMPLATE_LESSON.md` passes.
-* A complete review report is generated.
+* Internal validation against `TEMPLATE_LESSON.md` and the educational progression model passes.
+* A complete Version 2.0 review report is generated.
 * No unresolved assumptions remain.
