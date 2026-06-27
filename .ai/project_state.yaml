@@ -2,7 +2,7 @@
 # AI Project Runtime State
 # ==========================================================
 
-version: "1.0.0"
+version: "2.0.0"
 
 project:
   name: "Platform Engineering & AI Infrastructure Course"
@@ -13,13 +13,13 @@ project:
 # Current Progress
 # ==========================================================
 
-current_phase: "Curriculum Content Generation"
+current_phase: "Curriculum Content Generation (v2.0)"
 
-current_stage: "Lesson Authoring"
+current_stage: "Lesson Authoring (v2.0)"
 
-current_agent: "Lesson Author"
+current_agent: "Lesson Author 2.0"
 
-current_task: "Generate Module 01: Linux Fundamentals for Platform Engineers lessons in output/generated/module-01/"
+current_task: "Regenerate Module 01: Linux Fundamentals for Platform Engineers lessons in output/generated/module-01/ using v2.0 educational standards"
 
 # ==========================================================
 # Milestones
@@ -84,7 +84,9 @@ completed:
 
   curriculum_design: true
 
-  module_01_lessons: true
+  lesson_author_v2_upgrade: true
+
+  module_01_lessons_v2: true
 
 # ==========================================================
 # Current Outputs
@@ -130,9 +132,9 @@ generated:
 
 next_tasks:
 
-  - "Move Module 01 lessons through review and approval staging (output/reviewed/ -> output/approved/)"
+  - "Move Module 01 v2.0 lessons through review and approval staging (output/reviewed/ -> output/approved/)"
   - "Invoke Lab Designer for Module 01 standalone lab generation"
-  - "Invoke Lesson Author for Module 02: Networking Fundamentals"
+  - "Invoke Lesson Author 2.0 for Module 02: Networking Fundamentals"
 
 # ==========================================================
 # Blockers
@@ -170,8 +172,8 @@ quality_gates:
 
 last_updated: "2026-06-28"
 
-updated_by: "Lesson Author"
+updated_by: "Lesson Author 2.0"
 
 notes: >
-  Module 01: Linux Fundamentals for Platform Engineers successfully authored, self-reviewed, and staged in output/generated/module-01/.
-  All 21 mandatory sections fully populated across all 6 lessons. Handoff ready.
+  Module 01: Linux Fundamentals for Platform Engineers successfully regenerated using Lesson Author 2.0 standards.
+  Full 21 sections populated with world-class technical bootcamp instructor persona, 80/20 beginner progression model, and zero assumed knowledge.
