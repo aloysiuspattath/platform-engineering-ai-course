@@ -1,0 +1,9 @@
+project: "Platform Engineering AI Course"
+version: "1.0.0"
+current_phase: "Foundation & Standards Definition"
+last_updated: "2026-06-27"
+active_module: "linux"
+completion_status:
+  standards: "completed"
+  curriculum: "in_progress"
+  modules: "pending"
