@@ -111,20 +111,20 @@ How does an application read secrets from Vault without writing massive custom A
 
 ```mermaid
 flowchart TD
-    subgraph GitOpsStorage [GitOps Secret Storage (SOPS)]
-        PLAIN["Plain-Text: db_pass: Secret99"] -->|sops -e| SOPS["sops Encrypted: db_pass: ENC[AES256...]"]
-        SOPS -->|Safe to Commit!| GIT["GitHub Repository (Public or Private)"]
+    subgraph GitOpsStorage [The Safe Box (Storing Passwords)]
+        PLAIN["Readable Password (Danger!)"] -->|sops -e| SOPS["Scrambled Password (Safe!)"]
+        SOPS -->|Safe to Commit!| GIT["Public Code Folder"]
     end
 
-    subgraph DynamicEngine [HashiCorp Vault Secret Engine]
-        UNSEAL["Vault Unsealed (Shamir's Secret Sharing)"] --> KV["Vault KV Store (vault kv put secret/myapp api_key=AI999)"]
+    subgraph DynamicEngine [The Password Vending Machine]
+        UNSEAL["Unlocking the Vending Machine (Needs multiple keys)"] --> KV["Storing temporary passwords inside"]
     end
 
-    subgraph RuntimeInjection [Active Application Namespace]
-        GIT -->|sops -d| DECRYPT["CI/CD Runner Decrypts via AWS KMS / Master Key"]
-        KV -->|Dynamic Lease| AGENT["Vault Agent Sidecar (Fetches Token)"]
-        AGENT -->|Writes to RAM| TMPFS["tmpfs Mount: /app/secrets/api.json (Never touches disk!)"]
-        TMPFS --> PROC["Application Process (Executes with Pristine Secrets)"]
+    subgraph RuntimeInjection [The Running App]
+        GIT -->|sops -d| DECRYPT["Unscrambling with the Master Key"]
+        KV -->|Dynamic Lease| AGENT["The App's Helper (Asks for a password)"]
+        AGENT -->|Writes to RAM| TMPFS["Temporary Memory (Erases when turned off!)"]
+        TMPFS --> PROC["App runs using the temporary password"]
     end
 ```
 
@@ -132,15 +132,15 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Lead Platform Engineer hired to secure a massive financial technology enterprise. The company currently develops 100 separate financial microservices across 50 Git repositories.
+Imagine you are hired to secure the systems for a massive bank. The company currently builds 100 different apps across 50 code folders.
 
-Every single repository contains plain-text Kubernetes YAML manifests (`production-secrets.yml`) storing physical database passwords, AWS root access keys, and third-party banking API tokens. Over 200 developers have cloned these repositories onto their personal laptops. 
+Every single folder contains files with "Readable Passwords" for databases and banking tools. Over 200 developers have downloaded these folders onto their personal laptops. 
 
-When you run an automated credential scanning audit (`gitleaks`), you discover **500 plain-text secrets** scattered across the company's Git commit histories! If a single developer's laptop is stolen or compromised, hackers gain instant administrative access to the company's core banking databases.
+When you run a scan, you discover 500 readable passwords scattered everywhere! If a single developer's laptop is stolen, hackers would gain instant access to the bank's core databases.
 
-Because you maintain elite cryptographic standards, you execute a massive secret management overhaul. You implement **Mozilla SOPS** across all 50 Git repositories. You configure SOPS to bind directly to an AWS KMS master encryption key. You execute `sops -e` across every single `production-secrets.yml` file, instantly converting the plain-text passwords into impenetrable `ENC[AES256_GCM...]` ciphertexts. Now, developers can clone repositories freely; without physical access to the master AWS KMS key, the files remain completely unreadable!
+Because you know better, you execute a massive security overhaul. First, you implement "The Safe Box" for all 50 code folders. You take every readable password and scramble it. Now, developers can download the code freely; without the master key, the passwords just look like "Scrambled Passwords" and are completely unreadable!
 
-Finally, for the core banking transaction microservices, you deploy **HashiCorp Vault**. You transition the database connections to dynamic, lease-based credentials that automatically rotate every 30 minutes. Your enterprise achieves absolute cryptographic secrecy, passes stringent financial security compliance audits (SOC2/PCI-DSS) flawlessly, and permanently eliminates plain-text credential leaks!
+Finally, for the most critical banking apps, you deploy "The Password Vending Machine". Instead of using permanent passwords, you make the apps ask "The App's Helper" for a temporary password that automatically expires every 30 minutes. The password is kept only in "Temporary Memory", so it never touches a hard drive. Your bank achieves total secrecy, passes strict security audits flawlessly, and permanently eliminates password leaks!
 
 ---
 

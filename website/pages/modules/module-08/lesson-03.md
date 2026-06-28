@@ -109,8 +109,9 @@ While storing modules in a local subdirectory (`source = "./modules/vpc"`) is co
 ```
 
 ## 5. Automated Documentation (`terraform-docs`)
-How do developers know what input variables your module accepts or what outputs it returns without manually reading 500 lines of HCL? Platform Engineers utilize the automated binary **`terraform-docs`**.
-* When you execute `terraform-docs markdown table .`, the binary parses your HCL files, extracts every single variable description, default value, type, and output description, and automatically injects a pristine, beautiful markdown table directly into your module's `README.md`!
+How do you know what ingredients to provide, or what meal you'll get, without reading a 500-page manual? We use a tool called `terraform-docs` to auto-generate the menu!
+
+Think of the shared module repository as The Master Recipe Book. It contains the Ingredient List (`variables.tf`), the Cooking Instructions (`main.tf`), and a description of The Final Dish (`outputs.tf`). Once a recipe gets its Official Seal of Approval (a version tag), you can place Your Order from The Local Kitchen. When you're ready, you Fetch the Recipe, Check the Ingredients to make sure you didn't mess up (preventing an Allergy Warning for bad inputs!), and finally Start Cooking! The `terraform-docs` tool simply looks at the ingredients and automatically writes a clean, easy-to-read menu (`README.md`) so everyone knows exactly what to order.
 
 ---
 
@@ -118,18 +119,18 @@ How do developers know what input variables your module accepts or what outputs 
 
 ```mermaid
 flowchart TD
-    subgraph EnterpriseModuleRepo [Shared Module Repository: terraform-aws-vpc]
-        MOD_VARS["variables.tf (Validation: cidr regex, instance types)"] --> MOD_MAIN["main.tf (Resources: aws_vpc, aws_subnet)"]
-        MOD_MAIN --> MOD_OUT["outputs.tf (Outputs: vpc_id, subnet_ips)"]
-        MOD_OUT -->|git tag v1.0.0| GIT["GitHub Release Tag: v1.0.0"]
-        MOD_VARS --> DOCS["terraform-docs markdown table . (Generates README.md)"]
+    subgraph EnterpriseModuleRepo [The Master Recipe Book]
+        MOD_VARS["Ingredient List (variables.tf)"] --> MOD_MAIN["Cooking Instructions (main.tf)"]
+        MOD_MAIN --> MOD_OUT["The Final Dish (outputs.tf)"]
+        MOD_OUT -->|git tag v1.0.0| GIT["Version 1.0 (Official Seal of Approval)"]
+        MOD_VARS --> DOCS["Auto-Generates the Menu (README.md)"]
     end
 
-    subgraph CallingEnvironment [Team Production Environment]
-        PROD["main.tf (module 'vpc' { source = 'git::...vpc.git?ref=v1.0.0' })"] --> INIT["terraform init (Pulls v1.0.0 Git Tarball)"]
-        INIT --> PLAN["terraform plan (Validates Variables & Calculates DAG)"]
-        PLAN -->|Input Validation Failed| ABORT["Exit Code 1: Custom Error Message!"]
-        PLAN -->|Input Validation Passed| APPLY["terraform apply (Applies Pristine Module)"]
+    subgraph CallingEnvironment [The Local Kitchen (Your Environment)]
+        PROD["Your Order (main.tf calling the module)"] --> INIT["Fetch Recipe (terraform init)"]
+        INIT --> PLAN["Check Ingredients (terraform plan)"]
+        PLAN -->|Input Validation Failed| ABORT["Allergy Warning! Bad Ingredients!"]
+        PLAN -->|Input Validation Passed| APPLY["Start Cooking (terraform apply)"]
     end
 ```
 

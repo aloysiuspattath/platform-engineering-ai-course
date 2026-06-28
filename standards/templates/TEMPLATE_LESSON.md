@@ -57,6 +57,7 @@ Outputs: Standards-compliant lesson markdown.
 # Architecture
 
 <!-- Visual explanation of the architecture or system model using Mermaid or ASCII diagrams. -->
+<!-- IMPORTANT: All diagrams and explanations MUST use simple, accessible layman's terms (e.g., "The Core Engine" instead of "Kernel") rather than overly complex jargon. Ensure the accompanying text matches the simplified diagram labels. -->
 
 ```mermaid
 <!-- Insert Mermaid diagram explaining the architecture -->

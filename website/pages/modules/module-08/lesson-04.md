@@ -110,8 +110,11 @@ To eliminate local execution entirely, Platform Engineers deploy centralized Git
 ```
 
 ## 5. End-to-End GitOps IaC Pipelines
-A true enterprise Platform Engineering IaC pipeline incorporates every single quality gate we have mastered across Module 08:
-* `tflint` (Static linting) ──► `tfsec` (Security scanning) ──► `terraform fmt` (Canonical formatting) ──► `terraform plan` (Dry-run diff) ──► `Peer Review Approval` ──► `atlantis apply` (Automated execution).
+A true enterprise infrastructure pipeline is a lot like a strict publishing process for a newspaper—it makes sure no bad articles ever make it to the front page!
+
+When you finish Drafting the Changes at The Writer's Desk, you Submit for Review. The Automated Editor (like Atlantis) immediately Notices the Submission and runs a Grammar & Safety Check. Then, it will Preview the Impact to make sure you aren't accidentally deleting something important. It Leaves a Comment on your draft assuring everyone: "Nothing will be broken or deleted!" 
+
+Next, we move to The Publishing Process. A Coworker gives a Thumbs Up on your work. Once you say "Go Ahead and Publish!", the system Safely Applies the Changes in a Secure Room. Done! The Changes are Live, and no one had to risk making the updates manually from their own laptop.
 
 ---
 
@@ -119,22 +122,22 @@ A true enterprise Platform Engineering IaC pipeline incorporates every single qu
 
 ```mermaid
 flowchart TD
-    subgraph RefactorWorkspace [Developer Refactoring Workspace]
-        HCL["main.tf (Blocks: import, moved)"] --> PR["Git Commit && Submit Pull Request"]
+    subgraph RefactorWorkspace [The Writer's Desk]
+        HCL["Drafting the Changes (main.tf)"] --> PR["Submit for Review (Pull Request)"]
     end
 
-    subgraph AtlantisEngine [Atlantis GitOps Engine (Kubernetes)]
-        PR -->|GitHub Webhook| ATLANTIS["Atlantis Webhook Receiver"]
-        ATLANTIS --> LINT["1. tflint && tfsec (Static Analysis Gate)"]
-        LINT --> PLAN["2. terraform plan (Calculates moved / import Diffs)"]
-        PLAN -->|Posts PR Comment| COMMENT["PR Comment: Plan: 0 to add, 0 to change, 0 to destroy (State Move Only!)"]
+    subgraph AtlantisEngine [The Automated Editor]
+        PR -->|Webhook| ATLANTIS["Notices the Submission"]
+        ATLANTIS --> LINT["1. Grammar & Safety Check (Linting & Sec)"]
+        LINT --> PLAN["2. Preview the Impact (Plan)"]
+        PLAN -->|Posts PR Comment| COMMENT["Leaves a Comment: 'Nothing will be broken or deleted!'"]
     end
 
-    subgraph ProductionExecution [GitOps Approval & Apply]
-        COMMENT --> APPROVE["Peer Engineer Reviews & Approves PR"]
-        APPROVE --> COMMENT_APPLY["Developer Comments: 'atlantis apply'"]
-        COMMENT_APPLY --> APPLY["3. terraform apply (Executes inside secure runner)"]
-        APPLY --> MERGE["PR Automatically Merged & Closed!"]
+    subgraph ProductionExecution [The Publishing Process]
+        COMMENT --> APPROVE["A Coworker gives a Thumbs Up"]
+        APPROVE --> COMMENT_APPLY["You say 'Go Ahead and Publish!'"]
+        COMMENT_APPLY --> APPLY["3. Safely Applies the Changes in a Secure Room"]
+        APPLY --> MERGE["Done! The Changes are Live!"]
     end
 ```
 

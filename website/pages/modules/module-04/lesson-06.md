@@ -93,20 +93,20 @@ True diagnostic mastery requires combining your entire Module 04 knowledge into 
 
 ```mermaid
 flowchart TD
-    subgraph NetworkInterface [Physical Network Card: eth0]
-        WIRE["Physical Internet Wire"] -->|Raw Packets| ETH0["eth0 Interface (Promiscuous Mode)"]
+    subgraph NetworkInterface [The Network Door (Network Interface)]
+        WIRE["The Outside Cable"] -->|Raw Traffic| ETH0["The Doorway (Listening to Everything)"]
     end
 
-    subgraph KernelEngine [Linux Kernel Ring 0]
-        ETH0 -->|Raw Socket Copy| BPF["Berkeley Packet Filter Engine (BPF: 'port 80')"]
-        BPF -->|Drops Non-Matching| DROP["Dropped Packets (e.g., Port 22 SSH)"]
-        BPF -->|Passes Matches| RING3["User Space Ring 3"]
+    subgraph KernelEngine [The Mail Sorting Room (Kernel Engine)]
+        ETH0 -->|Copy of Traffic| BPF["The Sorter (Filtering for Web Traffic)"]
+        BPF -->|Ignores Unmatched| DROP["The Trash (Ignoring Other Traffic)"]
+        BPF -->|Passes Matches| RING3["The Analyst's Desk (User Space)"]
     end
 
-    subgraph UserSpace [User Space Ring 3 / Analysis]
-        RING3 --> TCPDUMP["tcpdump CLI (-w capture.pcap)"]
-        TCPDUMP -->|Writes PCAP| FILE["capture.pcap File"]
-        FILE -->|Export & Open| WIRESHARK["Wireshark GUI / tshark CLI (Protocol Dissection)"]
+    subgraph UserSpace [The Detective's Office (Analysis Space)]
+        RING3 --> TCPDUMP["The Recorder (Saving the Traffic)"]
+        TCPDUMP -->|Writes to File| FILE["The Case File (Saved Recording)"]
+        FILE -->|Export & Open| WIRESHARK["The Magnifying Glass (Analysis Tool)"]
     end
 ```
 
@@ -114,17 +114,19 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Lead Infrastructure Engineer debugging a massive, highly confusing cloud anomaly. Your Kubernetes worker nodes in AWS are attempting to pull a large AI container image from an external Docker registry (`registry.external.com:443`). The pull initiates successfully, but stalls exactly at 15 Megabytes and eventually fails with `Client timeout`.
+Think of packet analysis like a detective monitoring a suspect's mail. The mail arrives through **The Outside Cable** at **The Network Door (Network Interface)**, where **The Doorway** is instructed to intercept everything. It goes into **The Mail Sorting Room (Kernel Engine)**, where **The Sorter (Filtering for Web Traffic)** throws irrelevant mail into **The Trash** and sends the important mail to **The Analyst's Desk (User Space)**. Up in **The Detective's Office (Analysis Space)**, **The Recorder (Saving the Traffic)** logs everything into **The Case File (Saved Recording)**, which the detective later inspects closely with **The Magnifying Glass (Analysis Tool)**!
 
-`ping` works perfectly. `curl -I https://registry.external.com` returns `200 OK`. The firewall rules are completely open. The developers are completely baffled.
+Imagine you are debugging a massive, highly confusing cloud anomaly. Your cloud servers are trying to download a large file from an external source. The download starts successfully, but stalls exactly at 15 Megabytes and eventually fails with a timeout.
 
-Because you are an elite packet analyst, you execute `sudo tcpdump -i eth0 host registry.external.com -nn` on the worker node while initiating the container pull.
+The connection works perfectly. The firewall rules are completely open. The developers are completely baffled.
 
-You watch the packets flood the terminal. You see the TCP 3-Way Handshake complete perfectly (`SYN`, `SYN-ACK`, `ACK`). You see the TLS handshake complete. You see small data packets flowing perfectly. 
+Because you are an elite packet analyst, you become the detective. You set up **The Recorder** on the server while starting the download.
 
-Then, the moment the large container layer begins downloading, you notice something extraordinary: the external registry attempts to send massive packets with a length of 1500 bytes. Your server instantly fires back an ICMP error packet stating `ICMP unreachable - need to frag (mtu 1460)`! The external server ignores the ICMP packet and continuously retransmits the large 1500-byte packets, which are forcefully dropped by your cloud virtual network adapter!
+You watch the data flood the terminal. You see the initial connection complete perfectly. You see the security checks complete. You see small pieces of data flowing perfectly. 
 
-You have discovered a legendary networking anomaly: **Path MTU Discovery Failure (Blackhole Connection)**! Because your cloud network interface has a Maximum Transmission Unit (MTU) of 1460 bytes, it cannot accept the incoming 1500-byte packets. You update your network interface MTU or enable TCP MSS Clamping, verify the clean packet flow in `tcpdump`, and the container images download flawlessly!
+Then, the moment the large file begins downloading, you notice something extraordinary: the external server attempts to send massive packages that are 1500 bytes large. Your server instantly fires back an error stating "This package is too big for my door (max 1460 bytes)!" The external server ignores the error and continuously resends the large 1500-byte packages, which are forcefully dropped by your server's doorway!
+
+You have discovered a legendary networking anomaly: a package size mismatch! Because your network door can only accept 1460 bytes, it cannot accept the incoming 1500-byte packages. You update your doorway size settings, verify the clean data flow using your analysis tools, and the files download flawlessly!
 
 ---
 

@@ -90,38 +90,40 @@ There are over 300 standard system calls in the Linux kernel. Here are the most 
 
 ```mermaid
 flowchart TD
-    subgraph Ring3 [Ring 3 User Space Sandboxed Execution]
-        APP[Python Script and Web App]
-        LIBC[C Standard Library glibc]
-        APP -->|Calls open| LIBC
+    subgraph Ring3 [The Playground - Regular Software]
+        APP[Regular App like Python]
+        LIBC[The Translator]
+        APP -->|Asks to open file| LIBC
     end
 
-    subgraph SyscallGateway [System Call Gateway]
-        LIBC -->|CPU Instruction syscall| TRAP[Kernel Trap Context Switch Ring 3 to Ring 0]
+    subgraph SyscallGateway [The Secure Gate]
+        LIBC -->|Knocks on the door| TRAP[Security Checkpoint - Switching to Boss Mode]
     end
 
-    subgraph Ring0 [Ring 0 Kernel Space Unrestricted Execution]
-        TRAP --> KERNEL[Linux Kernel Syscall Table sys_open]
-        KERNEL --> VFS[Kernel Virtual Filesystem Device Drivers]
+    subgraph Ring0 [The Control Room - Boss Mode]
+        TRAP --> KERNEL[The Core Engine]
+        KERNEL --> VFS[Hardware Connectors]
     end
 
-    subgraph PhysicalHW [Physical Hardware]
-        VFS --> DISK[Physical Hard Drive NVMe Storage]
+    subgraph PhysicalHW [The Physical World]
+        VFS --> DISK[Actual Hard Drive]
     end
 
-    DISK -->|Returns File Descriptor| KERNEL
-    KERNEL -->|Context Switch Ring 0 to Ring 3| LIBC
+    DISK -->|Hands over a receipt| KERNEL
+    KERNEL -->|Switching back to Regular Mode| LIBC
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing a highly trafficked API microservice powering an e-commerce platform during Black Friday. Your developers write a custom logging function that attempts to write a log entry to the hard drive for every single incoming HTTP request.
+Think of the **Playground** (Regular Software) like the dining area of a busy restaurant, and the **Control Room** (Boss Mode) as the kitchen where the actual cooking happens. 
 
-Suddenly, your cloud servers experience immense CPU spikes, and API response times drop to a crawl. When you inspect the server using `top`, you notice that the CPU is spending 70% of its time in `sys` (Kernel Space) rather than `us` (User Space)!
+Imagine your developers write an app that runs out to the kitchen to ask the **Core Engine** (the head chef) to write down a single order line every time a customer sneezes on Black Friday. 
 
-Because you understand kernel architecture perfectly, you know exactly what happened: every single log write triggers a heavy **Context Switch** from Ring 3 to Ring 0! Making 50,000 system calls per second completely exhausted the CPU's context-switching capacity. You instruct the developers to implement an asynchronous memory buffer that batches log entries together, reducing system calls from 50,000/sec to 10/sec. The CPU load instantly drops to normal, and your API recovers flawlessly!
+Suddenly, your servers slow to a crawl! When you check, the CPU is spending 70% of its time as the head chef rather than the dining area. 
+
+Because you understand the architecture perfectly, you know exactly what happened: every single request triggers a heavy trip through the **Security Checkpoint** (Switching to Boss Mode). Making 50,000 of these trips per second exhausts the system! You instruct the developers to batch the orders together on a single notepad before walking through the **Secure Gate**, dropping the trips from 50,000/sec to 10/sec. Everything instantly recovers!
 
 ---
 

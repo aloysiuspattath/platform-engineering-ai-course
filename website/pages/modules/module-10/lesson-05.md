@@ -120,33 +120,33 @@ If Base64 Kubernetes Secret manifests are unencrypted, how do you store your Kub
 
 ```mermaid
 flowchart TD
-    subgraph GitOpsRepository [GitOps Repository (Public / Internal Git)]
-        CM["ConfigMap: app-settings (LOG_LEVEL: debug)"]
-        ES["ExternalSecret: db-credentials (Key: prod/db/password)"]
+    subgraph GitOpsRepository [The Instruction Manual (Git Repository)]
+        CM["The Bulletin Board (ConfigMap)"]
+        ES["The Vault Request (ExternalSecret)"]
     end
 
-    subgraph AWSCloud [AWS Public Cloud Boundary]
-        ASM["AWS Secrets Manager (Store: prod/db/password = SuperSecret999)"]
+    subgraph AWSCloud [The Secure Facility (AWS Cloud)]
+        ASM["The Bank Vault (AWS Secrets Manager)"]
     end
 
-    subgraph K8sCluster [Kubernetes Production Cluster]
-        ESO["External Secrets Operator (ESO Daemon)"]
-        API["kube-apiserver (EncryptionConfiguration: aescbc)"]
-        ETCD["etcd Master Database (Stored Secrets: Encrypted at Rest!)"]
+    subgraph K8sCluster [The Office Building (Kubernetes Cluster)]
+        ESO["The Courier (External Secrets Operator)"]
+        API["The Front Desk (kube-apiserver)"]
+        ETCD["The Locked Filing Cabinet (etcd Encrypted)"]
         
-        subgraph WorkerNode [Worker Node Physical Execution]
-            POD["Pod: payment-api-abc"]
+        subgraph WorkerNode [Desk (Worker Node)]
+            POD["The Worker (Pod)"]
         end
 
-        CM -->|kubectl apply| API
-        ES -->|kubectl apply| ESO
-        ESO -->|1. sts:AssumeRoleWithWebIdentity| ASM
-        ASM -->|2. Returns Plain-Text Secret| ESO
-        ESO -->|3. Auto-creates kind: Secret| API
-        API -->|4. Encrypts with AES-CBC| ETCD
+        CM -->|Submits| API
+        ES -->|Submits| ESO
+        ESO -->|1. Shows Badge| ASM
+        ASM -->|2. Hands Over Secret| ESO
+        ESO -->|3. Auto-creates Secret| API
+        API -->|4. Locks Away| ETCD
         
-        POD -->|envFrom: ConfigMap| CM
-        POD -->|envFrom: Secret| API
+        POD -->|Reads| CM
+        POD -->|Requests Secret| API
     end
 ```
 
@@ -154,19 +154,19 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Lead Platform Engineer hired to manage cloud infrastructure for a massive global fintech enterprise. The platform operates a highly secure banking API running inside Kubernetes.
+Imagine you are managing a highly secure banking system.
 
-Originally, junior engineers managed cluster credentials by authoring standard Kubernetes Secret manifests containing Base64 encoded passwords (`kind: Secret`) and committed them directly into the company's central GitHub GitOps repository.
+Originally, the team managed credentials by putting passwords in standard text formats and placing them directly into the company's central Instruction Manual.
 
-During a routine security compliance audit (SOC 2 / PCI-DSS), the security auditors uncover two catastrophic compliance violations: first, over 500 plain-text database passwords and banking API keys are sitting in plain sight inside GitHub because Base64 is not encryption. Second, the active `etcd` database on the Kubernetes Control Plane is storing those secrets in unencrypted plain text on the root hard drives! The auditors threaten to instantly revoke the company's banking license!
+During a routine security audit, auditors uncover two catastrophic violations: first, over 500 plain-text database passwords are sitting in plain sight because the text was not fully encrypted. Second, the active memory inside the system is storing those secrets in unencrypted plain text on the hard drives!
 
-Because you maintain elite Platform Engineering standards, you lead a massive secret management overhaul. You transition the entire enterprise to the **External Secrets Operator (ESO) and `etcd` Encryption at Rest**.
+Because you maintain elite standards, you lead a massive secret management overhaul. You transition the entire enterprise to **The Courier (External Secrets Operator)** and **The Locked Filing Cabinet (etcd Encryption)**.
 
-First, you configure an `EncryptionConfiguration` manifest on the Kubernetes Control Plane, commanding `kube-apiserver` to heavily encrypt all `etcd` secrets at rest utilizing `aescbc` encryption.
+First, you configure the main system, commanding **The Front Desk** to encrypt all secrets at rest.
 
-Second, you migrate all 500 plain-text database passwords and banking API keys entirely out of GitHub and store them securely inside **AWS Secrets Manager** (`production/banking/api-keys`).
+Second, you migrate all 500 plain-text database passwords and banking API keys entirely out of the Instruction Manual and store them securely inside **The Bank Vault (AWS Secrets Manager)**.
 
-Finally, you deploy the **External Secrets Operator (ESO)** into your cluster and replace all Git manifests with clean `ExternalSecret` definitions (`kind: ExternalSecret`). All plain-text Base64 strings are permanently scrubbed from Git. ESO dynamically synchronizes the credentials directly from AWS Secrets Manager into cluster memory. Your fintech enterprise achieves absolute zero-trust secret governance, passes the SOC 2 audit flawlessly, and secures its banking license!
+Finally, you deploy **The Courier** into your cluster and replace all old requests with clean **Vault Requests**. **The Courier** dynamically synchronizes the credentials directly from **The Bank Vault** into the system. Your fintech enterprise achieves absolute zero-trust secret governance!
 
 ---
 

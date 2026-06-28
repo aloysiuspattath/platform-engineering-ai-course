@@ -88,17 +88,17 @@ A professional Platform Engineer does not memorize every command flag. Instead, 
 
 ```mermaid
 flowchart TD
-    subgraph RootFS [The Linux Filesystem Tree]
-        ROOT["/ (Root Directory)"] --> VAR["/var"]
-        ROOT --> HOME["/home"]
-        HOME --> USER["/home/aloysius ( ~ )"]
-        USER --> PROJ["/home/aloysius/projects"]
+    subgraph RootFS ["The Filing Cabinet (Filesystem)"]
+        ROOT["The Top Drawer (Root)"] --> VAR["System Drawer (/var)"]
+        ROOT --> HOME["Users Drawer (/home)"]
+        HOME --> USER["Your Personal Folder ( ~ )"]
+        USER --> PROJ["Your Projects"]
     end
 
-    subgraph Navigation [Navigational Commands]
-        PWD["pwd (Where am I?)"]
-        LS["ls -la (What is here?)"]
-        CD["cd .. (Move up one folder)"]
+    subgraph Navigation ["How You Move Around (Commands)"]
+        PWD["'Where am I?' (pwd)"]
+        LS["'What is inside?' (ls)"]
+        CD["'Go back' (cd)"]
     end
 
     PWD -->|Identifies| USER
@@ -112,7 +112,7 @@ flowchart TD
 
 Imagine you are investigating a failing web application on a remote production cloud server. You know the error logs are stored somewhere inside `/var/log`, but you don't know the exact file name.
 
-Using your foundational navigation tools, you execute `cd /var/log` to jump directly into the log directory. You then execute `ls -lh` (long, human-readable) to inspect the files, instantly spotting a massive 500-Megabyte log file named `error.log`. Because you know how to navigate and inspect directories, you isolate the problem in seconds without needing a graphical file explorer!
+Using your foundational "How You Move Around" tools, you execute `cd /var/log` to jump directly into the "System Drawer". You then execute `ls -lh` (long, human-readable) to 'What is inside?', instantly spotting a massive 500-Megabyte log file named `error.log`. Because you know how to navigate and inspect directories, you isolate the problem in seconds without needing a graphical file explorer!
 
 ---
 

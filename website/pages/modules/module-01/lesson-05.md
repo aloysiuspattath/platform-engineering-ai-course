@@ -88,21 +88,21 @@ The final character of your prompt is a critical safety indicator:
 
 ```mermaid
 flowchart TD
-    subgraph HumanInput [Human Interaction]
-        KEYBOARD[Keyboard Keystrokes]
+    subgraph HumanInput ["You (The User)"]
+        KEYBOARD["Typing on Keyboard"]
     end
 
-    subgraph TerminalEmulator [Terminal Emulator Window]
-        GUI[Graphical Terminal App]
+    subgraph TerminalEmulator ["The Screen (Terminal Window)"]
+        GUI["The Display App"]
     end
 
-    subgraph ShellProgram [The Shell Program: Bash / Zsh]
-        PARSE[Syntax Parser & Lexer]
-        PROMPT[Prompts: user@host:~$]
+    subgraph ShellProgram ["The Translator (Shell)"]
+        PARSE["Grammar Checker (Parser)"]
+        PROMPT["The Welcoming Sign (Prompt)"]
     end
 
-    subgraph OSKernel [Linux Kernel]
-        EXEC[Process Execution Engine]
+    subgraph OSKernel ["The Core Engine (Kernel)"]
+        EXEC["The Doer (Execution Engine)"]
     end
 
     KEYBOARD --> GUI
@@ -118,7 +118,7 @@ flowchart TD
 
 Imagine you are a Site Reliability Engineer (SRE) responding to a major production database outage at 3:00 AM at a company like Amazon. You have ten different terminal windows open connecting to various cloud servers.
 
-Because you understand the exact anatomy of the shell prompt, you never get confused. A quick glance at `db-admin@prod-database-01:~#` instantly tells you three mission-critical facts: you are logged in as `db-admin`, you are touching the production database server (`prod-database-01`), and the `#` symbol warns you that you possess absolute root administrative privileges—requiring you to exercise extreme caution before pressing Enter!
+Because you understand the exact anatomy of "The Welcoming Sign (Prompt)", you never get confused. A quick glance at `db-admin@prod-database-01:~#` instantly tells you three mission-critical facts: you are logged in as `db-admin`, you are touching the production database server (`prod-database-01`), and the `#` symbol warns you that you possess absolute root administrative privileges! The commands you type are sent from "Typing on Keyboard" through "The Translator", checked by the "Grammar Checker", and run by "The Core Engine" seamlessly.
 
 ---
 

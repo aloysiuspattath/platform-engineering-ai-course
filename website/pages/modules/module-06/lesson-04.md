@@ -81,27 +81,18 @@ When you start a container, Docker attaches its isolated network namespace to a 
 ```
 
 ## 2. Linux `iptables` and NAT Routing
-How does traffic travel from the physical network wire (`eth0`) into a bridge container (`172.17.0.2`)? Docker dynamically programs the host Linux kernel's **`iptables` firewall rules**!
-* When you declare `-p 8080:80`, Docker injects a **Network Address Translation (NAT)** prerouting rule into `iptables`. When external packets hit host port 8080, the Linux kernel intercepts them, rewrites the destination IP to `172.17.0.2:80`, and forwards them across the `docker0` virtual switch!
+How does traffic travel from the physical network wire (`eth0`) into a bridge container (`172.17.0.2`)? Docker dynamically programs the host Linux kernel's **Traffic Cop (iptables)**!
+* When you declare `-p 8080:80`, Docker tells **The Traffic Cop** to intercept the **Incoming Visitor**. It rewrites the destination address and forwards them across **The Internal Router (docker0 bridge)**!
 
 ## 3. The Ephemeral Container Filesystem
-When a container starts, it writes all file modifications into a thin, temporary **Read-Write Layer (Copy-on-Write)**. 
-* **The Ephemeral Trap:** This temporary read-write layer is permanently tied to the lifecycle of the container wrapper! If you execute `docker rm [container]`, Docker physically deletes the read-write layer from the hard drive! Any database tables, log files, or user uploads stored inside that layer are deleted forever!
+When a container starts, it writes all file modifications into **The Temporary Scratchpad**. 
+* **The Ephemeral Trap:** This scratchpad is permanently tied to the lifecycle of the container wrapper! If you delete the container, Docker physically deletes the scratchpad! Any database tables, log files, or user uploads stored inside that layer are deleted forever!
 
 ## 4. The Three Master Storage Mount Types
-To persist data safely outside the ephemeral container wrapper, Platform Engineers utilize three master storage mount types:
-* **Named Volumes:** The absolute industry standard for database persistence! Docker creates a dedicated storage folder inside its own managed root directory (`/var/lib/docker/volumes/my_volume/_data`). Volumes are completely decoupled from container lifecycles, surviving container terminations flawlessly!
-* **Bind Mounts:** You map a direct physical folder path from the host server (`/home/user/app`) directly into the container (`/app`). Exceptional for local developer laptops where you want live source code modifications to instantly reload inside the container!
-* **`tmpfs` Mounts:** Docker creates a temporary file system stored exclusively in the host server's **physical RAM**. It never touches the physical hard drive! Excellent for storing highly sensitive, ephemeral API secret keys or temporary cache files!
-
-```text
-[ Bind Mount: Host Directory ]          [ Named Volume: Daemon Managed ]
-┌───────────────────────────────┐       ┌───────────────────────────────┐
-│ Host: /home/user/my_app       │       │ Host: /var/lib/docker/volumes/│
-├──────────────┬────────────────┤       ├──────────────┬────────────────┤
-│    Mount     │ Container: /app│       │    Mount     │ Container: /var│
-└──────────────┴────────────────┘       └──────────────┴────────────────┘
-```
+To persist data safely outside the temporary scratchpad, Platform Engineers utilize three master storage mount types:
+* **The Safe Vault (Named Volumes):** The absolute industry standard for database persistence! Docker creates a dedicated storage folder inside its own managed root directory. Volumes are completely decoupled from container lifecycles, surviving container terminations flawlessly!
+* **The Direct Folder Link (Bind Mounts):** You map a direct physical folder path from the host server directly into the container. Exceptional for local developer laptops where you want live source code modifications to instantly reload inside the container!
+* **The Memory Stick (tmpfs Mounts):** Docker creates a temporary file system stored exclusively in your computer's **physical RAM**. It never touches the physical hard drive! Excellent for storing highly sensitive, ephemeral API secret keys or temporary cache files!
 
 ## 5. The Modern `--mount` Syntax vs. Legacy `-v`
 When attaching storage to a container, Docker supports two CLI flags:
@@ -114,21 +105,21 @@ When attaching storage to a container, Docker supports two CLI flags:
 
 ```mermaid
 flowchart TD
-    subgraph HostNetworking [Host Networking Stack: eth0]
-        WIRE["Incoming Packet (IP: 192.168.1.50:8080)"] --> IPT["Linux Kernel iptables (NAT Prerouting)"]
-        IPT -->|Rewrites Dest: 172.17.0.2:80| BRIDGE["Virtual Switch: docker0 (Bridge Driver)"]
+    subgraph HostNetworking [The Computer's Internet Connection]
+        WIRE["Incoming Visitor (Network Packet)"] --> IPT["The Traffic Cop (iptables)"]
+        IPT -->|Rewrites Destination| BRIDGE["The Internal Router (docker0 bridge)"]
     end
 
-    subgraph ContainerStorage [Running Container: Postgres]
-        BRIDGE --> PROC["Container Process: postgres (IP: 172.17.0.2)"]
-        PROC -->|Writes ephemeral logs| COW["Temporary Read-Write Layer (Deleted on docker rm)"]
-        PROC -->|Writes database tables| MOUNT["Mounted Storage Target: /var/lib/postgresql/data"]
+    subgraph ContainerStorage [The Running App]
+        BRIDGE --> PROC["The App Worker (Container Process)"]
+        PROC -->|Writes ephemeral logs| COW["The Temporary Scratchpad (Deleted on removal)"]
+        PROC -->|Writes database tables| MOUNT["The Inside Storage Plug"]
     end
 
-    subgraph HostFilesystem [Physical Host Filesystem]
-        MOUNT -->|Named Volume Mount| VOL["/var/lib/docker/volumes/pgdata/_data (Persists forever!)"]
-        PROC -->|Reads live code| BIND["Bind Mount: /home/user/app_source (Live Reloading)"]
-        PROC -->|Writes secret keys| TMPFS["tmpfs Mount: System RAM (Never touches disk!)"]
+    subgraph HostFilesystem [Your Computer's Hard Drive & Memory]
+        MOUNT -->|Safe Vault Mount| VOL["The Safe Vault (Persists forever!)"]
+        PROC -->|Reads live code| BIND["The Direct Folder Link (Live Reloading)"]
+        PROC -->|Writes secret keys| TMPFS["The Memory Stick (Never touches disk!)"]
     end
 ```
 

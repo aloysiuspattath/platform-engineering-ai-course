@@ -84,20 +84,20 @@ What happens if a parent process suddenly crashes and dies while its child proce
 
 ```mermaid
 flowchart TD
-    subgraph ProcessCreation [The Fork-Exec Sequence]
-        PARENT["Parent Process (Bash / PID 1000)"] -->|1. sys_fork| CHILD_CLONE["Child Clone (Bash / PID 1001)"]
-        CHILD_CLONE -->|2. sys_execve| CHILD_NEW["New Process (Python / PID 1001)"]
+    subgraph ProcessCreation [The Copy-and-Replace Sequence]
+        PARENT["Parent Process (The Boss)"] -->|1. Make an Exact Copy| CHILD_CLONE["The Twin"]
+        CHILD_CLONE -->|2. Replace Brain with New Program| CHILD_NEW["New Process (The Assistant)"]
     end
 
-    subgraph ZombieLifecycle [Zombie & Reaping Mechanics]
-        CHILD_NEW -->|Process Exits| ZOMBIE["Zombie State (defunct / State Z)"]
-        ZOMBIE -->|Parent calls wait| REAPED["Kernel Reaps PID Table Entry"]
+    subgraph ZombieLifecycle [Ghost Programs & Cleanup]
+        CHILD_NEW -->|Process Exits| ZOMBIE["Ghost State (Dead but taking up space)"]
+        ZOMBIE -->|Parent acknowledges the death| REAPED["System Clears the Record"]
     end
 
-    subgraph OrphanAdoption [Orphan Adoption]
-        PARENT -->|Parent Crashes / Dies| ORPHAN["Orphan Process (Python / PPID lost)"]
-        ORPHAN -->|Adopted by| PID1["PID 1 (systemd / Master Init)"]
-        PID1 -->|Calls wait when orphan dies| REAPED
+    subgraph OrphanAdoption [Adoption of Abandoned Children]
+        PARENT -->|Parent Crashes / Dies| ORPHAN["Abandoned Process (Lost Parent)"]
+        ORPHAN -->|Adopted by| PID1["The Ultimate Foster Parent (PID 1)"]
+        PID1 -->|Clears record when child dies| REAPED
     end
 ```
 
@@ -105,13 +105,13 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are deploying a custom Python web application inside a Docker container to a production Kubernetes cluster. To keep the container lightweight, you set the Python application directly as `PID 1` in your Dockerfile (`ENTRYPOINT ["python3", "app.py"]`).
+Think of process creation like a manager (the parent) hiring an assistant by first making an **Exact Copy** of themselves (**The Twin**), and then **Replacing the Brain** of the twin to do a new task.
 
-The Python application frequently spawns temporary child helper scripts to process images. However, the Python developers forgot to include `wait()` calls in their code. 
+Imagine you deploy a custom app where it acts as the top boss (**The Ultimate Foster Parent**) inside a container. The app frequently creates assistants to process images. However, the developers forgot to have the manager **acknowledge the death** of the assistants when they finished.
 
-Suddenly, your Kubernetes container freezes up and stops accepting web requests. When you inspect the container using `ps aux`, you see 5,000 dead child processes sitting in the `Z` (`<defunct>`) state! 
+Suddenly, your container freezes! When you inspect it, you see 5,000 assistants in a **Ghost State (Dead but taking up space)**! 
 
-Because you understand Linux internal process mechanics perfectly, you know exactly what happened: your Python app was running as `PID 1` but lacked the architectural capability to reap dead zombies! You update your Dockerfile to include a specialized lightweight init system like `tini` (`ENTRYPOINT ["tini", "--", "python3", "app.py"]`). `tini` becomes `PID 1`, flawlessly reaps all dead helper zombies, and your Kubernetes container runs healthily forever!
+Because you understand the architecture, you know exactly what happened: your app was running as the boss but didn't know how to do **Ghost Programs & Cleanup**! You update the setup to use a dedicated foster parent program (`tini`) that automatically **acknowledges the death** and ensures the **System Clears the Record** for all dead assistants, keeping your container healthy forever!
 
 ---
 

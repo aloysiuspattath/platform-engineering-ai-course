@@ -97,14 +97,14 @@ SSH is the legendary encrypted management protocol operating on TCP Port 22. It 
 
 ```mermaid
 flowchart TD
-    subgraph ClientMachine [Engineer Workstation]
-        SSH_CLIENT["SSH Client (Holds Private Key: ~/.ssh/id_ed25519)"] -->|Initiates TCP Port 22 Connect| SSHD["Cloud Server SSH Daemon (sshd: Port 22)"]
+    subgraph ClientMachine [The Engineer's Laptop (Client Machine)]
+        SSH_CLIENT["The Key Ring (Holds the Secret Key)"] -->|Requests Entry| SSHD["The Security Guard (Server Connection)"]
     end
 
-    subgraph ServerSpace [Cloud Linux Server / Hardening]
-        SSHD -->|Inspects Configuration| CONFIG["/etc/ssh/sshd_config (PasswordAuthentication no / PermitRootLogin no)"]
-        CONFIG -->|Enforces Key Verification| AUTH_KEY["Check ~/.ssh/authorized_keys (Holds Engineer Public Key)"]
-        AUTH_KEY -->|Matches Signature| SHELL["Access Granted (Spawns Secured Bash Shell)"]
+    subgraph ServerSpace [The Secure Server Building (Server Environment)]
+        SSHD -->|Checks Rules| CONFIG["The Rulebook (Security Rules)"]
+        CONFIG -->|Checks ID| AUTH_KEY["The Guest List (Approved Public Keys)"]
+        AUTH_KEY -->|Matches!| SHELL["The VIP Room (Access Granted!)"]
     end
 ```
 
@@ -112,13 +112,15 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Site Reliability Engineer managing a massive production e-commerce platform. On Black Friday, at 9:00 AM, your entire customer-facing website suddenly goes offline. Customers attempting to visit your site are greeted with a terrifying browser warning: `NET::ERR_CERT_DATE_INVALID - Your connection is not private`.
+Think of secure server access like trying to enter an exclusive club. On **The Engineer's Laptop (Client Machine)**, you have **The Key Ring (Holds the Secret Key)**. When you try to connect, you meet **The Security Guard (Server Connection)** at **The Secure Server Building (Server Environment)**. The guard checks **The Rulebook (Security Rules)**, which strictly says "No Passwords Allowed." Instead, the guard checks **The Guest List (Approved Public Keys)** to see if your key is authorized. If it matches, you are allowed into **The VIP Room (Access Granted!)**!
 
-Because you understand PKI architecture perfectly, you instantly know what happened: the X.509 TLS certificate installed on your Nginx reverse proxy has officially expired!
+Imagine you are managing a massive e-commerce platform. On Black Friday, at 9:00 AM, your entire customer-facing website suddenly goes offline. Customers attempting to visit your site are greeted with a terrifying browser warning: `Your connection is not private`.
 
-You log into the web server and execute `openssl x509 -in /etc/ssl/certs/my-website.crt -noout -enddate`. The output proudly displays `notAfter=Nov 27 23:59:59 2025 GMT`—the certificate expired exactly nine hours ago!
+Because you understand how the trust system works, you instantly know what happened: the digital ID card (certificate) installed on your web server has officially expired!
 
-Because the certificate expired, global web browsers forcefully terminate the TLS handshake to protect customers from potential security compromises. You execute an automated certificate renewal utility (`certbot renew` / Let's Encrypt) to fetch a freshly signed X.509 certificate from the Certificate Authority, reload Nginx (`sudo nginx -s reload`), and your e-commerce platform successfully recovers its secure HTTPS sessions instantly!
+You log into the server and check the ID card. The output proudly displays that it expired exactly nine hours ago!
+
+Because the ID card expired, global web browsers forcefully terminate the connection to protect customers from potential security compromises. You execute an automated utility to fetch a freshly signed ID card from a trusted authority, reload your web server, and your e-commerce platform successfully recovers its secure sessions instantly!
 
 ---
 

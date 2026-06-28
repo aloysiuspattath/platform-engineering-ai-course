@@ -100,22 +100,22 @@ True automation mastery requires combining your entire Module 05 knowledge into 
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperLaptop [Developer Local Repository]
-        COMMIT["git commit -m 'update tf'"] --> HOOK["Interception: .git/hooks/pre-commit"]
-        HOOK -->|Executes pre-commit| YAML[".pre-commit-config.yaml (Terraform fmt / Detect Secrets)"]
-        YAML -->|Fail| ABORT["Commit Aborted (Developer Fixes Code)"]
-        YAML -->|Pass| OBJECTS["Generates Commit Object in .git/objects"]
+    subgraph DeveloperLaptop [Your Computer (Local Repository)]
+        COMMIT["Try to save a snapshot"] --> HOOK["The Bouncer (Git Hook)"]
+        HOOK -->|Checks rules| YAML["The Rulebook (pre-commit checks)"]
+        YAML -->|Fail| ABORT["Stop! Fix your mistakes"]
+        YAML -->|Pass| OBJECTS["Success! Save the snapshot"]
     end
 
-    subgraph MultiRepoLinkage [Git Submodule Architecture]
-        OBJECTS -->|Contains Submodule| MOD[".gitmodules File (URL: github.com/tf-module)"]
-        MOD -->|Tree Entry 160000| SHA["Points to External Submodule Commit SHA-1"]
+    subgraph MultiRepoLinkage [Linking External Projects (Submodules)]
+        OBJECTS -->|Has a link to an outside project| MOD["The Link File (.gitmodules)"]
+        MOD -->|Special Bookmark| SHA["Points to a specific snapshot in the other project"]
     end
 
-    subgraph CloudCI [GitHub Pull Request Quality Gate]
-        OBJECTS -->|git push| PR["Pull Request Opened"]
-        PR -->|Cloud Validation| CI["CI/CD Pipeline (Runs Identical pre-commit Checks)"]
-        CI -->|Pass| MERGE["Squash and Merge into Trunk (main)"]
+    subgraph CloudCI [Cloud Quality Check (Pull Request)]
+        OBJECTS -->|git push| PR["Ask to combine changes"]
+        PR -->|Cloud Validation| CI["Cloud Robot Testers (Run the same rules)"]
+        CI -->|Pass| MERGE["Combine perfectly with the main project"]
     end
 ```
 
@@ -123,17 +123,15 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Lead Security & Platform Engineer managing a financial technology platform. Your engineering team manages dozens of Terraform repositories deploying infrastructure to AWS. 
+Imagine you are writing a secret recipe book on **Your Computer**. One day, you accidentally type your personal bank password into one of the recipes. When you **Try to save a snapshot**, Git doesn't just save it immediately. 
 
-One afternoon, a junior developer attempts to commit a Python script containing a hardcoded, plain-text AWS Root Access Key (`AKIAIOSFODNN7EXAMPLE`). 
+Instead, it sends your save to **The Bouncer**, who strictly checks your work against **The Rulebook**. The Bouncer notices your bank password, screams "Stop! Fix your mistakes," and completely blocks you from saving. 
 
-If this developer successfully commits and pushes this file to GitHub, automated hacker botnets will discover the key within seconds and spin up $50,000 worth of illicit cryptocurrency mining virtual machines in your AWS account.
+Because the save was blocked, your password never even entered the filing cabinet, let alone the cloud. Once you delete the password and try again, The Bouncer gives a thumbs up, and says "Success! Save the snapshot." 
 
-However, because you are an elite Platform Engineer, you previously established the **`pre-commit` Framework** across your company's repositories. You configured `.pre-commit-config.yaml` to include the `detect-secrets` and `detect-aws-credentials` plugins.
+If you also want to include a chapter from your friend's cookbook without copying all their pages, you can use **Linking External Projects**. You simply add **The Link File**, which acts like a **Special Bookmark** pointing directly to your friend's exact chapter online.
 
-The moment the junior developer types `git commit -m "add helper script"`, the Git binary pauses and fires the pre-commit hook. The `detect-secrets` plugin scans the uncommitted files, instantly discovers the `AKIA...` text string, outputs a terrifying terminal alert (`ERROR: AWS Access Key ID detected!`), and forcefully aborts the commit! 
-
-Because the commit was aborted before a single Git object was generated, the AWS secret key never entered `.git/objects` and never touched the network! You saved your company from a catastrophic $50,000 security breach!
+Finally, when you **Ask to combine changes** in the cloud, **Cloud Robot Testers** double-check everything against the same rulebook, just to be extra safe, before your work is allowed to **Combine perfectly with the main project**.
 
 ---
 

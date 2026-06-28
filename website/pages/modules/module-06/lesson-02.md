@@ -84,9 +84,10 @@ When you execute `docker build -t myapp .`, Docker inspects each instruction in 
 * **The Cache Invalidation Waterfall:** If Docker inspects `COPY . /app` and detects that a single line of code in your project changed, Docker instantly invalidates the cache for that layer **AND for every single instruction immediately following it!** 
 * **The Golden Ordering Rule:** To maximize build velocity, you must strictly order your `Dockerfile` instructions from **least-frequently changed** (Base images, OS packages, dependency lock files) to **most-frequently changed** (Your active source code)!
 
-## 3. Multi-Stage Builds (`FROM ... AS ...`)
-Imagine you are building a Golang or React application. To compile the code, you need massive build tools (`golang` SDK, `gcc`, `npm`, `git`), resulting in a 1GB build environment. However, once the code is compiled, you are left with a tiny 15MB binary (`myapp`). You don't need `gcc` or `npm` in production!
-* **Multi-Stage Build:** You declare multiple `FROM` statements in a single `Dockerfile`! Stage 1 (`FROM golang:1.21 AS builder`) compiles the binary. Stage 2 (`FROM alpine:latest`) starts with a brand-new, ultra-clean base image and uses `COPY --from=builder /app/myapp /myapp` to pluck *only* the compiled binary from Stage 1! The massive 1GB build environment is left behind and discarded entirely!
+## 3. Multi-Stage Builds (The Assembly Line)
+Imagine you are building a Golang or React application. To compile the code, you need massive build tools, resulting in a 1GB build environment. However, once the code is compiled, you are left with a tiny 15MB binary. You don't need all those messy tools in production!
+* **The Messy Construction Site (Stage 1):** You start by bringing in all your heavy tools and raw materials. Here you do the heavy lifting of **Building the Final Product**.
+* **The Clean Showroom (Stage 2):** Instead of shipping the entire messy construction site, you start fresh in a clean room. By **Grabbing ONLY the Finished Product** from Stage 1, the massive build environment is left behind! The result is a **Lightweight, Secure Container** that is incredibly small and safe.
 
 ## 4. Distroless and Minimal Base Images
 Choosing the right base image (`FROM`) is the most critical security decision a Platform Engineer makes.
@@ -104,19 +105,19 @@ By default, Docker executes container processes as the `root` user (`UID 0`). Be
 
 ```mermaid
 flowchart TD
-    subgraph MultiStageDockerfile [Multi-Stage Dockerfile Execution]
-        B_FROM["Stage 1: FROM golang:1.21 AS builder (1GB Base)"] --> B_RUN["RUN go mod download (Cached Layer)"]
-        B_RUN --> B_COPY["COPY . . (Invalidated when code changes)"]
-        B_COPY --> B_BUILD["RUN go build -o /app/bin main.go"]
+    subgraph MultiStageDockerfile [The Multi-Stage Factory Process]
+        B_FROM["The Messy Construction Site (Stage 1)"] --> B_RUN["Downloading Tools (Cached)"]
+        B_RUN --> B_COPY["Bringing in Blueprints (Code)"]
+        B_COPY --> B_BUILD["Building the Final Product"]
 
-        P_FROM["Stage 2: FROM gcr.io/distroless/static:nonroot (2MB Base)"] --> P_USER["USER 65532:65532 (Non-Root Security)"]
-        B_BUILD -->|COPY --from=builder /app/bin /app/bin| P_COPY["COPY --from=builder (Plucks ONLY Binary)"]
+        P_FROM["The Clean Showroom (Stage 2)"] --> P_USER["Applying Security Tags"]
+        B_BUILD -->|Moves only what is needed| P_COPY["Grabbing ONLY the Finished Product"]
         P_USER --> P_COPY
-        P_COPY --> P_CMD["CMD ['/app/bin']"]
+        P_COPY --> P_CMD["Setting Up Display (CMD)"]
     end
 
-    subgraph FinalProductionImage [Final Production Artifact]
-        P_CMD -->|Produces Ultra-Secure Image| IMAGE["Pristine Production Image: myapp:v1.0 (Size: 15MB)"]
+    subgraph FinalProductionImage [The Final Product]
+        P_CMD -->|Produces a clean app| IMAGE["The Lightweight, Secure Container"]
     end
 ```
 

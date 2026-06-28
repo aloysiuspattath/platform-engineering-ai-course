@@ -94,12 +94,12 @@ In Module 03, we learned how the Linux `unshare` command creates isolated namesp
 While namespaces hide the outside world from the container, **Control Groups (`cgroups`)** prevent the container from starving the host server of hardware resources.
 * When you run `docker run --memory="512m" --cpus="2"`, Docker does not allocate static hardware. It simply creates a `cgroup` rule in `/sys/fs/cgroup/memory/`. If your container process attempts to consume 513 Megabytes of RAM, the host Linux kernel's Out-Of-Memory (OOM) killer instantly catches the process and terminates it (`OOMKilled`)!
 
-## 4. Anatomy of the Docker Engine (`dockerd`, `containerd`, `runc`)
-When you type `docker run` in your terminal, your command travels through an elite, multi-tiered engine architecture:
-1. **Docker CLI:** The user-facing terminal client (`/usr/bin/docker`). It parses your commands and sends REST API calls over a local UNIX socket (`/var/run/docker.sock`) to the daemon.
-2. **Docker Daemon (`dockerd`):** The master background manager. It manages image management, volume mounts, and network bridges.
-3. **`containerd`:** The industry-standard runtime supervisor. It manages the complete container lifecycle, downloading images and supervising process execution.
-4. **`runc` (OCI Runtime):** The low-level execution binary! `runc` literally communicates directly with the Linux kernel, sets up the `cgroups` and `namespaces`, starts your application process, and exits!
+## 4. Anatomy of the Docker Engine (The Docker Factory)
+When you type a command in **Your Terminal**, it travels through a multi-tiered factory system to create your isolated environment:
+1. **The Remote Control (Docker CLI):** The tool you interact with directly. It takes your commands and sends them to the central manager.
+2. **The Master Manager (Docker Daemon):** The big boss of the operation. It receives your instructions and coordinates the overall setup, like storage and networking.
+3. **The Foreperson (containerd):** The supervisor on the factory floor. It oversees the actual building process, ensuring the right materials (images) are ready and supervising the workers.
+4. **The Blue-Collar Worker (runc):** The gritty execution tool. It rolls up its sleeves and talks directly to **The Core Engine (Host OS Kernel)**. It sets up the **Isolation Forcefields (Namespaces)** and **Resource Throttles (Cgroups)**, starts **The Actual App (Container Process)**, and then gets out of the way!
 
 ## 5. The Container Lifecycle (`docker ps`, `docker top`)
 To verify that containers are just standard Linux processes wrapped in namespaces, Platform Engineers use terminal inspection tools:
@@ -112,19 +112,19 @@ To verify that containers are just standard Linux processes wrapped in namespace
 
 ```mermaid
 flowchart TD
-    subgraph UserTerminal [Engineer Terminal]
-        CLI["Docker CLI (docker run -d nginx)"] -->|REST API over docker.sock| DOCKERD["Docker Daemon (dockerd)"]
+    subgraph UserTerminal [Your Terminal]
+        CLI["The Remote Control (Docker CLI)"] -->|Sends Commands| DOCKERD["The Master Manager (Docker Daemon)"]
     end
 
-    subgraph ContainerEngine [Docker Engine Hierarchy]
-        DOCKERD -->|gRPC API| CONTAINERD["containerd (Runtime Supervisor)"]
-        CONTAINERD -->|Executes OCI Spec| RUNC["runc (Low-level Container Runtime)"]
+    subgraph ContainerEngine [The Docker Factory]
+        DOCKERD -->|Talks to| CONTAINERD["The Foreperson (containerd)"]
+        CONTAINERD -->|Directs| RUNC["The Blue-Collar Worker (runc)"]
     end
 
-    subgraph HostLinuxKernel [Host Linux Kernel Primitives]
-        RUNC -->|Sets up Namespaces| NS["Kernel Namespaces (pid, net, mnt)"]
-        RUNC -->|Sets up Cgroups| CG["Control Groups (/sys/fs/cgroup)"]
-        NS --> PROC["Running Container Process: nginx (Host PID: 23450 / Container PID: 1)"]
+    subgraph HostLinuxKernel [The Core Engine (Host OS Kernel)]
+        RUNC -->|Builds| NS["Isolation Forcefields (Namespaces)"]
+        RUNC -->|Sets up| CG["Resource Throttles (Cgroups)"]
+        NS --> PROC["The Actual App (Container Process)"]
         CG --> PROC
     end
 ```

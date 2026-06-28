@@ -98,20 +98,20 @@ In Kubernetes, every time you create a new microservice (e.g., `my-database`), K
 
 ```mermaid
 flowchart TD
-    subgraph ContainerSpace [Kubernetes Container / Linux App]
-        APP["Application (HTTP request to 'my-db.production.svc.cluster.local')"] --> HOSTS["1. Check /etc/hosts (Local Override)"]
-        HOSTS -->|Not Found| RESOLV["2. Check /etc/resolv.conf (nameserver 10.96.0.10)"]
+    subgraph ContainerSpace [The Container (App Environment)]
+        APP["The App (Trying to find the Database)"] --> HOSTS["1. Check The Personal Address Book (Local Hosts File)"]
+        HOSTS -->|Not Found| RESOLV["2. Check The Main Phonebook Pointer (Resolver Config)"]
     end
 
-    subgraph ClusterDNS [Kubernetes CoreDNS Engine]
-        RESOLV -->|UDP Port 53 Query| COREDNS["CoreDNS Server (Service Discovery)"]
-        COREDNS -->|Returns ClusterIP 10.96.50.5| APP
+    subgraph ClusterDNS [The Local Operator (Internal DNS)]
+        RESOLV -->|Asks for Number| COREDNS["The Directory Service (Internal Server)"]
+        COREDNS -->|Returns IP Address| APP
     end
 
-    subgraph ExternalLookup [External Public DNS Lookup: dig +trace google.com]
-        COREDNS -->|External Domain| ROOT["Root Servers (.)"]
-        ROOT --> TLD["TLD Nameservers (.com)"]
-        TLD --> AUTH["Authoritative Nameservers (google.com)"]
+    subgraph ExternalLookup [The Global Operators (External DNS)]
+        COREDNS -->|External Domain| ROOT["The Master Directory (Root)"]
+        ROOT --> TLD["The Domain Branch (TLD)"]
+        TLD --> AUTH["The Final Authority (Authoritative Server)"]
     end
 ```
 
@@ -119,15 +119,17 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Site Reliability Engineer managing a massive production Kubernetes cluster. One morning, developers report that their containerized microservices have suddenly stopped communicating with an external cloud payment API (`api.stripe.com`).
+Think of DNS like looking up phone numbers. **The App (Trying to find the Database)** inside **The Container (App Environment)** first checks **The Personal Address Book (Local Hosts File)**. If the number isn't there, it checks **The Main Phonebook Pointer (Resolver Config)**, which points to **The Local Operator (Internal DNS)**. **The Directory Service (Internal Server)** knows all the internal numbers. But if you ask for an outside number, it asks **The Global Operators (External DNS)**, going from **The Master Directory (Root)** to **The Domain Branch (TLD)** to **The Final Authority (Authoritative Server)**!
 
-You log into the failing container and execute `curl https://api.stripe.com`. The terminal freezes for 10 seconds and aborts with `curl: (6) Could not resolve host: api.stripe.com`.
+Imagine you are managing a massive server cluster. One morning, developers report that their apps have suddenly stopped communicating with an external cloud payment system.
 
-Because you understand Linux DNS architecture perfectly, you execute a structured investigation. First, you inspect `cat /etc/resolv.conf`. The file points perfectly to the internal Kubernetes CoreDNS server IP (`nameserver 10.96.0.10`). 
+You log into the failing app and execute `curl https://api.stripe.com`. The terminal freezes for 10 seconds and aborts with `Could not resolve host`.
 
-Second, you execute `dig @10.96.0.10 api.stripe.com`. The output returns `;; connection timed out; no servers could be reached`! 
+Because you understand how **The Main Phonebook Pointer** works, you execute a structured investigation. First, you inspect the pointer file. The file points perfectly to **The Directory Service**. 
 
-You instantly realize what happened: the internal CoreDNS pods in the `kube-system` namespace have crashed or become unreachable due to a misconfigured network policy! Because the containers cannot reach CoreDNS, they cannot translate domain names into IP addresses. You restart the CoreDNS deployment (`kubectl rollout restart deployment coredns -n kube-system`), verify nameserver reachability using `dig`, and your payment microservices recover instantly!
+Second, you manually ask the directory service for the address. The output returns `connection timed out; no servers could be reached`! 
+
+You instantly realize what happened: **The Local Operator** has crashed or become unreachable! Because the apps cannot reach the operator, they cannot translate names into numbers. You restart the operator, verify reachability, and your payment systems recover instantly!
 
 ---
 

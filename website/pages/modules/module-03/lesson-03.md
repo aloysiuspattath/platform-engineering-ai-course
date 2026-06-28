@@ -89,23 +89,23 @@ What happens if both physical RAM and hard drive Swap space become 100% complete
 
 ```mermaid
 flowchart TD
-    subgraph VirtualLayer [Virtual Memory Illusion]
-        APP["Process Virtual Memory (VSZ: 2GB)"] -->|MMU Translation| PT["Kernel Page Tables (4KB Pages)"]
+    subgraph VirtualLayer [The Fake Infinite Memory]
+        APP["App's Imaginary Memory"] -->|The Translator| PT["The Memory Map"]
     end
 
-    subgraph PhysicalLayer [Physical RAM & Caches]
-        PT -->|Active Pages| RAM["Physical RAM (RSS: 500MB)"]
-        PT -->|Buffer / Cache| CACHE["Filesystem Page Cache"]
+    subgraph PhysicalLayer [Actual Physical Memory]
+        PT -->|Real Data Blocks| RAM["Actual Memory Chips"]
+        PT -->|Buffer / Cache| CACHE["Speedy File Storage"]
     end
 
-    subgraph EmergencyDisk [Emergency Storage: Swap]
-        RAM -->|RAM Full: Swapping out| SWAP["Hard Drive Swap Space (Slow Disk)"]
+    subgraph EmergencyDisk [The Emergency Overflow]
+        RAM -->|Memory Full: Moving to Disk| SWAP["Hard Drive Overflow Space"]
     end
 
-    subgraph KernelDefense [OOM Killer Mechanics]
-        RAM -->|100% Exhausted| OOM["Kernel OOM Killer Executioner"]
+    subgraph KernelDefense [The Emergency Memory Cop]
+        RAM -->|100% Exhausted| OOM["The System Guard"]
         SWAP -->|100% Exhausted| OOM
-        OOM -->|Calculates oom_score | SIGKILL["kill -9 (Brutal Termination of Heavy Process)"]
+        OOM -->|Finds the Biggest Memory Hog| SIGKILL["Force Quits the App"]
     end
 ```
 
@@ -113,13 +113,11 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are managing a Kubernetes cluster powering an enterprise banking platform. You deploy a Java microservice inside a container configured with a strict Kubernetes memory limit of `2 Gigabytes` (`limits.memory: 2Gi`).
+Think of memory management like giving every app a **Fake Infinite Memory** space to play in, while **The Translator** secretly maps it to the **Actual Physical Memory**. 
 
-During peak banking hours, the Java application experiences a slight memory leak and attempts to allocate `2.1 Gigabytes` of physical RAM. 
+Imagine you deploy an app inside a container with a strict memory limit of `2 Gigabytes`. During peak hours, the app experiences a slight memory leak and attempts to grab `2.1 Gigabytes` of **Actual Memory Chips**. 
 
-Suddenly, the container vanishes, and Kubernetes restarts it. When you inspect the pod status using `kubectl describe pod`, you see the fatal exit reason: `OOMKilled`. 
-
-Because you understand Linux internal memory mechanics perfectly, you know exactly what happened: when the container breached its assigned cgroup memory limit, the Linux kernel's OOM Killer instantly stepped in, calculated the Java process's `oom_score`, and dropped a `SIGKILL` signal to protect the rest of the Kubernetes node! You update the application's JVM heap flags (`-Xmx1500m`) to keep memory usage safely below 2 Gigabytes, and your banking service runs flawlessly!
+Suddenly, the app vanishes! Because you understand the architecture, you know exactly what happened: when the app breached its limit, **The Emergency Memory Cop** instantly stepped in. It **Finds the Biggest Memory Hog** (your app) and **Force Quits the App** to protect the rest of the server from crashing! You update the app's settings to keep memory safely below 2 Gigabytes, and everything runs flawlessly!
 
 ---
 

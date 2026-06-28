@@ -90,22 +90,22 @@ Linux Kernel ──┼──► RHEL ─────┬──► Fedora (Cutting
 
 ```mermaid
 flowchart TD
-    subgraph UseCases [Target Engineering Workloads]
-        UC_DEV[AI Dev & Cloud VMs]
-        UC_ENT[Regulated Enterprise Servers]
-        UC_CONT[Minimal Microservice Containers]
+    subgraph UseCases ["What You Need (The Job)"]
+        UC_DEV["AI & Cloud Work"]
+        UC_ENT["Strict Business Servers"]
+        UC_CONT["Tiny App Packages (Containers)"]
     end
 
-    subgraph Distros [Selected Linux Distribution]
-        D_UBUNTU[Ubuntu / Debian]
-        D_RHEL[RHEL / Rocky Linux]
-        D_ALPINE[Alpine Linux]
+    subgraph Distros ["The Flavor of Linux (The Tool)"]
+        D_UBUNTU["The Popular Choice (Ubuntu/Debian)"]
+        D_RHEL["The Corporate Suit (RHEL)"]
+        D_ALPINE["The Minimalist (Alpine)"]
     end
 
-    subgraph Packages [Package Manager & C-Library]
-        P_APT[apt / glibc]
-        P_DNF[dnf / glibc]
-        P_APK[apk / musl libc]
+    subgraph Packages ["The App Store (Package Manager)"]
+        P_APT["Standard App Store (apt)"]
+        P_DNF["Corporate App Store (dnf)"]
+        P_APK["Tiny App Store (apk)"]
     end
 
     UC_DEV --> D_UBUNTU
@@ -122,8 +122,8 @@ flowchart TD
 # Real-World Example
 
 Imagine you are architecting the infrastructure for a major ride-sharing application like Uber. You have two vastly different technical requirements:
-1. **The AI Development Servers:** Your data scientists need powerful GPU virtual machines with pre-installed AI drivers and extensive community support. For this, you deploy **Ubuntu**, as it provides flawless out-of-the-box driver support for NVIDIA GPUs and AI libraries.
-2. **The Microservice Containers:** Your location-tracking microservice needs to be packaged into a tiny container and deployed across ten thousand servers instantly. For this, you build your container using **Alpine Linux**, reducing the image size from 500MB down to 15MB, allowing the containers to launch across the cloud in milliseconds!
+1. **The AI Development Servers:** Your data scientists need powerful "AI & Cloud Work" tools. For this, you deploy "The Popular Choice", as it provides flawless out-of-the-box support for AI. You can easily download libraries using its "Standard App Store".
+2. **The Microservice Containers:** Your location-tracking service needs to be a "Tiny App Package". For this, you build using "The Minimalist", reducing the image size from 500MB down to 15MB using the "Tiny App Store", allowing containers to launch instantly!
 
 ---
 

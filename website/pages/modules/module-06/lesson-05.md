@@ -73,12 +73,12 @@ When a container process terminates, the Docker daemon captures its exact Linux 
                                                      └─► [ 139: Segfault (SIGSEGV) ]
 ```
 
-## 2. Live Log Streaming (`docker logs`)
+## 2. Live Log Streaming (Reading the Diary)
 When a container crashes, you must inspect its standard output (`stdout`) and standard error (`stderr`) log streams before deleting the container wrapper.
 * `docker logs --tail 100 -f [container]`: Streams the last 100 lines of logs live in your terminal!
 * `docker logs --since 15m [container]`: Filters the log stream to display *only* logs generated in the last 15 minutes! Essential for isolating the exact moment an outage began!
 
-## 3. Interactive Debugging Attachment (`docker exec`)
+## 3. Interactive Debugging Attachment (Stepping Inside the Room)
 If a container is actively running but behaving erratically (e.g., throwing 500 HTTP errors), you need to look inside its isolated namespace.
 * `docker exec -it [container] /bin/sh`: Commands the Docker daemon to spawn a brand-new interactive shell process directly inside the running container's existing `pid` and `mnt` namespaces! Once attached, you can run `ps aux`, `env`, or inspect local configuration files as if you were logged into the machine!
 
@@ -86,14 +86,14 @@ If a container is actively running but behaving erratically (e.g., throwing 500 
 [ docker exec -it ] ──► [ Spawns /bin/sh Process ] ──► [ Attaches to Active Namespace ]
 ```
 
-## 4. Low-Level State Inspection (`docker inspect`)
+## 4. Low-Level State Inspection (Looking Under the Hood)
 When debugging complex configuration mismatches or failing health checks, `docker exec` may fail if the container lacks a shell binary (e.g., Distroless images).
 * `docker inspect [container]`: Prints the master JSON state block of the container wrapper! You can inspect the exact `State.Health.Status`, verify injected `Config.Env` variables, and confirm physical host volume `Mounts`.
 
-## 5. Production Daemon Lifecycle Management (`docker system prune`)
+## 5. Production Daemon Lifecycle Management (Taking Out the Trash)
 True Platform Engineering mastery requires maintaining a clean, highly optimized Docker daemon engine across production servers:
 * **The Storage Exhaustion Trap:** Over months of continuous operation, stopped containers, abandoned volumes, and dangling build cache layers accumulate, completely exhausting physical host hard drive space (`No space left on device`).
-* **`docker system prune -a --volumes`:** Platform Engineers schedule automated maintenance cron jobs to execute system pruning, safely sweeping away unattached resources and keeping production daemons operating at peak efficiency!
+* **Cleaning up old junk (`docker system prune -a --volumes`):** Platform Engineers schedule automated maintenance cron jobs to execute system pruning, safely sweeping away unattached resources and keeping production daemons operating at peak efficiency!
 
 ---
 
@@ -101,19 +101,19 @@ True Platform Engineering mastery requires maintaining a clean, highly optimized
 
 ```mermaid
 flowchart TD
-    subgraph CrashingContainer [Crashing Container Lifecycle]
-        CRASH["Container Process Terminates (Captures Exit Code)"] --> CODE["docker ps -a (Exited 137 / 139)"]
+    subgraph CrashingContainer [When Things Go Wrong]
+        CRASH["The App Crashes (Leaves a clue)"] --> CODE["Checking the Clues (Exit Codes)"]
     end
 
-    subgraph DiagnosticWorkflow [Engineer Diagnostic Workflow]
-        CODE --> LOGS["1. docker logs --tail 100 -f (Inspects stderr / stdout)"]
-        LOGS --> INSPECT["2. docker inspect (Verifies State.Health & Config.Env)"]
-        INSPECT --> EXEC["3. docker exec -it /bin/sh (Attaches Live Debugging Shell)"]
+    subgraph DiagnosticWorkflow [Playing Detective]
+        CODE --> LOGS["1. Reading the Diary (docker logs)"]
+        LOGS --> INSPECT["2. Looking Under the Hood (docker inspect)"]
+        INSPECT --> EXEC["3. Stepping Inside the Room (docker exec)"]
     end
 
-    subgraph EngineOptimization [Production Daemon Maintenance]
-        EXEC --> PRUNE["4. docker system prune -a --volumes (Cleans Engine Cache)"]
-        PRUNE --> STABLE["Pristine Production Daemon Engine"]
+    subgraph EngineOptimization [Taking Out the Trash]
+        EXEC --> PRUNE["4. Cleaning up old junk (docker system prune)"]
+        PRUNE --> STABLE["A Happy, Healthy System"]
     end
 ```
 

@@ -109,22 +109,22 @@ True Platform Engineering mastery requires practicing professional team etiquett
 
 ```mermaid
 flowchart TD
-    subgraph DivergentBranches [Divergent Branch Commits]
-        BASE["Merge Base Commit (Line 45: t2.micro)"] -->|Ours| HEAD["Local HEAD Commit (Line 45: t3.medium)"]
-        BASE -->|Theirs| FEAT["Incoming Commit (Line 45: m5.large)"]
+    subgraph DivergentBranches [Two Different Paths (Branches)]
+        BASE["The Shared Starting Point (Merge Base)"] -->|Ours| HEAD["Your Changes (Ours)"]
+        BASE -->|Theirs| FEAT["Their Changes (Theirs)"]
     end
 
-    subgraph MergeEngine [Git 3-Way Merge Engine]
-        HEAD -->|git merge feature| MERGE["Git Compares Trees against Merge Base"]
+    subgraph MergeEngine [The Git Referee (Merge Engine)]
+        HEAD -->|Try to Combine| MERGE["Git checks what changed from the start"]
         FEAT --> MERGE
-        MERGE -->|Identifies Collision| CONFLICT["Throws CONFLICT (content) / Injects Markers"]
+        MERGE -->|Sees a Collision| CONFLICT["Shouts 'CONFLICT!' and leaves warning markers"]
     end
 
-    subgraph ResolutionWorkflow [Engineer Resolution Workflow]
-        CONFLICT --> STATUS["1. git status (both modified: main.tf)"]
-        STATUS --> EDIT["2. Open File / Delete Markers (Choose m5.large)"]
-        EDIT --> ADD["3. git add main.tf (Marks Resolved in Index)"]
-        ADD --> COMMIT["4. git commit (Finalizes Merge Commit Object)"]
+    subgraph ResolutionWorkflow [How You Fix It]
+        CONFLICT --> STATUS["1. Check what's broken (git status)"]
+        STATUS --> EDIT["2. Open file and pick the right text"]
+        EDIT --> ADD["3. Tell Git it's fixed (git add)"]
+        ADD --> COMMIT["4. Save the combined version (git commit)"]
     end
 ```
 
@@ -132,15 +132,15 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Site Reliability Engineer managing a massive production Kubernetes configuration repository. You create a feature branch (`feature/scale-pods`) and update the replica count of your payment microservice in `deployment.yaml` from `3` to `10`.
+Imagine you and a teammate start with the exact same document, which is **The Shared Starting Point**. You go down **Two Different Paths**. You change a sentence to say "Apples are great," (**Your Changes**) while your teammate changes that exact same sentence to say "Oranges are best" (**Their Changes**).
 
-While you are working, another SRE creates an urgent hotfix branch (`hotfix/memory-limit`) and updates the memory limit of the payment microservice on the exact same lines in `deployment.yaml`. They merge their hotfix into `main` immediately.
+When you try to combine your documents, **The Git Referee** steps in. It checks both changes against the starting point, sees that you both tried to change the exact same sentence, and **Shouts 'CONFLICT!'** because it doesn't know which fruit is better! Git will leave special warning markers in the text so you can find the collision.
 
-When you attempt to execute `git pull --rebase origin main` to pull their hotfix into your branch, the terminal suddenly stops and alerts: `CONFLICT (content): Merge conflict in deployment.yaml`.
-
-Because you understand merge conflict mechanics perfectly, you don't panic. You execute `git status` to confirm `deployment.yaml` is the only unmerged file. You open `deployment.yaml` in a text editor and locate the `<<<<<<< HEAD` conflict markers. 
-
-You look at the two blocks of code. You realize that *both* changes are absolutely correct! You need the new memory limits from the hotfix, *and* you need your brand-new replica count! You manually edit the text to combine both settings perfectly, delete the `<<<<<<<`, `=======`, and `>>>>>>>` markers, execute `git add deployment.yaml`, and type `git rebase --continue`. Your branch updates flawlessly, and your Kubernetes deployment successfully receives both critical updates!
+To fix it, you simply follow **How You Fix It**:
+1. Run `git status` to find out which file has the collision.
+2. Open the file, find the warning markers, and decide how the sentence should actually read (maybe "Apples and Oranges are both great!"). Delete the warning markers.
+3. Tell Git you've fixed it by running `git add`.
+4. Finally, save your combined masterpiece by running `git commit`. You just resolved a conflict!
 
 ---
 

@@ -114,21 +114,21 @@ How do you prevent developers from merging expensive Terraform configurations in
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperWorkspace [Developer FinOps Workspace]
-        HCL["main.tf (Blocks: aws_instance 'spot', aws_budgets_budget)"] --> PR["Git Commit && Submit Pull Request"]
+    subgraph DeveloperWorkspace [The Architect's Desk]
+        HCL["The Blueprint (main.tf)"] --> PR["Submit Design for Review"]
     end
 
-    subgraph CI_CD_Engine [GitOps CI/CD Pipeline (Infracost)]
-        PR -->|GitHub Webhook| INFRACOST["Infracost Plan Analyzer"]
-        INFRACOST -->|Check AWS Pricing APIs| DIFF["Calculates Monthly Pricing Diff"]
-        DIFF -->|Posts PR Comment| COMMENT["PR Comment: Monthly Cost Diff: +$150/mo (Spot Instance Savings!)"]
+    subgraph CI_CD_Engine [The Automatic Estimator]
+        PR -->|New Design Received| INFRACOST["The Cost Calculator (Infracost)"]
+        INFRACOST -->|Checks the Price Tag| DIFF["Calculates Monthly Bill"]
+        DIFF -->|Prints the Bill Estimate| COMMENT["Cost Estimate: +$150/mo"]
     end
 
-    subgraph ProductionCloud [Production AWS Cloud Boundary]
-        COMMENT -->|Peer Approves PR| APPLY["terraform apply (Executes Cleanly)"]
-        APPLY --> SPOT["Spot Instance Pool (Up to 90% Discount!)"]
-        APPLY --> BUDGET["AWS Budget Guardrail ($1,000 Limit)"]
-        BUDGET -->|Actual Spend > $800| ALERT["Dispatches PagerDuty / Slack Alert instantly!"]
+    subgraph ProductionCloud [The Construction Site]
+        COMMENT -->|Approved!| APPLY["Approve and Build!"]
+        APPLY --> SPOT["The Discount Materials Store (Spot Instances)"]
+        APPLY --> BUDGET["The Spending Alarm (AWS Budget)"]
+        BUDGET -->|Bill gets too high!| ALERT["Rings the Alarm Bell!"]
     end
 ```
 
@@ -138,13 +138,15 @@ flowchart TD
 
 Imagine you are a Lead Platform Engineer hired to manage cloud financial operations for a major global logistics and flight tracking enterprise. The company operates a massive AWS environment containing 500 EC2 instances and 100 terabytes of S3 storage across dozens of engineering accounts.
 
-During a corporate financial review, the Chief Financial Officer (CFO) reveals that the company's monthly AWS bill has bloated to **$250,000 per month ($3,000,000 per year!)**, severely threatening the company's profit margins.
+Think of building cloud infrastructure like building a massive city. Previously, your architects were drawing up blueprints for giant skyscrapers, and the construction crew would just build them instantly without ever asking how much the materials cost. At the end of the month, the CFO would receive a terrifyingly huge bill!
 
-Because you are an elite Platform Engineer, you lead a massive FinOps optimization initiative. First, you run automated AWS CLI auditing scripts (`aws ec2 describe-volumes --filters Name=status,Values=available`) across all engineering accounts. You discover over **1,000 orphaned, unattached EBS storage volumes** left behind by terminated EC2 servers. You delete them instantly, instantly shaving **$20,000 per month** off the bill!
+To fix this, you set up a **FinOps (Financial Operations)** strategy.
 
-Second, you analyze the company's compute layer. You identify that 300 of the EC2 instances are running stateless, fault-tolerant background data processing worker queues using full-price On-Demand instances. You refactor their Terraform manifests to transition these worker queues entirely to **EC2 Spot Instances** (`instance_market_options { market_type = "spot" }`), slashing compute costs for those 300 servers by **85%**!
+First, you tell your construction crew to start buying supplies from **The Discount Materials Store (Spot Instances)** whenever possible, getting up to 90% off for non-critical buildings! You also walk through the city and demolish all the abandoned, half-built structures (orphaned EBS volumes), immediately saving thousands of dollars.
 
-Finally, you integrate **Infracost** into the company's central GitHub Actions GitOps pipeline and deploy strict **AWS Budget Guardrails** (`aws_budgets_budget`) across every single development account. Across the enterprise, developers gain instant real-time visibility into the financial impact of their code changes. Your FinOps initiative successfully slashes the company's annual cloud bill by **$1,200,000 per year**, earning you massive praise from executive leadership!
+Next, you place an **Automatic Estimator** on every **Architect's Desk**. Now, whenever an architect submits a new blueprint, the estimator instantly **Checks the Price Tag** and prints out a clear **Cost Estimate** right on the design before a single brick is laid.
+
+Finally, you install a giant **Spending Alarm (AWS Budget)** on the construction site. If the monthly spending gets dangerously close to the limit, it instantly **Rings the Alarm Bell!**, alerting the managers before the budget is blown. Your FinOps initiative successfully slashes the company's annual bill by millions of dollars, earning you massive praise from executive leadership!
 
 ---
 

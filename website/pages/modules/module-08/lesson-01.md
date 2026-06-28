@@ -109,9 +109,11 @@ Platform Engineers interact with Terraform through an elite, highly governed 5-s
 5. `terraform apply`: Executes the calculated plan, making the physical API calls to provision the cloud infrastructure!
 
 ## 5. Automated Static Analysis (`tflint` & `tfsec`)
-Before committing HCL code to GitHub, true Platform Engineers enforce automated static analysis quality gates:
-* `tflint`: An advanced HCL linter that verifies cloud-specific rules (e.g., checking if `instance_type = "t99.supermicro"` is an invalid AWS instance type before running `plan`).
-* `tfsec` (Trivy IaC): An elite security scanner that parses your HCL manifests to instantly detect security vulnerabilities (e.g., detecting if an S3 bucket completely lacks encryption or if a security group leaves port 22 open to `0.0.0.0/0`).
+Before sending your Blueprint File (`main.tf`) from The Engineer's Desk to be built, it must pass through The Security Checkpoint. Think of this like sending your house plans to the city planners before The Construction Crew starts pouring concrete. 
+* `tflint` (The Blueprint Checker): Makes sure you aren't trying to use bad or imaginary building parts (e.g., checking if an instance type actually exists before you run your Rehearsal).
+* `tfsec` (The Safety Inspector): Scans your plans to find glaring safety issues, like accidentally leaving the front door unlocked for hackers to walk in (e.g., detecting unencrypted storage or open network ports). 
+
+Once your blueprints pass the checkpoint, The Construction Crew uses `terraform plan` for a final Rehearsal, providing The Summary of what will change, and finally uses `terraform apply` to actually Build the Finished Cloud Infrastructure!
 
 ---
 
@@ -119,21 +121,21 @@ Before committing HCL code to GitHub, true Platform Engineers enforce automated 
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperWorkspace [Developer IaC Workspace]
-        HCL["main.tf (Blocks: terraform, provider, resource, data)"] --> INIT["1. terraform init (Downloads Provider Plugins)"]
-        INIT --> FMT["2. terraform fmt && terraform validate (Syntax Check)"]
+    subgraph DeveloperWorkspace [The Engineer's Desk]
+        HCL["Blueprint File (main.tf)"] --> INIT["1. Setup (Gets tools ready)"]
+        INIT --> FMT["2. Spellcheck (Checks for typos)"]
     end
 
-    subgraph SecurityGate [Automated Static Analysis]
-        FMT --> TFLINT["3. tflint (Validates Cloud Instance Types & Rules)"]
-        TFLINT --> TFSEC["4. tfsec / trivy iac (Scans for IaC Security Flaws)"]
+    subgraph SecurityGate [The Security Checkpoint]
+        FMT --> TFLINT["3. Blueprint Checker (Finds bad building parts)"]
+        TFLINT --> TFSEC["4. Safety Inspector (Finds unlocked doors)"]
     end
 
-    subgraph ExecutionEngine [Terraform Execution Engine]
-        TFSEC --> PLAN["5. terraform plan (Calculates DAG & Prints Dry-Run Diff)"]
-        PLAN -->|Inspects Cloud APIs| DIFF["Plan Diff: +1 to add, ~0 to change, -0 to destroy"]
-        DIFF --> APPLY["6. terraform apply (Executes Idempotent Cloud API Calls)"]
-        APPLY --> CLOUD["Pristine AWS Cloud Infrastructure"]
+    subgraph ExecutionEngine [The Construction Crew]
+        TFSEC --> PLAN["5. Rehearsal (Shows what will be built)"]
+        PLAN -->|Inspects Cloud APIs| DIFF["The Summary: What gets added, changed, or removed"]
+        DIFF --> APPLY["6. Build (Actually builds the house)"]
+        APPLY --> CLOUD["Finished Cloud Infrastructure"]
     end
 ```
 

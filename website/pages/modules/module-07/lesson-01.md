@@ -117,23 +117,23 @@ True Platform Engineers enforce Least Privilege across every single layer of the
 
 ```mermaid
 flowchart TD
-    subgraph ThreatModeling [STRIDE Threat Modeling Inspection]
-        ARCH["Proposed Cloud Architecture Diagram"] --> STRIDE["Evaluate STRIDE (Spoofing, Tampering, Elevation...)"]
+    subgraph ThreatModeling [Safety Check]
+        ARCH["Blueprint of the App"] --> STRIDE["Look for bad guys (Faking identities, changing data, breaking in)"]
     end
 
-    subgraph SecurityGates [Master Security Enforcement]
-        STRIDE --> AUTHN["1. Authentication Gate (Who are you? -> mTLS / Tokens)"]
-        AUTHN --> AUTHZ["2. Authorization Gate (What can you do? -> RBAC / PoLP)"]
+    subgraph SecurityGates [The Bouncers at the Door]
+        STRIDE --> AUTHN["1. ID Check (Are you who you say you are?)"]
+        AUTHN --> AUTHZ["2. VIP List (What rooms are you allowed in?)"]
     end
 
-    subgraph PoLPLayers [Least Privilege Across Stack]
-        AUTHZ --> LINUX["Linux OS: chmod 600 /etc/secrets (No 777!)"]
-        AUTHZ --> DOCKER["Container: USER 10001 (No --privileged!)"]
-        AUTHZ --> CLOUD["Cloud IAM: Allow s3:GetObject on specific bucket (No s3:*!)"]
+    subgraph PoLPLayers [Locking Every Single Door]
+        AUTHZ --> LINUX["Server Door: Locked tight, only the owner has the key"]
+        AUTHZ --> DOCKER["App Box: Running as a normal user, not a super-admin"]
+        AUTHZ --> CLOUD["Cloud Storage: Only allowed to read one specific folder"]
     end
 
-    subgraph BlastRadius [Blast Radius Containment]
-        DOCKER -->|If Compromised| CONTAIN["Breach permanently trapped in isolated namespace!"]
+    subgraph BlastRadius [Damage Control]
+        DOCKER -->|If Compromised| CONTAIN["Bad guy is stuck in a tiny, locked room and can't get out!"]
     end
 ```
 
@@ -141,15 +141,15 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Lead Platform Engineer reviewing an architectural design for a brand-new internal PDF generation microservice. The development team presents an architecture where the microservice runs as a Docker container, executes as `root`, mounts the host server's entire root filesystem (`-v /:/host`), and possesses an AWS IAM role with `s3:*` (full access to every S3 bucket in the company).
+Imagine you are looking at the "Blueprint of the App" for a brand-new PDF generator. The team built it so the app runs as a super-admin, has access to the entire "Server Door", and has master keys to all "Cloud Storage".
 
-When you conduct a **STRIDE Threat Modeling** exercise, you instantly spot a catastrophic **Elevation of Privilege** and **Information Disclosure** vulnerability. If an attacker uploads a maliciously crafted PDF file that exploits a vulnerability in the PDF rendering library, the attacker achieves remote code execution inside the container. 
+When you do a "Safety Check", you instantly spot a huge problem. If a bad guy uploads a malicious PDF, they can take over the app. 
 
-Because the container runs as `root` and mounts `/:/host`, the attacker can break out of the container instantly, modify `/host/etc/shadow`, and achieve full `root` compromise over the physical host server! Furthermore, because the container possesses `s3:*`, the attacker can download and delete every single confidential customer data bucket in your AWS account!
+Because the app is running as a super-admin, the bad guy isn't just stuck in the "App Box". They can break out, easily open the "Server Door", and take over the entire computer! Plus, because they have master keys to the "Cloud Storage", they can steal or delete every single file your company owns!
 
-You forcefully redesign the architecture using the **Principle of Least Privilege**. You remove the host volume mount, configure `USER 10001` in the `Dockerfile`, and rewrite the AWS IAM policy to allow `s3:PutObject` *only* to the specific `pdf-output-bucket`. 
+You decide to fix this by "Locking Every Single Door". You make sure the app acts like a normal user (not a super-admin), meaning it's just a regular "App Box". You also restrict the "Cloud Storage" so it only has the key to one specific folder where the PDFs go.
 
-When the microservice deploys, an attacker attempts the malicious PDF exploit. They achieve code execution, but because the container is running as unprivileged `USER 10001` with zero host mounts, they cannot break out! When they attempt to list S3 buckets (`aws s3 ls`), the AWS IAM engine forcefully blocks them (`AccessDenied`). Your blast radius containment shield successfully stopped a company-wide disaster!
+Now, when the app launches and the bad guy tries the exact same trick, they hit a wall. They might get into the app, but because of your "Damage Control", the bad guy is stuck in a tiny, locked room and can't get out! When they try to snoop into the "Cloud Storage", the "VIP List" bouncers stop them cold. Your safety checks prevented a massive disaster!
 
 ---
 

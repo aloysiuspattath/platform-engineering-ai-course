@@ -136,27 +136,27 @@ How does Kubernetes know whether your container is healthy enough to receive inc
 
 ```mermaid
 flowchart TD
-    subgraph K8sCluster [Kubernetes Production Cluster]
-        DEP["Deployment: payment-api (replicas: 3, strategy: RollingUpdate)"]
+    subgraph K8sCluster [The Production Floor (Kubernetes Cluster)]
+        DEP["The Rollout Manager (Deployment: 3 units)"]
         
-        subgraph OldRS [Old ReplicaSet: payment-api-v1 (Revision 1)]
-            POD_V1["Pod: payment-api-v1-abc (Terminating)"]
+        subgraph OldRS [The Old Workforce (Old ReplicaSet)]
+            POD_V1["Old Worker Unit (Terminating)"]
         end
 
-        subgraph NewRS [New ReplicaSet: payment-api-v2 (Revision 2)]
-            POD_V2_1["Pod: payment-api-v2-xyz (Running)"]
-            POD_V2_2["Pod: payment-api-v2-def (Running)"]
-            POD_V2_3["Pod: payment-api-v2-ghi (Pending)"]
+        subgraph NewRS [The New Workforce (New ReplicaSet)]
+            POD_V2_1["New Worker Unit 1 (Running)"]
+            POD_V2_2["New Worker Unit 2 (Running)"]
+            POD_V2_3["New Worker Unit 3 (Pending)"]
         end
 
-        DEP -->|Scales Down| OldRS
-        DEP -->|Scales Up| NewRS
+        DEP -->|Retires Old| OldRS
+        DEP -->|Hires New| NewRS
     end
 
-    subgraph HealthEngine [kubelet Probe Execution Engine]
-        PROBE1["Liveness Probe: HTTP 200 /healthz"] -->|Pass| POD_V2_1
-        PROBE2["Readiness Probe: HTTP 200 /readyz"] -->|Pass| POD_V2_1
-        PROBE3["Readiness Probe: HTTP 500 /readyz"] -->|Fail: Unlink Endpoint!| POD_V2_2
+    subgraph HealthEngine [The Health Inspector (kubelet Probe Engine)]
+        PROBE1["Pulse Check: Pass (Liveness Probe)"] -->|Healthy| POD_V2_1
+        PROBE2["Traffic Readiness: Pass (Readiness Probe)"] -->|Ready for Traffic| POD_V2_1
+        PROBE3["Traffic Readiness: Fail (Readiness Probe)"] -->|Not Ready: Stop Traffic!| POD_V2_2
     end
 ```
 
@@ -164,21 +164,21 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Lead Platform Engineer hired to manage cloud infrastructure for a massive global airline booking enterprise. The platform operates a critical flight search microservice running across a Kubernetes cluster.
+Imagine you are managing an airline's booking system. The system runs on a **Production Floor (Kubernetes Cluster)**.
 
-Originally, junior engineers deployed the flight search microservice using standalone Pod manifests and completely omitted Readiness and Liveness probes.
+Originally, the team deployed the flight search microservice using standalone Worker Units and completely omitted Readiness and Liveness checks.
 
-One Friday afternoon, the software engineering team ships a brand-new release (`v3.0.0`) of the flight search API. Because they lack a Deployment controller, they manually delete the old Pods and apply the new Pod manifests.
+One Friday afternoon, the software engineering team ships a brand-new release of the flight search API. Because they lack a **Rollout Manager**, they manually dismiss the old workers and hire new ones.
 
-When the new `v3.0.0` Pods spin up, the container processes start instantly, but the internal Java Spring Boot application takes exactly 45 seconds to establish its massive database connection pools. Because there is no Readiness probe, Kubernetes assumes the Pods are ready the exact millisecond the container process starts!
+When the new Worker Units spin up, they start instantly, but the internal system takes exactly 45 seconds to prepare its massive database connection pools. Because there is no check, the system assumes the workers are ready the exact millisecond they show up!
 
-Kubernetes instantly floods the brand-new Pods with thousands of live user flight search requests. Because the database pools aren't ready, every single user request fails with a fatal `HTTP 500 Internal Server Error`! Thousands of customers abandon their bookings!
+The system instantly floods the brand-new Worker Units with thousands of live user flight search requests. Because the database pools aren't ready, every single user request fails! Thousands of customers abandon their bookings!
 
-Because you maintain elite Platform Engineering standards, you take command of the workload re-architecture. You transition the flight search microservice to a **Declarative Deployment Manifest** containing strict **Readiness and Liveness Probes**.
+Because you maintain elite standards, you take command of the workload re-architecture. You transition the flight search microservice to a **Rollout Manager (Deployment)** containing strict **Pulse Checks (Liveness Probes)** and **Traffic Readiness Checks (Readiness Probes)** managed by a **Health Inspector (kubelet Probe Engine)**.
 
-You configure a Readiness probe pointing to `/readyz` (which returns HTTP 200 *exclusively* after database pools are fully initialized). You configure a zero-downtime `RollingUpdate` strategy (`maxSurge: 1`, `maxUnavailable: 0`).
+You configure a Readiness check to ensure it passes *exclusively* after database pools are fully initialized. You configure a zero-downtime strategy.
 
-Now, when the team ships `v4.0.0`, the Deployment spins up a new Pod in a new ReplicaSet. Kubernetes continuously pings `/readyz`. For the first 45 seconds, `/readyz` fails, so Kubernetes refuses to send a single user request to the new Pod! Once the database pools initialize, `/readyz` passes, Kubernetes links the network endpoint, routes live traffic cleanly to the new Pod, and safely terminates one old Pod. Your airline enterprise achieves absolute zero-downtime deployments with **zero dropped user requests**!
+Now, when the team ships a new version, the **Rollout Manager** spins up a new **Worker Unit** in a **New Workforce**. The **Health Inspector** continuously checks the **Traffic Readiness**. For the first 45 seconds, the check fails, so the system refuses to send a single user request to the new **Worker Unit**! Once it passes, the system routes live traffic cleanly to the new **Worker Unit**, and safely retires an **Old Worker Unit** from the **Old Workforce**. Your airline enterprise achieves absolute zero-downtime deployments with **zero dropped user requests**!
 
 ---
 

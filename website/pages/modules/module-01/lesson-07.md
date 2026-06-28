@@ -82,17 +82,17 @@ cat /var/log/syslog | grep "error"
 
 ```mermaid
 flowchart LR
-    subgraph InputLayer [Command 1: cat]
-        FILE[Massive Log File] --> CAT[cat /var/log/syslog]
+    subgraph InputLayer ["The Source (Reading Text)"]
+        FILE["Giant Book (Log File)"] --> CAT["Read Aloud (cat)"]
     end
 
-    subgraph PipeLayer [The Unix Pipe: | ]
-        CAT -->|10,000 Lines of Text| PIPE["| (Pipe)"]
+    subgraph PipeLayer ["The Funnel (Pipe)"]
+        CAT -->|10,000 Lines of Text| PIPE["The Tube ( | )"]
     end
 
-    subgraph FilterLayer [Command 2: grep]
-        PIPE --> GREP[grep 'error']
-        GREP -->|5 Matching Lines| SCREEN[Terminal Screen]
+    subgraph FilterLayer ["The Filter (Searching)"]
+        PIPE --> GREP["Keyword Finder (grep)"]
+        GREP -->|5 Matching Lines| SCREEN["Your Screen"]
     end
 ```
 
@@ -104,7 +104,7 @@ Imagine you are managing a Kubernetes cluster powering an enterprise banking app
 
 If you tried to open that massive log file in a graphical text editor like Notepad, the computer would freeze and crash. 
 
-Instead, using your masterful terminal piping skills, you execute `cat payment_service.log | grep "10:14" | grep "FAILED"`. Within milliseconds, Linux filters out the 50,000 irrelevant lines and prints the exact single line containing the customer's failure root cause!
+Instead, using your masterful terminal piping skills, you execute `cat payment_service.log | grep "10:14" | grep "FAILED"`. By reading from "The Source", pushing text through "The Funnel", and utilizing "The Filter", Linux filters out the 50,000 irrelevant lines and prints the exact single line containing the customer's failure root cause to "Your Screen"!
 
 ---
 

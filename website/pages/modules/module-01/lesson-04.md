@@ -75,19 +75,19 @@ In the professional Platform Engineering world, you rarely run heavy enterprise 
 
 ```mermaid
 flowchart TD
-    subgraph LocalSetup [Local Desktop Setup]
-        WIN[Windows Host OS] --> WSL[WSL2 Lightweight Hypervisor]
-        WSL --> LIN_WSL[Real Ubuntu Linux Kernel]
+    subgraph LocalSetup ["Your Personal Computer Setup"]
+        WIN["Your Windows Laptop"] --> WSL["The Translator (WSL2)"]
+        WSL --> LIN_WSL["The Core Engine (Ubuntu Linux)"]
     end
 
-    subgraph CloudSetup [Remote Cloud Setup]
-        BROWSER[Web Browser / Terminal] --> SSH[Secure Shell / HTTPS]
-        SSH --> CLOUD_VM[Remote AWS / GCP Linux VM]
+    subgraph CloudSetup ["The Internet Setup (Cloud)"]
+        BROWSER["Web Browser"] --> SSH["Secret Tunnel (SSH)"]
+        SSH --> CLOUD_VM["Rented Cloud Computer"]
     end
 
-    subgraph DesktopVM [Traditional Virtual Machine]
-        HOST[Host OS: Windows / macOS] --> HYP[VirtualBox / VMware]
-        HYP --> GUEST[Guest OS: Rocky Linux VM]
+    subgraph DesktopVM ["The Matryoshka Setup (Virtual Machine)"]
+        HOST["Your Computer (Windows/Mac)"] --> HYP["The Simulator (VirtualBox)"]
+        HYP --> GUEST["The Pretend Computer (Linux VM)"]
     end
 ```
 
@@ -97,7 +97,7 @@ flowchart TD
 
 Consider a globally distributed engineering team at a company like GitHub or Microsoft. When a new software engineer is hired, they are not mailed a heavy, complex Linux laptop and told to spend three days installing operating systems.
 
-Instead, the engineer opens a standard Windows laptop, launches **WSL2** or clicks a button to open a remote **GitHub Codespace** in their web browser. Within 30 seconds, they have access to a blazing-fast, standardized Ubuntu Linux terminal perfectly pre-configured for enterprise development.
+Instead, the engineer opens "Your Windows Laptop", launches "The Translator (WSL2)" or clicks a button to open a "Rented Cloud Computer" in their web browser via a "Secret Tunnel". Within 30 seconds, they have access to a blazing-fast, standardized Ubuntu Linux terminal perfectly pre-configured for enterprise development.
 
 ---
 

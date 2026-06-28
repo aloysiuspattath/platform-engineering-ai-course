@@ -83,15 +83,15 @@ When you start a Compose topology, Docker Compose creates a brand-new custom bri
 
 ## 4. Startup Dependency Trees (`depends_on` & `healthcheck`)
 A classic failure mode in multi-tier applications is the backend API starting up instantly (50ms), attempting to connect to the Postgres database, realizing Postgres is still initializing its disk tables (3 seconds), throwing a fatal connection error, and crashing!
-* **`depends_on: condition: service_healthy`:** Platform Engineers solve this by configuring a `healthcheck` block on the database service (`test: ["CMD", "pg_isready"]`). On the API service, you declare `depends_on: database: condition: service_healthy`. Docker Compose will pause the API container's startup, continuously poll the Postgres health check, and launch the API *only* when Postgres confirms it is fully ready to accept connections!
+* **Is it awake yet? (Health Check):** Platform Engineers solve this by configuring a `healthcheck` block on the database service. On **The API Worker**, you declare `depends_on: database: condition: service_healthy`. **The Conductor (Docker Compose)** will pause the API container's startup, continuously poll the Postgres health check, and launch the API *only* when **The Database Worker** confirms it is fully ready to accept connections!
 
 ```text
 [ docker compose up ] ──► [ Start: Database ] ──► [ Healthcheck: pg_isready? ] ──► [ Healthy: Start API ]
 ```
 
 ## 5. Parameterization with Environment Files (`.env`)
-To ensure your `compose.yaml` file can be safely committed to GitHub without exposing passwords, Platform Engineers utilize environment parameterization.
-* You declare variable interpolation inside the YAML (`POSTGRES_PASSWORD: ${DB_PASSWORD}`). You create a local, gitignored `.env` file containing `DB_PASSWORD=SuperSecret99`. Docker Compose automatically parses `.env` at runtime and securely injects the secrets into the container namespaces!
+To ensure your **Master Blueprint (compose.yaml)** can be safely committed to GitHub without exposing passwords, Platform Engineers utilize environment parameterization.
+* You declare variable interpolation inside the YAML. You create a local, gitignored **Secret Vault (.env File)** containing `DB_PASSWORD=SuperSecret99`. Docker Compose automatically parses this vault at runtime and securely injects the secrets into the container namespaces!
 
 ---
 
@@ -99,24 +99,24 @@ To ensure your `compose.yaml` file can be safely committed to GitHub without exp
 
 ```mermaid
 flowchart TD
-    subgraph DeclarativeManifest [Version-Controlled Manifests]
-        YAML["compose.yaml (Top-level: services, networks, volumes)"] --> ENV[".env File (Gitignored Secrets: DB_PASSWORD)"]
+    subgraph DeclarativeManifest [Your App's Instruction Manuals]
+        YAML["The Master Blueprint (compose.yaml)"] --> ENV["The Secret Vault (.env File)"]
     end
 
-    subgraph ComposeEngine [Docker Compose Orchestration Engine]
-        YAML -->|docker compose up -d| UP["Calculates Desired State vs Active Engine"]
+    subgraph ComposeEngine [The Conductor (Docker Compose)]
+        YAML -->|docker compose up -d| UP["Figuring Out What Needs to be Built"]
         ENV --> UP
-        UP -->|1. Creates Virtual Network| NET["Custom Bridge Network: aiapp_default"]
-        UP -->|2. Creates Volume| VOL["Persistent Volume: aiapp_pgdata"]
+        UP -->|1. Creates Virtual Network| NET["The Private Phone Line (Virtual Network)"]
+        UP -->|2. Creates Volume| VOL["The Hard Drive (Persistent Volume)"]
     end
 
-    subgraph RunningTopology [Active Microservice Topology]
-        NET --> DB["Service: database (postgres:15)"]
-        VOL -->|Mounts /var/lib/postgresql/data| DB
-        DB -->|Healthcheck: pg_isready| HC["Condition: service_healthy"]
-        NET --> API["Service: api (python-fastapi:latest)"]
+    subgraph RunningTopology [The Running App Team]
+        NET --> DB["The Database Worker"]
+        VOL -->|Plugs into storage| DB
+        DB -->|Healthcheck: pg_isready| HC["Is it awake yet? (Health Check)"]
+        NET --> API["The API Worker"]
         HC -->|Passes| API
-        API -->|Service Discovery| DNS["Internal DNS: http://database:5432"]
+        API -->|Service Discovery| DNS["The Internal Phonebook (DNS)"]
         DNS --> DB
     end
 ```

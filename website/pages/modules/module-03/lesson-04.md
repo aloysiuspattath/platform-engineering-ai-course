@@ -91,19 +91,19 @@ When you need to see exactly which software processes are actively holding file 
 
 ```mermaid
 flowchart TD
-    subgraph UserSpace [Ring 3: Process I/O]
-        PROC["Process (PID 1050)"] -->|Standard FDs| FD0["0: stdin / 1: stdout / 2: stderr"]
-        PROC -->|Custom FDs| FD3["3: /var/log/app.log / 4: TCP Port 80"]
+    subgraph UserSpace [The App Layer]
+        PROC["Running Program"] -->|Standard File Numbers| FD0["Default Connections (Keyboard & Screen)"]
+        PROC -->|Custom Connections| FD3["Open Files and Networks"]
     end
 
-    subgraph VSLayer [Ring 0: Virtual Filesystem (VFS)]
-        FD3 -->|sys_open / sys_write| VFS["VFS Abstraction Layer"]
-        VFS -->|Translates to| INODE["Inode Table (Inode #548912)"]
+    subgraph VSLayer [The Universal Translator]
+        FD3 -->|Request to Read/Write| VFS["The File Manager"]
+        VFS -->|Looks up in| INODE["The File ID Book"]
     end
 
-    subgraph PhysicalDisks [Physical Storage Drivers]
-        INODE --> EXT4["EXT4 Driver (Primary NVMe Disk)"]
-        INODE --> NFS["NFS Driver (Cloud Network Storage)"]
+    subgraph PhysicalDisks [The Hardware Layer]
+        INODE --> EXT4["Main Hard Drive"]
+        INODE --> NFS["Network Drive"]
     end
 ```
 
@@ -111,11 +111,11 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are a Cloud Infrastructure Engineer managing a production Nginx web server. You notice the server's hard drive is running low on space because the primary access log file (`/var/log/nginx/access.log`) has grown to 50 Gigabytes.
+Imagine you manage a web server. You notice the server's **Main Hard Drive** is running low on space because a log file has grown to 50 Gigabytes.
 
-You log into the server via SSH and execute `sudo rm /var/log/nginx/access.log` to delete the massive log file. The command succeeds perfectly. However, when you check disk space using `df -h`, the hard drive still reports 100% full! 
+You log into the server and delete the massive log file. The command succeeds perfectly. However, when you check disk space, the hard drive still reports 100% full! 
 
-Because you understand Linux internal filesystem mechanics perfectly, you know exactly what happened: Nginx (`PID 1050`) is still actively holding a **File Descriptor** open pointing to the file's **Inode**! In Linux, deleting a file name only removes the table entry from the directory map; the kernel will *not* release the physical hard drive blocks until every active file descriptor pointing to the inode is fully closed! You execute `sudo systemctl reload nginx` to command Nginx to gracefully close its open file descriptors. The kernel instantly purges the orphaned inode, freeing up 50 Gigabytes of disk space in milliseconds!
+Because you understand the architecture, you know exactly what happened: your web server is still actively holding an **Open File Connection** pointing to the file's entry in the **File ID Book**! Deleting a file name only removes its name from the directory map; the system will *not* release the physical hard drive space until every connection to the file is closed! You reload the web server to gracefully close its **Custom Connections**. The system instantly clears the old ID, freeing up 50 Gigabytes of disk space in milliseconds!
 
 ---
 

@@ -95,21 +95,21 @@ As established in Module 02 and Module 03, the Linux kernel treats everything as
 
 ```mermaid
 flowchart TD
-    subgraph ClientStack [Client Linux Network Stack / Encapsulation]
-        APP_C["Application Layer (HTTP GET Request)"] -->|Data| TRANS_C["Transport Layer (TCP Header: Src Port 54321 / Dst Port 80)"]
-        TRANS_C -->|Segment| NET_C["Internet Layer (IP Header: Src IP 10.0.0.5 / Dst IP 192.168.1.50)"]
-        NET_C -->|Packet| LINK_C["Network Access Layer (Ethernet Frame: MAC Address)"]
+    subgraph ClientStack [The Sender's Computer (Packing the Box)]
+        APP_C["The App (Creating the Message)"] -->|Data| TRANS_C["The Packaging Dept (Adding Door Numbers)"]
+        TRANS_C -->|Segment| NET_C["The Local Post Office (Adding Street Addresses)"]
+        NET_C -->|Packet| LINK_C["The Loading Dock (Adding Truck License Plates)"]
     end
 
-    subgraph PhysicalWire [Layer 1: Physical Internet Wire]
-        LINK_C -->|Raw Bits: 1010110| WIRE["Physical Copper / Fiber Optic Internet Cable"]
+    subgraph PhysicalWire [The Highway (Physical Connection)]
+        LINK_C -->|Raw Bits: 1010110| WIRE["The Real Cable (Copper/Fiber)"]
     end
 
-    subgraph ServerStack [Server Linux Network Stack / Decapsulation]
-        WIRE --> LINK_S["Network Access Layer (Strips Ethernet Header)"]
-        LINK_S --> NET_S["Internet Layer (Strips IP Header)"]
-        NET_S --> TRANS_S["Transport Layer (Strips TCP Header / Validates Handshake)"]
-        TRANS_S --> APP_S["Application Layer (Nginx Web Server / Bound to Socket 192.168.1.50:80)"]
+    subgraph ServerStack [The Receiver's Computer (Unpacking the Box)]
+        WIRE --> LINK_S["The Receiving Dock (Checking License Plates)"]
+        LINK_S --> NET_S["The Destination Post Office (Checking Street Addresses)"]
+        NET_S --> TRANS_S["The Unpacking Dept (Checking Door Numbers)"]
+        TRANS_S --> APP_S["The Destination App (Reading the Message)"]
     end
 ```
 
@@ -117,11 +117,13 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are an Infrastructure Engineer managing a high-frequency trading platform. Your trading application queries a live stock market pricing feed. Originally, the application was built using TCP (Transmission Control Protocol). 
+Think of sending data over the network like running a fast-paced delivery service. On **The Sender's Computer (Packing the Box)**, **The App (Creating the Message)** creates a package. It goes to **The Packaging Dept (Adding Door Numbers)** so it knows exactly which door to deliver to (like a Port Number), then to **The Local Post Office (Adding Street Addresses)** for the destination IP address. Finally, **The Loading Dock (Adding Truck License Plates)** loads it onto a truck for delivery down **The Highway (Physical Connection)**. Once it arrives at **The Receiver's Computer (Unpacking the Box)**, the process happens in reverse, peeling away each layer until **The Destination App (Reading the Message)** gets the data!
 
-During intense market volatility, you notice your trading bot is experiencing severe latency spikes. When you inspect the network traffic, you see that TCP is performing its rigorous 3-Way Handshake and constantly waiting for acknowledgement packets (`ACK`). If a single pricing packet is delayed, TCP forcefully blocks all subsequent packets while it waits for a retransmission (**Head-of-Line Blocking**)!
+Imagine you are managing a high-frequency trading platform. Your trading application queries a live stock market pricing feed. Originally, the application was built using TCP, which acts like a very strict delivery service that requires a signature for every single package. 
 
-Because you understand Layer 4 transport mechanics perfectly, you realize TCP's guaranteed delivery is actually harming your trading speed! In stock trading, an outdated price quote from 500 milliseconds ago is completely worthless; you only care about the absolute newest price right now! You work with the developers to migrate the pricing feed to UDP (User Datagram Protocol). UDP eliminates all handshakes and retransmissions, firing live pricing packets onto the wire instantly. Your trading bot's latency drops from 500ms to 2ms, and your platform executes trades flawlessly!
+During intense market volatility, you notice your trading bot is experiencing severe latency spikes. When you inspect the network traffic, you see that TCP is constantly waiting for those delivery signatures (`ACK`). If a single pricing package is delayed, TCP forcefully blocks all subsequent packages while it waits for a re-delivery!
+
+Because you understand how **The Packaging Dept** works, you realize TCP's guaranteed delivery is actually harming your trading speed! In stock trading, an outdated price quote from 500 milliseconds ago is completely worthless; you only care about the newest price right now! You work with the developers to migrate the pricing feed to UDP. UDP eliminates all signatures and re-deliveries, firing live pricing packages onto **The Highway** instantly. Your trading bot's latency drops from 500ms to 2ms, and your platform executes trades flawlessly!
 
 ---
 

@@ -75,25 +75,25 @@ Modern cloud platforms (Amazon Web Services, Google Cloud, Microsoft Azure) and 
 
 ```mermaid
 flowchart TD
-    subgraph Layer4 [Cloud & AI Infrastructure]
-        AI[vLLM AI GPU Clusters]
-        K8S[Kubernetes Orchestration]
-        CLOUD[AWS / GCP Cloud VPCs]
+    subgraph Layer4 ["The Sky (Cloud & AI)"]
+        AI["Smart AI Brains"]
+        K8S["Fleet Manager (Kubernetes)"]
+        CLOUD["Rented Computers (Cloud)"]
     end
 
-    subgraph Layer3 [The Linux Operating System]
-        STAB[High Stability / Zero Reboots]
-        SEC[Advanced Kernel Security]
-        PERF[High-Performance I/O]
+    subgraph Layer3 ["The Foundation (Linux)"]
+        STAB["Never Crashes (High Stability)"]
+        SEC["Fort Knox (Security)"]
+        PERF["Super Fast (Performance)"]
     end
 
-    subgraph Layer2 [The Open Source Engine]
-        OSS[Open Source Source Code]
-        COMM[Global Developer Collaboration]
+    subgraph Layer2 ["The Village (Open Source)"]
+        OSS["Free Blueprints (Open Source)"]
+        COMM["Worldwide Teamwork"]
     end
 
-    subgraph Layer1 [Zero Licensing Cost]
-        ECON[Massive Enterprise Scale]
+    subgraph Layer1 ["Free to Use"]
+        ECON["Grows Without Costing a Fortune"]
     end
 
     Layer4 --> Layer3
@@ -107,7 +107,7 @@ flowchart TD
 
 Consider the global financial market, such as the New York Stock Exchange (NYSE) or major high-frequency trading firms. These institutions process millions of financial transactions every second, worth billions of dollars. 
 
-If a trading server freezes or forces a reboot for even 3 seconds, the company loses millions of dollars. The NYSE operates entirely on Linux because its extreme architectural stability, predictable low-latency performance, and total transparency ensure the global financial engine runs flawlessly without interruption.
+If a trading server freezes or forces a reboot for even 3 seconds, the company loses millions of dollars. The NYSE operates entirely on "The Foundation" because its "Never Crashes" stability, predictable low-latency performance, and "Fort Knox" security ensure the engine runs flawlessly. Built by "The Village", it uses "Free Blueprints" so engineers can verify everything works safely, scaling up like a giant "Fleet Manager" in "The Sky" without licensing fees.
 
 ---
 

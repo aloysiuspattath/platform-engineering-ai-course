@@ -88,16 +88,16 @@ How does Kubernetes limit a container to exactly `1 Gigabyte` of RAM (`limits.me
 
 ```mermaid
 flowchart TD
-    subgraph SysCgroupFS [Cgroups v2 Unified Hierarchy: /sys/fs/cgroup/]
-        ROOT["/sys/fs/cgroup/ (Root Slice: system.slice)"] --> CG_APP["/sys/fs/cgroup/my_container/"]
-        CG_APP --> PROCS["cgroup.procs (PIDs: 1050, 1051)"]
-        CG_APP --> CPU["cpu.max (50000 100000 / 50% CPU Limit)"]
-        CG_APP --> MEM["memory.max (524288000 / 500MB Limit)"]
+    subgraph SysCgroupFS [Resource Limits - The Boundaries]
+        ROOT["The Main System"] --> CG_APP["Your App's Box"]
+        CG_APP --> PROCS["Who goes in the box? (Programs)"]
+        CG_APP --> CPU["Speed Limit (50% CPU)"]
+        CG_APP --> MEM["Size Limit (500MB RAM)"]
     end
 
-    subgraph KernelEnforcement [Linux Kernel Scheduler & MMU]
-        CPU -->|Breaches Quota| THROTTLE["Kernel CFS Scheduler: CPU Throttling (Pauses PID)"]
-        MEM -->|Breaches Limit| CG_OOM["Localized Cgroup OOM Killer: kill -9 PID 1050"]
+    subgraph KernelEnforcement [The System Enforcers]
+        CPU -->|Goes too fast| THROTTLE["Speed Cop: Pauses the App"]
+        MEM -->|Gets too big| CG_OOM["Memory Cop: Force Quits the App"]
     end
 ```
 
@@ -105,11 +105,11 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are an Infrastructure Engineer managing a high-performance Kubernetes cluster powering an AI model training platform. Your data scientists deploy a Python training container configured with a Kubernetes resource limit of `2 CPU cores` (`limits.cpu: "2"`).
+Imagine you are managing an AI training platform. Your data scientists deploy a Python training app configured with a strict limit of `2 CPU cores`.
 
-During training, the data scientists complain that their Python script is running incredibly slowly. When you inspect the physical server using `top`, you notice the server's 16 CPU cores are 80% idle! 
+During training, they complain that their app is running incredibly slowly. When you inspect the server, you notice the server's 16 CPU cores are mostly idle! 
 
-Because you understand Linux cgroup mechanics perfectly, you know exactly what happened: the Python script spawned 16 multithreaded worker processes that instantly burned through the container's assigned CFS quota (`200000 100000`) within the first 12 milliseconds of the window! The Linux kernel CFS scheduler forcefully paused (**Throttled**) the container for the remaining 88 milliseconds of every single window! You explain the mechanics of `cpu.max` to the data scientists, increase their Kubernetes CPU limit to 8 cores, and their AI training speed increases by 400%!
+Because you understand the architecture, you know exactly what happened: the Python app spawned 16 workers that instantly tried to run as fast as possible, blowing past their **Speed Limit**! The **Speed Cop** caught them and forcefully paused (**Throttled**) the app for the rest of every single time window! You explain the mechanics to the data scientists, increase their CPU limit to 8 cores, and their AI training speed increases by 400%!
 
 ---
 

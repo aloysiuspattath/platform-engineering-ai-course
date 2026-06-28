@@ -84,21 +84,21 @@ When the Linux kernel boots up the physical hardware, or when physical device dr
 
 ```mermaid
 flowchart TD
-    subgraph Ring3_UserSpace [Ring 3: User Space Execution]
-        APP["Application Binary (/usr/bin/python3)"] -->|Dynamic Linker| LDD["ldd (Inspects required .so libraries)"]
-        APP -->|Library Call: malloc / strcmp| LTRACE["ltrace (Intercepts Shared Library Calls)"]
-        LTRACE -->|Shared Object: libc.so| LIBC["C Standard Library (glibc)"]
+    subgraph Ring3_UserSpace [The App Layer - Regular Software]
+        APP["The Main Program"] -->|The Dependency Finder| LDD["ldd (Lists Required Helper Files)"]
+        APP -->|Regular Function Calls| LTRACE["ltrace (Monitors App Functions)"]
+        LTRACE -->|Helper File| LIBC["Standard Helper Library"]
     end
 
-    subgraph Ring0_KernelSpace [Ring 0: Kernel Space]
-        LIBC -->|System Call: sys_brk / sys_write| STRACE["strace (Intercepts System Calls)"]
-        STRACE --> KERNEL["Linux Kernel Execution Engine"]
+    subgraph Ring0_KernelSpace [The Control Room - System Core]
+        LIBC -->|Requesting System Action| STRACE["strace (Monitors Core Requests)"]
+        STRACE --> KERNEL["The Core Engine"]
     end
 
-    subgraph PhysicalHW_DriverLayer [Hardware Driver Layer]
-        KERNEL --> DRIVERS["Physical Device Drivers (NVMe / Network NIC)"]
-        DRIVERS -->|Hardware Events / OOM | RINGBUF["Kernel Ring Buffer (Ring 0 Memory)"]
-        RINGBUF -->|Inspected by| DMESG["dmesg -T (Kernel Driver Messages)"]
+    subgraph PhysicalHW_DriverLayer [The Hardware Layer]
+        KERNEL --> DRIVERS["Hardware Connectors (Drivers)"]
+        DRIVERS -->|Hardware Alerts| RINGBUF["The Core Logbook"]
+        RINGBUF -->|Read by| DMESG["dmesg (Views Core Logs)"]
     end
 ```
 
@@ -106,11 +106,11 @@ flowchart TD
 
 # Real-World Example
 
-Imagine you are managing an enterprise AI inference platform. Your team deploys a custom C++ microservice named `ai_tensor_engine` inside a container. When the container launches, it crashes instantly with the fatal exception `error while loading shared libraries: libcuda.so.1: cannot open shared object file: No such file or directory`.
+Imagine you are deploying a custom AI app inside a container. When it launches, it crashes instantly with an error complaining about a missing "shared object file".
 
-Instead of blindly guessing what went wrong, you log into the container and execute a structured diagnostic investigation. First, you execute `ldd /usr/bin/ai_tensor_engine`. The output prints a beautiful table of required shared libraries, instantly highlighting `libcuda.so.1 => not found`!
+Instead of blindly guessing what went wrong, you log into the container and use a tool to check its dependencies. First, you ask **The Dependency Finder** (`ldd`) to list everything the app needs. The output prints a beautiful table of required **Helper Files**, instantly highlighting that the required GPU helper file is "not found"!
 
-You realize the underlying Nvidia CUDA GPU runtime libraries were not mounted correctly into the container. You update your container runtime configuration to inject the GPU shared libraries, verify the links using `ldd`, and your AI inference engine launches flawlessly!
+You realize the underlying GPU **Standard Helper Library** files were not included correctly in the container. You update your setup to inject the right files, verify them again using `ldd`, and your AI app launches flawlessly!
 
 ---
 
