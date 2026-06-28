@@ -10,13 +10,7 @@ Outputs: Highly structured, scannable markdown cheat sheet.
 
 ---
 
-# Cheat Sheet Metadata
 
-* **Topic:** <!-- e.g., Docker CLI & Compose -->
-* **Target Version:** <!-- e.g., Docker 24.x+ -->
-* **Learning Track:** <!-- 🟢 Core | 🔵 Professional -->
-
----
 
 # Core Commands & Syntax
 

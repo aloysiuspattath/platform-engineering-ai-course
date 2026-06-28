@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Vibrant Purple (#a855f7) in HSL is 271, 91%, 65% */
+  --nextra-primary-hue: 271deg;
+  --nextra-primary-saturation: 91%;
+  --nextra-primary-lightness: 65%;
+}
+
+.dark {
+  --nextra-primary-hue: 271deg;
+  --nextra-primary-saturation: 91%;
+  --nextra-primary-lightness: 65%;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-inter), -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dark body {
+  background-color: #0b0c10; /* Techfliq Dark BG */
+}
+
+code, pre {
+  font-family: var(--font-fira-code), monospace !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Fix for Nextra's aggressive leading-7 class which breaks massive text bounding boxes */
+._leading-7 {
+  line-height: inherit !important;
+}

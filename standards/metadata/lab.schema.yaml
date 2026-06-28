@@ -1,0 +1,69 @@
+---
+description: "Canonical metadata schema for Course Labs"
+schema_version: "1.0.0"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the lab (e.g. LAB-05-01)"
+    required: true
+  title:
+    type: "string"
+    description: "Title of the lab"
+    required: true
+  module:
+    type: "string"
+    description: "Parent module ID (e.g. MOD-05)"
+    required: true
+  type:
+    type: "string"
+    value: "lab"
+    required: true
+  difficulty:
+    type: "enum"
+    options: ["Beginner", "Intermediate", "Advanced"]
+    required: true
+  estimated_reading_time:
+    type: "string"
+    description: "Estimated reading time (e.g. 5m)"
+    required: true
+  estimated_hands_on_time:
+    type: "string"
+    description: "Estimated hands-on time (e.g. 45m)"
+    required: true
+  learning_objectives:
+    type: "list[string]"
+    description: "List of learning objectives"
+    required: true
+  prerequisites:
+    type: "list[string]"
+    description: "List of prerequisite artifact IDs"
+    required: true
+  related_lessons:
+    type: "list[string]"
+    required: false
+  related_labs:
+    type: "list[string]"
+    required: false
+  related_projects:
+    type: "list[string]"
+    required: false
+  related_quizzes:
+    type: "list[string]"
+    required: false
+  related_cheatsheets:
+    type: "list[string]"
+    required: false
+  tags:
+    type: "list[string]"
+    required: true
+  version:
+    type: "string"
+    required: true
+  status:
+    type: "enum"
+    options: ["draft", "reviewed", "approved"]
+    required: true
+  last_updated:
+    type: "date"
+    description: "YYYY-MM-DD"
+    required: true

@@ -8,19 +8,6 @@ Required Inputs: Module definition, lesson objectives, project standards.
 
 Outputs: Standards-compliant lesson markdown.
 
----
-
-# Lesson Metadata
-
-* **Lesson ID:** <!-- e.g., LINUX-001 -->
-* **Module:** <!-- e.g., Linux & Operating Systems -->
-* **Difficulty:** <!-- Beginner | Intermediate | Advanced -->
-* **Estimated Duration:** <!-- e.g., 45 minutes -->
-* **Learning Track:** <!-- 🟢 Core | 🔵 Professional | 🟣 Expert -->
-* **Version:** <!-- e.g., 1.0.0 -->
-* **Last Updated:** <!-- YYYY-MM-DD -->
-
----
 
 # Lesson Overview
 
@@ -188,6 +175,20 @@ Outputs: Standards-compliant lesson markdown.
 ## Short Answer Questions
 
 <!-- Conceptual questions -->
+
+<details>
+<summary><b>View Answers</b></summary>
+
+### Multiple Choice
+1. **[Correct Option]** - *Brief explanation of why it is correct.*
+
+### Scenario
+*Brief explanation of the correct architectural approach to the scenario.*
+
+### Short Answer
+*Brief conceptual answer.*
+
+</details>
 
 ---
 

@@ -10,15 +10,7 @@ Outputs: Comprehensive, production-quality project specification and implementat
 
 ---
 
-# Project Metadata
 
-* **Project ID:** <!-- e.g., PROJ-K8S-01 -->
-* **Module:** <!-- e.g., Kubernetes Engineering -->
-* **Difficulty:** <!-- Intermediate | Advanced | Expert -->
-* **Estimated Duration:** <!-- e.g., 4-8 hours -->
-* **Learning Track:** <!-- 🔵 Professional | 🟣 Expert -->
-
----
 
 # Business Scenario
 

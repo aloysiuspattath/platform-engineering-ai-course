@@ -8,7 +8,7 @@ Version: 2.0.0
 
 This document defines the mandatory Version 2.0 five-stage self-review process for the Lesson Author.
 
-Before saving any generated lesson into `output/generated/` and completing execution, the Lesson Author must rigorously evaluate its work against every review stage, paying specific attention to educational quality and difficulty progression.
+Before saving any generated lesson into `output/generated/` and completing execution, the Lesson Author must rigorously evaluate its work against every review stage, paying specific attention to educational quality, difficulty progression, and capability statement verification.
 
 No lesson is considered complete until all review stages have successfully passed.
 
@@ -19,7 +19,7 @@ No lesson is considered complete until all review stages have successfully passe
 Verify:
 
 * All 21 required sections exist in the exact order specified by `TEMPLATE_LESSON.md`.
-* File naming matches the assigned lesson ID (e.g., `module-02/lesson-01.md`).
+* File naming matches the assigned lesson ID (e.g., `module-01/lesson-01.md`).
 * Markdown formatting is syntactically valid (proper headers, closed code blocks, valid tables).
 * Section hierarchy is clear and consistent.
 * Horizontal rules (`---`) cleanly separate major sections.
@@ -73,7 +73,8 @@ Pass / Fail
 
 Verify that:
 
-* **Appropriate Level:** The lesson strictly adheres to the active Difficulty Progression Model (e.g., Module 01 contains 80% Beginner / 20% Intermediate / 0% Advanced internals).
+* **Appropriate Level:** The lesson strictly adheres to the active Difficulty Progression Model (e.g., `MOD-LINUX-BEG` contains 100% Beginner / 0% Intermediate / 0% Advanced internals).
+* **Capability Verification:** The lesson explicitly weaves in and directly fulfills the active **Capability Statement** from `curriculum.md` in the Lesson Overview and Learning Objectives.
 * **Zero Assumed Knowledge:** The lesson assumes *only* knowledge explicitly taught in preceding lessons. Terminal symbols (`$!`, `&`, `2>&1`) are clearly explained.
 * **Deferred Complexity:** Advanced production internals or complex edge cases are appropriately deferred and signposted to future modules.
 * **Instructor Tone:** The writing reads like an inspiring, world-class technical instructor (clear, patient, empathetic, encouraging) rather than dense internal engineering documentation.
@@ -106,7 +107,7 @@ Before final approval, confirm:
 * Every mandatory section from `TEMPLATE_LESSON.md` is present.
 * Explanations build intuition and motivation before showing syntax.
 * Tone is encouraging, clear, and bootcamp-instructor modeled.
-* Difficulty progression rules are perfectly enforced.
+* Difficulty progression rules and Capability Statements are perfectly enforced.
 * Formatting is flawless Markdown.
 * All code blocks include expected outputs and clear explanations.
 * Downstream files are correctly referenced.
@@ -120,6 +121,7 @@ Reject the lesson if:
 
 * Any of the 21 required sections are missing or out of order.
 * Advanced production internals appear prematurely in beginner modules (violating progression rules).
+* The active Capability Statement is missing or unsupported.
 * The tone feels like dense internal documentation or assumes excessive prior knowledge.
 * Commands contain fabricated flags or syntax errors.
 * Placeholder comments remain in the text.
@@ -158,7 +160,7 @@ Every Lesson Author execution must conclude with a review summary appended to th
 
 ## Findings
 
-List any structural, technical, or educational checks verified during review (highlighting v2.0 learner confidence metrics).
+List any structural, technical, or educational checks verified during review (highlighting v2.0 learner confidence metrics and Capability Statement alignment).
 
 ## Recommendations
 

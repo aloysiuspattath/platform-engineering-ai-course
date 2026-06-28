@@ -10,13 +10,7 @@ Outputs: Formatted markdown quiz with multiple choice, scenario-based, and short
 
 ---
 
-# Quiz Metadata
 
-* **Quiz ID:** <!-- e.g., QUIZ-TF-01 -->
-* **Associated Module/Lesson:** <!-- e.g., Terraform Fundamentals -->
-* **Passing Score:** <!-- e.g., 80% -->
-
----
 
 # Section 1: Multiple Choice Questions
 

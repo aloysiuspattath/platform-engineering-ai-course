@@ -8,17 +8,6 @@ Required Inputs: Associated lesson, lab objective, environment details.
 
 Outputs: Reproducible, independently testable hands-on lab markdown.
 
----
-
-# Lab Metadata
-
-* **Lab ID:** <!-- e.g., LAB-LINUX-001 -->
-* **Associated Lesson:** <!-- e.g., LINUX-001 -->
-* **Objective:** <!-- Clear statement of what the student will build or accomplish -->
-* **Estimated Time:** <!-- e.g., 30 minutes -->
-* **Difficulty:** <!-- Beginner | Intermediate | Advanced -->
-
----
 
 # Prerequisites
 
