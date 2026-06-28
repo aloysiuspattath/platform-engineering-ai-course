@@ -90,40 +90,22 @@ There are over 300 standard system calls in the Linux kernel. Here are the most 
 
 ```mermaid
 flowchart TD
-    subgraph Ring3 [The Playground - Regular Software]
-        APP[Regular App like Python]
-        LIBC[The Translator]
-        APP -->|Asks to open file| LIBC
-    end
-
-    subgraph SyscallGateway [The Secure Gate]
-        LIBC -->|Knocks on the door| TRAP[Security Checkpoint - Switching to Boss Mode]
-    end
-
-    subgraph Ring0 [The Control Room - Boss Mode]
-        TRAP --> KERNEL[The Core Engine]
-        KERNEL --> VFS[Hardware Connectors]
-    end
-
-    subgraph PhysicalHW [The Physical World]
-        VFS --> DISK[Actual Hard Drive]
-    end
-
-    DISK -->|Hands over a receipt| KERNEL
-    KERNEL -->|Switching back to Regular Mode| LIBC
+    L4["Layer 4: Application Layer (e.g., Python Script, Web Server)"] -->|Calls standard library function| L3["Layer 3: System Library Layer (e.g., glibc, system call wrapper)"]
+    L3 -->|Triggers context switch to Kernel Mode| L2["Layer 2: OS Kernel Layer (e.g., Linux Kernel, VFS, Core Engine)"]
+    L2 -->|Issues commands to hardware| L1["Layer 1: Hardware Layer (e.g., Physical CPU, RAM, Hard Drives)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of the **Playground** (Regular Software) like the dining area of a busy restaurant, and the **Control Room** (Boss Mode) as the kitchen where the actual cooking happens. 
+Think of **Layer 4: Application Layer** like the dining area of a busy restaurant, and **Layer 2: OS Kernel Layer** as the kitchen where the actual cooking happens. 
 
-Imagine your developers write an app that runs out to the kitchen to ask the **Core Engine** (the head chef) to write down a single order line every time a customer sneezes on Black Friday. 
+Imagine your developers write an app in **Layer 4** that runs out to the kitchen to ask the **Layer 2: OS Kernel Layer** (the head chef) to write down a single order line every time a customer sneezes on Black Friday. 
 
-Suddenly, your servers slow to a crawl! When you check, the CPU is spending 70% of its time as the head chef rather than the dining area. 
+Suddenly, your servers slow to a crawl! When you check, the CPU is spending 70% of its time executing in Layer 2 rather than Layer 4. 
 
-Because you understand the architecture perfectly, you know exactly what happened: every single request triggers a heavy trip through the **Security Checkpoint** (Switching to Boss Mode). Making 50,000 of these trips per second exhausts the system! You instruct the developers to batch the orders together on a single notepad before walking through the **Secure Gate**, dropping the trips from 50,000/sec to 10/sec. Everything instantly recovers!
+Because you understand the layered architecture perfectly, you know exactly what happened: every single request triggers a heavy context switch through **Layer 3: System Library Layer** down to Layer 2. Making 50,000 of these trips per second exhausts the system! You instruct the developers to batch the orders together in Layer 4 before dropping down to the kernel, dropping the trips from 50,000/sec to 10/sec. Everything instantly recovers!
 
 ---
 

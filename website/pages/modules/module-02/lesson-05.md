@@ -87,32 +87,20 @@ When you need to send a letter requesting a specific document from a business (l
 
 ```mermaid
 flowchart TD
-    subgraph NetworkStack [The Post Office (Network Stack)]
-        IP["The Home Address (Assigned IP / ip addr)"] --> ROUTE["The Mail Carrier (Default Gateway / ip route)"]
-    end
-
-    subgraph SocketBinding [The Mailboxes (Socket Binding)]
-        DAEMON["The Resident (Active Daemon)"] -->|Listens at| PORT["Mailbox #80 (Listening Socket)"]
-        PORT -->|Checked by| SS["The Mail Inspector (ss -tulpn)"]
-    end
-
-    subgraph OutboundTraffic [Sending Mail (Outbound Communications)]
-        PING["Knock on Door (ping)"] --> REMOTE_HOST["Neighbor's House"]
-        CURL["Request Document (curl)"] --> WEB_API["Business Office"]
-    end
+    L1["Layer 1: Network Stack (e.g., The Assigned IP address)"] -->|Hosts| L2["Layer 2: Socket Binding (e.g., A Daemon listening on Port 80)"]
+    L2 -->|Monitored by| L3["Layer 3: Local Tools (e.g., Running ss to check open ports)"]
+    L3 -->|Connects via| L4["Layer 4: Outbound Traffic (e.g., Requesting a webpage using curl)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are a Cloud Infrastructure Engineer deploying a brand-new AI inference microservice to a Kubernetes cluster. The service is supposed to connect to a cloud vector database located at `vector-db.internal.cloud` on port `5432`. 
-
-When the container launches, it crashes instantly with `Network connection failed`. 
-
-Using your foundational terminal networking tools, you log into the container and execute a structured investigation. First, you run `ip addr` to confirm the container successfully obtained an IP address. Second, you run `ping -c 4 vector-db.internal.cloud` to verify if the database server is reachable across the internal network. The ping succeeds perfectly! 
-
-Finally, you realize the issue might be on the database server itself. You log into the database server via SSH and execute `sudo ss -tulpn | grep 5432`. The output is completely empty! You instantly realize the database daemon crashed and is not listening on port 5432. You restart the database service using `systemctl`, verify the port is listening using `ss`, and your AI microservice connects flawlessly!
+Imagine you are a Cloud Infrastructure Engineer deploying a brand-new AI inference microservice to a Kubernetes cluster. The service needs to connect to a vector database, following our layered architecture:
+* **Layer 1: Network Stack:** First, you run `ip addr` to confirm the container successfully obtained an IP address so it can route traffic.
+* **Layer 2: Socket Binding:** The container tries to reach the database daemon, which should be listening on port `5432`.
+* **Layer 3: Local Tools:** To troubleshoot, you log into the database server and run `ss -tulpn`. The output is completely empty, showing the database daemon crashed and isn't listening!
+* **Layer 4: Outbound Traffic:** After you restart the database service, outbound traffic flows properly and your `ping` and `curl` commands reach the target successfully!
 
 ---
 

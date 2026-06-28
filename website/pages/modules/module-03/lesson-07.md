@@ -91,43 +91,24 @@ If a production Kubernetes container loses its networking or lacks debugging too
 
 ```mermaid
 flowchart TD
-    subgraph HostMachine [The Real World - Main System]
-        HOST_PID["Real World Program List"] 
-        HOST_NET["Real World Network"]
-    end
-
-    subgraph NamespaceIsolation [The Illusion Barrier]
-        subgraph ContainerBox [The Fake World - Container Box]
-            NS_PID["Fake Program List (Thinks it's the only one)"]
-            NS_NET["Fake Network (Private Ports)"]
-            NS_MNT["Fake Hard Drive (Private Folders)"]
-            NS_UTS["Fake Computer Name"]
-        end
-    end
-
-    HOST_PID -->|Creates Fake Program List| NS_PID
-    HOST_NET -->|Creates Fake Network| NS_NET
-
-    subgraph DebuggingGateway [The Secret Door]
-        NSENTER["nsenter (Walks into the Fake World)"]
-    end
-
-    NSENTER -->|Steps Inside| ContainerBox
+    L4["Layer 4: Application Layer (e.g., Containerized App, Web Server)"] -->|Runs within isolated view| L3["Layer 3: Namespace Isolation Layer (e.g., PID Namespace, Mount Namespace)"]
+    L3 -->|Translates virtual views to real resources| L2["Layer 2: Kernel Resource Management Layer (e.g., Linux Kernel, Global Process Table)"]
+    L2 -->|Allocates physical capacity| L1["Layer 1: Physical Hardware Layer (e.g., CPU, RAM, Network Card)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you manage a production cluster. A critical app container suddenly stops talking to the database. 
+Imagine you manage a production cluster. A critical app container in **Layer 4: Application Layer** suddenly stops talking to the database. 
 
-You try to log into the container, but it fails because the container was built to be ultra-lightweight and doesn't have any tools like `bash`, `curl`, or `ping`! You are completely locked out.
+You try to log into the container, but it fails because the container was built to be ultra-lightweight and doesn't have any tools like `bash`, `curl`, or `ping`! You are completely locked out of **Layer 4**.
 
-Because you understand the architecture, you don't panic. You log into the real physical server instead. You find the app's real-world process ID. 
+Because you understand the architecture, you don't panic. You log into the real physical server instead. You find the app's real-world process ID in **Layer 2: Kernel Resource Management Layer**.
 
-You then use a tool called `nsenter` to open **The Secret Door**. 
+You then use a tool called `nsenter` to open a debugging gateway. 
 
-This is absolute debugging magic! `nsenter` takes your host machine's tools and **Steps Inside** the container's **Fake Network**! You run network checks directly from within the container's isolated world, diagnose the issue, and restore the service to health in seconds!
+This is absolute debugging magic! `nsenter` takes your host machine's tools and steps directly into the container's **Layer 3: Namespace Isolation Layer**! You run network checks from within the container's isolated world, diagnose the issue, and restore the service to health in seconds!
 
 ---
 

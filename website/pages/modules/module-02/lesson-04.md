@@ -86,28 +86,20 @@ The Factory Manager meticulously records every single peep the workers make into
 
 ```mermaid
 flowchart TD
-    subgraph BootSequence [Turning on the Factory (System Boot)]
-        KERNEL[Turning on the Power] --> SYSTEMD["The Factory Manager (systemd / PID 1)"]
-    end
-
-    subgraph ServiceManagement [Giving Orders (systemctl Gateway)]
-        SYSTEMD -->|Start Working (systemctl start)| SRV_ACTIVE["The Worker (Active Daemon: nginx.service)"]
-        SYSTEMD -->|Always Show Up (systemctl enable)| SRV_BOOT["The Daily Roster (Automated Boot)"]
-    end
-
-    subgraph CentralLogging [The Work Log (journalctl Logging)]
-        SRV_ACTIVE -->|Reports Activity| JOURNAL["The Master Logbook (Centralized Journal)"]
-        JOURNAL -->|Read Specific Reports| SCREEN[Terminal Screen]
-    end
+    L1["Layer 1: System Boot (e.g., Kernel starting systemd / PID 1)"] -->|Initializes| L2["Layer 2: Service Management (e.g., Starting the nginx daemon)"]
+    L2 -->|Generates logs in| L3["Layer 3: Central Logging (e.g., Centralized Journal)"]
+    L3 -->|Queried via| L4["Layer 4: Log Output (e.g., Reading logs on the Terminal Screen)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are an Infrastructure Engineer managing a fleet of cloud virtual machines hosting a highly critical payment gateway microservice. At 2:15 AM, the primary cloud server undergoes an automated hardware reboot by the cloud provider (e.g., AWS EC2 maintenance).
-
-Because you configured your payment microservice as a Systemd service and executed `sudo systemctl enable payment.service`, you don't even need to wake up! When the virtual machine powers back on, `systemd` (`PID 1`) instantly reads your unit file, launches the payment daemon automatically, and verifies its health. The payment gateway returns online in seconds with zero human intervention!
+Imagine you are an Infrastructure Engineer managing a fleet of cloud virtual machines hosting a highly critical payment gateway microservice. This aligns directly with our architecture:
+* **Layer 1: System Boot:** At 2:15 AM, the primary cloud server undergoes an automated hardware reboot by the cloud provider (e.g., AWS EC2 maintenance), prompting the kernel to start `systemd`.
+* **Layer 2: Service Management:** Because you executed `sudo systemctl enable payment.service`, `systemd` automatically launches the payment daemon without human intervention.
+* **Layer 3: Central Logging:** The payment gateway securely writes all its startup health checks and errors to the centralized journal.
+* **Layer 4: Log Output:** In the morning, you run `journalctl` to view the terminal screen and confirm the gateway returned online seamlessly!
 
 ---
 

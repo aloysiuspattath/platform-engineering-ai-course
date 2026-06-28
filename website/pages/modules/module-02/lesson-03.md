@@ -97,36 +97,20 @@ If you give a worker a massive task in your main terminal, they will lock up you
 
 ```mermaid
 flowchart TD
-    subgraph ProcessExecution [The Office Workers (Active Processes)]
-        PID1["The CEO / Founder (PID 1)"] --> P_APP["The Accountant (Python Web App)"]
-        PID1 --> P_DB["The File Clerk (Database)"]
-    end
-
-    subgraph MonitoringTools [The Observation Deck]
-        PS["The Office Camera Snapshot (ps aux)"]
-        TOP["The Live Security Feed (top / htop)"]
-    end
-
-    subgraph TerminationSignals [The Firing Process]
-        SIGTERM["Polite Request to Leave (kill)"]
-        SIGKILL["The Bouncer (kill -9)"]
-    end
-
-    PS -->|Takes a Photo of| P_APP
-    TOP -->|Watches Live| P_APP
-    SIGTERM -->|Asks to Pack Up Desk| P_APP
-    SIGKILL -->|Instantly Kicks Out| P_APP
+    L1["Layer 1: Process Execution (e.g., PID 1 spawning a Python Web App)"] -->|Is monitored by| L2["Layer 2: Monitoring Tools (e.g., running htop or ps aux)"]
+    L2 -->|Identifies issues for| L3["Layer 3: Signal Transmission (e.g., issuing a kill command)"]
+    L3 -->|Forces| L4["Layer 4: Process Termination (e.g., SIGTERM or SIGKILL closing the app)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing an AI inference GPU cluster at a company like OpenAI. An engineer reports that their new LLM serving container has become completely unresponsive and is refusing to accept new API requests.
-
-You log into the server via SSH and execute `htop` to inspect live performance. You instantly spot a runaway Python process (`PID 4052`) consuming 99.9% of the server's CPU and memory! 
-
-You first attempt a polite shutdown using `kill 4052`, but after 10 seconds, `htop` shows the process is still frozen and running. You immediately escalate to the brutal executioner: `kill -9 4052`. The Linux kernel instantly terminates the runaway process, freeing up 256 Gigabytes of RAM in milliseconds. The server recovers instantly, and your AI cluster returns to a healthy state!
+Imagine you are managing an AI inference GPU cluster at a company like OpenAI. This maps perfectly to our layered architecture:
+* **Layer 1: Process Execution:** An engineer reports that their new LLM serving container (spawned as a process) has become completely unresponsive.
+* **Layer 2: Monitoring Tools:** You log into the server via SSH and execute `htop` to inspect live performance. You instantly spot a runaway Python process (`PID 4052`) consuming 99.9% of the server's CPU and memory! 
+* **Layer 3: Signal Transmission:** You first attempt a polite shutdown using `kill 4052` (SIGTERM), but after 10 seconds, `htop` shows the process is still frozen and running. You immediately escalate to the brutal executioner: `kill -9 4052` (SIGKILL).
+* **Layer 4: Process Termination:** The Linux kernel instantly terminates the runaway process, freeing up 256 Gigabytes of RAM in milliseconds. The server recovers instantly, and your AI cluster returns to a healthy state!
 
 ---
 

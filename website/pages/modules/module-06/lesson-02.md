@@ -105,21 +105,12 @@ By default, Docker executes container processes as the `root` user (`UID 0`). Be
 
 ```mermaid
 flowchart TD
-    subgraph MultiStageDockerfile [The Multi-Stage Factory Process]
-        B_FROM["The Messy Construction Site (Stage 1)"] --> B_RUN["Downloading Tools (Cached)"]
-        B_RUN --> B_COPY["Bringing in Blueprints (Code)"]
-        B_COPY --> B_BUILD["Building the Final Product"]
-
-        P_FROM["The Clean Showroom (Stage 2)"] --> P_USER["Applying Security Tags"]
-        B_BUILD -->|Moves only what is needed| P_COPY["Grabbing ONLY the Finished Product"]
-        P_USER --> P_COPY
-        P_COPY --> P_CMD["Setting Up Display (CMD)"]
-    end
-
-    subgraph FinalProductionImage [The Final Product]
-        P_CMD -->|Produces a clean app| IMAGE["The Lightweight, Secure Container"]
-    end
+    L4["Layer 4: The Build Stage (e.g., Heavy compiler downloading dependencies)"] -->|Compiles code for| L3["Layer 3: Build Artifacts (e.g., Compiled binaries or libraries)"]
+    L3 -->|Transfers needed files to| L2["Layer 2: The Production Stage (e.g., Clean slim base image)"]
+    L2 -->|Generates| L1["Layer 1: The Final Product (e.g., Lightweight, secure container image)"]
 ```
+
+The layered model simplifies the multi-stage build process. **Layer 4** and **Layer 3** represent the messy construction phase where source code is compiled into artifacts (e.g., binaries). These artifacts are then transferred directly to **Layer 2**, the production stage, which avoids any heavy build tools. This strict separation produces **Layer 1**, the final product, which is a highly optimized and secure container image.
 
 ---
 

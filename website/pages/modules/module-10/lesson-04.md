@@ -126,52 +126,30 @@ Standard Deployments are completely inadequate for stateful database clusters (e
 
 ```mermaid
 flowchart TD
-    subgraph K8sCluster [The Office Building (Kubernetes Cluster)]
-        STS["The Assigned Seating Manager (StatefulSet)"]
-        
-        subgraph Node1 [Desk 1 (Worker Node)]
-            POD0["Employee 0 (Stable Pod)"]
-        end
-
-        subgraph Node2 [Desk 2 (Worker Node)]
-            POD1["Employee 1 (Stable Pod)"]
-        end
-
-        STS -->|Seats Sequentially| POD0
-        STS -->|Seats Sequentially| POD1
-    end
-
-    subgraph StorageEngine [The Filing Room (Storage Engine)]
-        SC["The Filing Cabinet Maker (StorageClass)"]
-        
-        PVC0["The Folder Request 0 (PVC)"] <-->|Binds| PV0["The Physical Folder 0 (PV)"]
-        PVC1["The Folder Request 1 (PVC)"] <-->|Binds| PV1["The Physical Folder 1 (PV)"]
-        
-        POD0 -->|Reads/Writes| PVC0
-        POD1 -->|Reads/Writes| PVC1
-        
-        SC -->|Builds| PV0
-        SC -->|Builds| PV1
-    end
+    L1["Layer 1: The Filing Cabinet Maker (e.g., StorageClass)"] -->|Dynamically builds| L2
+    L2["Layer 2: The Physical Folder (e.g., Persistent Volume / PV)"] -->|Binds to| L3
+    L3["Layer 3: The Folder Request (e.g., Persistent Volume Claim / PVC)"] -->|Mounted by| L4
+    L4["Layer 4: The Stable Employee (e.g., StatefulSet Pod)"] -->|Runs on| L5
+    L5["Layer 5: The Desk (e.g., Worker Node)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are a managing a large logistics enterprise. The platform operates a mission-critical database inside Kubernetes.
+Imagine you are a managing a large logistics enterprise. The platform operates a mission-critical database inside Kubernetes using a strict top-to-bottom layered storage model.
 
 Originally, the team deployed the database using standard configurations and attached a single shared storage drive.
 
 When the system attempted to spin up three database instances across three separate desks, a catastrophic storage collision occurred! The first instance successfully grabbed the drive. However, because the drive can only be used by one person at a time, the other two instances were completely blocked! Their instances remained stuck indefinitely!
 
-Because you maintain elite standards, you take command of the storage re-architecture. You transition the database to an **Assigned Seating Manager (StatefulSet)** utilizing **Filing Cabinet Makers (StorageClasses)**.
+Because you maintain elite standards, you take command of the storage re-architecture. You transition the database to an Assigned Seating Manager (StatefulSet) utilizing **Layer 1: Filing Cabinet Makers (StorageClasses)**.
 
-First, you deploy a highly optimized **Filing Cabinet Maker** configured to create high-performance solid-state drives on demand.
+First, you deploy a highly optimized **Layer 1 (StorageClass)** configured to dynamically create high-performance solid-state drives on demand.
 
-Second, you configure the **Assigned Seating Manager** to request a specific amount of storage per employee.
+Second, you configure the StatefulSet to request a specific amount of storage per employee via a **Layer 3 (PVC)**.
 
-Now, when you apply the changes, the system executes a highly governed sequential spin-up. It seats **Employee 0**, dynamically creates a **Folder Request 0**, and provides **The Physical Folder 0**. Once **Employee 0** is ready, it seats **Employee 1**, provisions a brand-new dedicated **The Physical Folder 1**, and hands it over cleanly. Your database achieves absolute high availability, flawless dynamic disk provisioning, and eliminates collisions permanently!
+Now, when you apply the changes, the system executes a highly governed sequential spin-up. It provisions a brand-new dedicated **Layer 2 (PV)**, and binds it to the **Layer 3 (PVC)**. Then, it seats **Layer 4 (The Stable Employee)**, and attaches it cleanly to **Layer 5 (The Desk)**. Once the first employee is ready, it repeats the process for the next one. Your database achieves absolute high availability, flawless dynamic disk provisioning, and eliminates collisions permanently!
 
 ---
 

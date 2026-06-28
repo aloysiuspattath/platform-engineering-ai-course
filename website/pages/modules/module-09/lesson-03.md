@@ -112,33 +112,9 @@ If your application runs across multiple dynamic servers in multiple AZs, how do
 
 ```mermaid
 flowchart TD
-    subgraph Internet [The Public Internet]
-        CLIENT["Visitor (Web Browser)"]
-    end
-
-    subgraph AWS_Region [The Big City (Region)]
-        ALB["The Traffic Director (ALB)"]
-        
-        subgraph AZ_A [Building A (Active AZ)]
-            EC2_A["Worker Server A (EC2 Instance)"]
-            EBS_A["Local Backpack A (Attached Disk)"]
-        end
-
-        subgraph AZ_B [Building B (Active AZ)]
-            EC2_B["Worker Server B (EC2 Instance)"]
-            EBS_B["Local Backpack B (Attached Disk)"]
-        end
-
-        S3["The Invincible Mega-Vault (Amazon S3)"]
-    end
-
-    CLIENT --> ALB
-    ALB -->|Checks if Worker is Awake| EC2_A
-    ALB -->|Checks if Worker is Awake| EC2_B
-    EC2_A --> EBS_A
-    EC2_B --> EBS_B
-    EC2_A -->|Stores & Retrieves Items| S3
-    EC2_B -->|Stores & Retrieves Items| S3
+    L1["Layer 1: External Client (e.g., Visitor Web Browser)"] -->|Sends requests to| L2["Layer 2: Load Balancing (e.g., Application Load Balancer / The Traffic Director)"]
+    L2 -->|Distributes traffic across AZs to| L3["Layer 3: Ephemeral Compute (e.g., Worker Servers in Building A & B)"]
+    L3 -->|Reads and writes persistent data to| L4["Layer 4: Distributed Object Storage (e.g., Amazon S3 / The Invincible Mega-Vault)"]
 ```
 
 ---
@@ -147,15 +123,18 @@ flowchart TD
 
 Imagine you are a Lead Platform Engineer managing cloud infrastructure for a massive global streaming media enterprise. The platform serves high-definition video content and AI-generated video thumbnails to millions of concurrent users.
 
-Think of your streaming platform as a busy delivery service. Originally, you ran everything out of a single building, and all the video files were kept in local backpacks worn by the workers. If a thunderstorm knocked out the power to that one building, your entire delivery service instantly collapsed!
+Think of your streaming platform as a busy delivery service structured in a strict layered model:
 
-To fix this, you upgrade to a **Highly Available Cloud Architecture**. 
+- **Layer 1: External Client (e.g., Visitor Web Browser)** represents the millions of users trying to watch videos.
+- **Layer 2: Load Balancing (e.g., Application Load Balancer / The Traffic Director)** acts as the Traffic Director out front, constantly checking health and directing flow.
+- **Layer 3: Ephemeral Compute (e.g., Worker Servers in Building A & B)** are the workers deployed across multiple buildings (Availability Zones) to process requests.
+- **Layer 4: Distributed Object Storage (e.g., Amazon S3 / The Invincible Mega-Vault)** is where all the important video files are safely tucked away, independent of any specific building.
 
-First, you move all the important video files out of the local backpacks and put them into **The Invincible Mega-Vault (Amazon S3)**, which automatically makes copies of everything and scatters them across multiple secure locations.
+Originally, you ran everything out of a single building, and all the video files were kept in local backpacks. If a thunderstorm knocked out the power to that one building, your entire delivery service instantly collapsed!
 
-Next, you hire workers in two separate buildings—**Building A** and **Building B**. You place a **Traffic Director (ALB)** out front. The Traffic Director constantly shouts at the workers to make sure they are awake and healthy. 
+To fix this, you upgrade to a Highly Available Cloud Architecture. You put your data in Layer 4, which automatically makes copies of everything. You hire workers across multiple buildings in Layer 3. The Layer 2 Traffic Director constantly shouts at the workers to make sure they are awake.
 
-Now, if lightning strikes Building A and the power goes out, the Traffic Director instantly stops sending visitors there and routes everyone to Building B instead. Since the video files are safely tucked away in the Invincible Mega-Vault, the remaining workers can still access them flawlessly. Your streaming service survives the storm without dropping a single visitor!
+Now, if lightning strikes Building A, Layer 2 instantly stops sending visitors there and routes everyone to Building B instead. Since the video files are safely in Layer 4, the remaining workers can still access them flawlessly. Your streaming service survives the storm without dropping a single visitor!
 
 ---
 

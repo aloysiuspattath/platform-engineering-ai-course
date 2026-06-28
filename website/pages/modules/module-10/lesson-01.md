@@ -124,59 +124,28 @@ In Kubernetes, you never deploy a naked Docker container directly! You deploy a 
 
 ```mermaid
 flowchart TD
-    subgraph ControlPlane [The Brain (Control Plane)]
-        API["The Front Desk (kube-apiserver)"]
-        ETCD["The Filing Cabinet (etcd)"]
-        CTRL["The Manager (kube-controller-manager)"]
-        SCHED["The Dispatcher (kube-scheduler)"]
-        
-        API <--> ETCD
-        API <--> CTRL
-        API <--> SCHED
-    end
-
-    subgraph WorkerNode1 [The Factory Worker 1 (Worker Node)]
-        KLET1["The Foreman (kubelet)"]
-        KPRX1["The Traffic Cop (kube-proxy)"]
-        CRI1["The Engine (Container Runtime)"]
-        POD1["The Work Unit A (Payment Microservice)"]
-        
-        KLET1 -->|Commands| CRI1
-        CRI1 -->|Runs| POD1
-        KPRX1 -->|Routes Packets| POD1
-    end
-
-    subgraph WorkerNode2 [The Factory Worker 2 (Worker Node)]
-        KLET2["The Foreman (kubelet)"]
-        KPRX2["The Traffic Cop (kube-proxy)"]
-        CRI2["The Engine (Container Runtime)"]
-        POD2["The Work Unit B (Payment Microservice)"]
-        
-        KLET2 -->|Commands| CRI2
-        CRI2 -->|Runs| POD2
-        KPRX2 -->|Routes Packets| POD2
-    end
-
-    CLIENT["The Customer (Engineer / CI/CD)"] -->|Requests| API
-    API <-->|Check-ins / Orders| KLET1
-    API <-->|Check-ins / Orders| KLET2
+    L1["Layer 1: The Client (e.g., Engineer / CI/CD Pipeline)"] -->|Sends declarative requests to| L2
+    L2["Layer 2: The Control Plane (e.g., kube-apiserver, etcd, scheduler, controller-manager)"] -->|Issues commands and monitors state of| L3
+    L3["Layer 3: The Worker Node Agent (e.g., kubelet, kube-proxy)"] -->|Instructs runtime to execute| L4
+    L4["Layer 4: The Container Runtime (e.g., containerd, Docker)"] -->|Runs| L5
+    L5["Layer 5: The Work Unit (e.g., Payment Microservice Pod)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing a massive factory for a global retail company. This factory relies on a powerful management system, Kubernetes, which consists of **The Brain (Control Plane)** and hundreds of **Factory Workers (Worker Nodes)**.
+Imagine you are managing a massive factory for a global retail company. This factory relies on a powerful management system, Kubernetes, which operates in strict layers from top to bottom.
 
-During the peak hours of Black Friday, you need all hands on deck. You place an order at **The Front Desk (kube-apiserver)**, asking for exactly 50 active **Work Units (payment Pods)** to process transactions.
+At **Layer 1: The Client**, you (the Engineer) place an order asking for exactly 50 active Payment Microservice Pods.
+This request hits **Layer 2: The Control Plane (kube-apiserver)**, which records the order and decides where the work should go.
+The Control Plane issues commands down to **Layer 3: The Worker Node Agent (kubelet)** on the available servers.
+The agent then instructs **Layer 4: The Container Runtime (containerd)** to spin up the actual workloads.
+Finally, at **Layer 5: The Work Unit**, the new Payment Microservice Pods are successfully running.
 
-Suddenly, a catastrophic power failure hits a section of the factory! Ten **Factory Workers** lose power instantly, taking down 15 of your active **Work Units**!
+Suddenly, a catastrophic power failure hits a section of the factory! Ten servers lose power instantly, taking down 15 of your active Work Units!
 
-Because you are using this smart system, you don't even need to intervene! Within seconds, the factory's auto-healing process kicks in. The regular check-ins from the **Foremen (kubelet)** on the dead **Factory Workers** stop arriving at **The Front Desk**. **The Manager (kube-controller-manager)** notices this and instantly updates **The Filing Cabinet (etcd)**, marking those 15 missing units as down.
-
-**The Manager** then compares what is actually happening (35 active units) against what was originally requested (50 active units). It immediately tells **The Front Desk** to order 15 brand-new replacements. **The Dispatcher (kube-scheduler)** sees the new orders, looks at the remaining 490 healthy **Factory Workers**, and assigns the new tasks to the workers with the most free capacity. The **Foremen** on those healthy workers receive the orders and instruct **The Engine (Container Runtime)** to spin up the new units.
-
-Within seconds, your factory successfully auto-heals back to 50 active **Work Units**! Your retail business survives a massive disaster with zero manual intervention.
+Because you are using this layered smart system, you don't even need to intervene! Within seconds, the auto-healing process kicks in. The regular check-ins from **Layer 3 (kubelet)** on the dead workers stop arriving at **Layer 2 (Control Plane)**. The Control Plane detects the failure and instantly issues new orders to healthy agents, which command their runtimes to spin up replacement **Layer 5 (Pods)**. Your retail business survives a massive disaster with zero manual intervention.
 
 ---
 

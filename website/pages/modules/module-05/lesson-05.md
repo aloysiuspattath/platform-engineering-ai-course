@@ -100,38 +100,24 @@ True automation mastery requires combining your entire Module 05 knowledge into 
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperLaptop [Your Computer (Local Repository)]
-        COMMIT["Try to save a snapshot"] --> HOOK["The Bouncer (Git Hook)"]
-        HOOK -->|Checks rules| YAML["The Rulebook (pre-commit checks)"]
-        YAML -->|Fail| ABORT["Stop! Fix your mistakes"]
-        YAML -->|Pass| OBJECTS["Success! Save the snapshot"]
-    end
-
-    subgraph MultiRepoLinkage [Linking External Projects (Submodules)]
-        OBJECTS -->|Has a link to an outside project| MOD["The Link File (.gitmodules)"]
-        MOD -->|Special Bookmark| SHA["Points to a specific snapshot in the other project"]
-    end
-
-    subgraph CloudCI [Cloud Quality Check (Pull Request)]
-        OBJECTS -->|git push| PR["Ask to combine changes"]
-        PR -->|Cloud Validation| CI["Cloud Robot Testers (Run the same rules)"]
-        CI -->|Pass| MERGE["Combine perfectly with the main project"]
-    end
+    L4["Layer 4: Code Action (e.g., Developer typing git commit)"] -->|Intercepted by| L3["Layer 3: Local Hooks (e.g., pre-commit linting plugins)"]
+    L3 -->|Governs| L2["Layer 2: Repository Linkage (e.g., Submodules in .gitmodules)"]
+    L2 -->|Pushed to| L1["Layer 1: Cloud Validation (e.g., GitHub Actions CI/CD Pipeline)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are writing a secret recipe book on **Your Computer**. One day, you accidentally type your personal bank password into one of the recipes. When you **Try to save a snapshot**, Git doesn't just save it immediately. 
+Think of enterprise Git automation as a strict, four-layered security checkpoint.
 
-Instead, it sends your save to **The Bouncer**, who strictly checks your work against **The Rulebook**. The Bouncer notices your bank password, screams "Stop! Fix your mistakes," and completely blocks you from saving. 
+Everything begins at **Layer 4: Code Action (e.g., Developer typing git commit)**, when you attempt to save your work. 
 
-Because the save was blocked, your password never even entered the filing cabinet, let alone the cloud. Once you delete the password and try again, The Bouncer gives a thumbs up, and says "Success! Save the snapshot." 
+Before the save finishes, it is immediately intercepted by **Layer 3: Local Hooks (e.g., pre-commit linting plugins)**. These act like a local bouncer on your computer, stopping you if your code is messy or contains a secret password.
 
-If you also want to include a chapter from your friend's cookbook without copying all their pages, you can use **Linking External Projects**. You simply add **The Link File**, which acts like a **Special Bookmark** pointing directly to your friend's exact chapter online.
+Once clean, this automation also governs **Layer 2: Repository Linkage (e.g., Submodules in .gitmodules)**, ensuring that any external connected projects are properly referenced by their exact version bookmark.
 
-Finally, when you **Ask to combine changes** in the cloud, **Cloud Robot Testers** double-check everything against the same rulebook, just to be extra safe, before your work is allowed to **Combine perfectly with the main project**.
+Finally, when you share your work, it is pushed to **Layer 1: Cloud Validation (e.g., GitHub Actions CI/CD Pipeline)**, where remote robots run the exact same checks to ensure total quality control!
 
 ---
 

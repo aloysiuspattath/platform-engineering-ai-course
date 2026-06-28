@@ -117,39 +117,23 @@ True Platform Engineers enforce Least Privilege across every single layer of the
 
 ```mermaid
 flowchart TD
-    subgraph ThreatModeling [Safety Check]
-        ARCH["Blueprint of the App"] --> STRIDE["Look for bad guys (Faking identities, changing data, breaking in)"]
-    end
-
-    subgraph SecurityGates [The Bouncers at the Door]
-        STRIDE --> AUTHN["1. ID Check (Are you who you say you are?)"]
-        AUTHN --> AUTHZ["2. VIP List (What rooms are you allowed in?)"]
-    end
-
-    subgraph PoLPLayers [Locking Every Single Door]
-        AUTHZ --> LINUX["Server Door: Locked tight, only the owner has the key"]
-        AUTHZ --> DOCKER["App Box: Running as a normal user, not a super-admin"]
-        AUTHZ --> CLOUD["Cloud Storage: Only allowed to read one specific folder"]
-    end
-
-    subgraph BlastRadius [Damage Control]
-        DOCKER -->|If Compromised| CONTAIN["Bad guy is stuck in a tiny, locked room and can't get out!"]
-    end
+    L1["Layer 1: Threat Modeling (e.g., Identifying that malicious PDFs can compromise the app)"] -->|Defines risks for| L2["Layer 2: Authentication (e.g., Checking ID to ensure only staff can upload PDFs)"]
+    L2 -->|Passes identity to| L3["Layer 3: Authorization (e.g., Checking if staff is allowed to use the PDF tool)"]
+    L3 -->|Restricts permissions for| L4["Layer 4: Least Privilege Container (e.g., App runs as a restricted normal user, not super-admin)"]
+    L4 -->|Contains breaches using| L5["Layer 5: Blast Radius Control (e.g., Bad guy is stuck in a locked container and cannot access Cloud Storage)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are looking at the "Blueprint of the App" for a brand-new PDF generator. The team built it so the app runs as a super-admin, has access to the entire "Server Door", and has master keys to all "Cloud Storage".
+Imagine you are applying **Layer 1: Threat Modeling** to a brand-new PDF generator. You identify a major risk (e.g., Identifying that malicious PDFs can compromise the app). If the app runs as a super-admin, the entire system is at risk.
 
-When you do a "Safety Check", you instantly spot a huge problem. If a bad guy uploads a malicious PDF, they can take over the app. 
+You decide to fix this by building a strict layered security approach. First, you implement **Layer 2: Authentication** (e.g., Checking ID to ensure only staff can upload PDFs). Once they log in, you rely on **Layer 3: Authorization** (e.g., Checking if staff is allowed to use the PDF tool). 
 
-Because the app is running as a super-admin, the bad guy isn't just stuck in the "App Box". They can break out, easily open the "Server Door", and take over the entire computer! Plus, because they have master keys to the "Cloud Storage", they can steal or delete every single file your company owns!
+Even if a bad guy gets past these layers, you rely on **Layer 4: Least Privilege Container** (e.g., App runs as a restricted normal user, not super-admin). This ensures the app doesn't have unnecessary super-admin rights. 
 
-You decide to fix this by "Locking Every Single Door". You make sure the app acts like a normal user (not a super-admin), meaning it's just a regular "App Box". You also restrict the "Cloud Storage" so it only has the key to one specific folder where the PDFs go.
-
-Now, when the app launches and the bad guy tries the exact same trick, they hit a wall. They might get into the app, but because of your "Damage Control", the bad guy is stuck in a tiny, locked room and can't get out! When they try to snoop into the "Cloud Storage", the "VIP List" bouncers stop them cold. Your safety checks prevented a massive disaster!
+Finally, if they somehow break into the app, they are stopped by **Layer 5: Blast Radius Control** (e.g., Bad guy is stuck in a locked container and cannot access Cloud Storage). Your layered safety checks prevent a massive disaster!
 
 ---
 

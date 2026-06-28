@@ -76,40 +76,17 @@ Linux is a "Unix-like" operating system. Unix was created in the late 1960s at B
 
 ```mermaid
 flowchart TD
-    subgraph UserSpace ["The Front Stage (Apps you use)"]
-        App1["Web Browser"]
-        App2["Command Line"]
-        App3["Code Script"]
-    end
-
-    subgraph KernelSpace ["The Core Engine (Kernel)"]
-        K_Sched["Traffic Cop (Task Manager)"]
-        K_Mem["Warehouse Organizer (Memory Manager)"]
-        K_VFS["Filing Cabinet (Storage Manager)"]
-    end
-
-    subgraph Hardware ["The Physical Parts (Hardware)"]
-        HW_CPU["Brain (CPU)"]
-        HW_RAM["Short-term Memory (RAM)"]
-        HW_DISK["Long-term Storage (Disks)"]
-    end
-
-    App1 --> K_Sched
-    App2 --> K_Mem
-    App3 --> K_VFS
-
-    K_Sched --> HW_CPU
-    K_Mem --> HW_RAM
-    K_VFS --> HW_DISK
+    L3["Layer 3: User Space (e.g., Web Browser, Command Line, Code Script)"] -->|Sends requests to| L2["Layer 2: The Kernel (e.g., Task Manager, Memory Organizer, Storage Manager)"]
+    L2 -->|Controls| L1["Layer 1: The Hardware (e.g., Physical CPU, RAM, Hard Drives)"]
 ```
 
 ---
 
 # Real-World Example
 
-Consider the global streaming giant Netflix. When millions of people around the world log in simultaneously to stream high-definition video, they interact with "The Front Stage" applications. Those video files aren't being sent from someone's Windows laptop. 
+Consider the global streaming giant Netflix. When millions of people around the world log in simultaneously to stream high-definition video, they interact with **Layer 3: User Space** applications. Those video files aren't being sent from someone's Windows laptop. 
 
-Netflix runs tens of thousands of powerful cloud servers, and every single one of them operates on Linux. "The Core Engine" acts like a "Traffic Cop" to ensure millions of users get their video without buffering, uses the "Warehouse Organizer" to juggle memory, and accesses the "Filing Cabinet" to quickly retrieve video files from "The Physical Parts" with near-zero delay and rock-solid stability.
+Netflix runs tens of thousands of powerful cloud servers, and every single one of them operates on Linux. **Layer 2: The Kernel** acts like a core engine to ensure millions of users get their video without buffering, efficiently juggling memory and fast storage retrieval. It directly manages and controls **Layer 1: The Hardware** with near-zero delay and rock-solid stability.
 
 ---
 

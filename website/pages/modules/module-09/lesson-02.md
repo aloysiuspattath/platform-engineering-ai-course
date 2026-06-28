@@ -118,23 +118,9 @@ How does an external CI/CD runner (like GitHub Actions) assume an AWS IAM Role w
 
 ```mermaid
 flowchart TD
-    subgraph GitHubEngine [The Delivery Robot (CI/CD Runner)]
-        JOB["Delivery Task"] -->|1. Asks for a Badge| OIDC_PROV["The Robot Manager (OIDC Identity Provider)"]
-        OIDC_PROV -->|Gives a Signed Badge| JWT["The Temporary ID Badge (OIDC JWT)"]
-    end
-
-    subgraph AWSCloud [The Security Guard Booth (STS)]
-        JWT -->|2. Shows Badge to Guard| STS["The Check-in Desk (STS API)"]
-        STS -->|Checks the Guest List| TRUST["The Guest List (Trust Policy)"]
-        TRUST -->|Match Found| CRED["Issues a 1-Hour VIP Pass (Tokens)"]
-    end
-
-    subgraph EvaluationEngine [The Policy Engine]
-        CRED -->|3. Tries to Open a Door| EVAL["The Rule Checker (IAM Evaluation)"]
-        EVAL -->|Checks with the Boss| SCP["The Boss's Ultimate Rules (SCP)"]
-        SCP -->|Checks Room Rules| POLICY["The Room Access Rules (IAM Policy)"]
-        POLICY -->|Allowed| EXEC["Access Granted!"]
-    end
+    L1["Layer 1: Identity Provider (e.g., CI/CD Runner / OIDC Provider)"] -->|Requests temporary badge| L2["Layer 2: Token Issuance (e.g., AWS STS API / The Security Guard Booth)"]
+    L2 -->|Validates trust and issues VIP pass| L3["Layer 3: Policy Evaluation Engine (e.g., IAM Rule Checker / The Policy Engine)"]
+    L3 -->|Enforces global and room rules| L4["Layer 4: Resource Access (e.g., Access Granted to Cloud Resources)"]
 ```
 
 ---
@@ -143,11 +129,14 @@ flowchart TD
 
 Imagine you are a Lead Platform Engineer hired to manage cloud governance for a major financial institution operating across 100 separate AWS accounts within an AWS Organization.
 
-Think of your entire cloud setup as a giant, highly secure corporate building. Previously, people were using permanent, master keys (IAM Users) to get into every room. If someone lost a key, anyone who found it could enter the building forever!
+Think of your entire cloud setup as a giant, highly secure corporate building operating in a strict layered model:
 
-To fix this, you set up a new system. You throw away all the permanent keys. Now, when a **Delivery Robot (CI/CD Runner)** needs to drop off a package, it must get a **Temporary ID Badge** from its **Robot Manager**. It brings this badge to the **Security Guard Booth (STS)**, which checks **The Guest List**. If the robot is supposed to be there, it gets a **1-Hour VIP Pass**.
+- **Layer 1: Identity Provider (e.g., CI/CD Runner / OIDC Provider)** represents the Delivery Robot requesting a Temporary ID Badge from its Robot Manager.
+- **Layer 2: Token Issuance (e.g., AWS STS API / The Security Guard Booth)** is the security checkpoint that checks the Guest List and issues a 1-Hour VIP Pass.
+- **Layer 3: Policy Evaluation Engine (e.g., IAM Rule Checker / The Policy Engine)** is where the Rule Checker reviews both the Boss's Ultimate Rules (SCP) and Room Access Rules (IAM Policy).
+- **Layer 4: Resource Access (e.g., Access Granted to Cloud Resources)** is the final stage where the door unlocks and access is permitted.
 
-When the robot tries to open a specific door, **The Rule Checker** looks at two things: **The Boss's Ultimate Rules (SCP)** (which apply to the whole building) and **The Room Access Rules (IAM Policy)**. If everything checks out, the door unlocks! Since the VIP Pass only lasts for an hour, even if someone steals it, it will quickly become useless. Your financial institution achieves absolute zero-trust cloud governance!
+Previously, people were using permanent, master keys to get into every room. Now, when a delivery robot needs to drop off a package at Layer 1, it brings its badge to Layer 2. If it is supposed to be there, it receives a temporary pass. When it tries to open a specific door, Layer 3 looks at all the rules. If everything checks out, Layer 4 grants access! Since the VIP Pass only lasts for an hour, even if someone steals it, it will quickly become useless. Your financial institution achieves absolute zero-trust cloud governance!
 
 ---
 

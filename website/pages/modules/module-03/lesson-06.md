@@ -88,28 +88,20 @@ How does Kubernetes limit a container to exactly `1 Gigabyte` of RAM (`limits.me
 
 ```mermaid
 flowchart TD
-    subgraph SysCgroupFS [Resource Limits - The Boundaries]
-        ROOT["The Main System"] --> CG_APP["Your App's Box"]
-        CG_APP --> PROCS["Who goes in the box? (Programs)"]
-        CG_APP --> CPU["Speed Limit (50% CPU)"]
-        CG_APP --> MEM["Size Limit (500MB RAM)"]
-    end
-
-    subgraph KernelEnforcement [The System Enforcers]
-        CPU -->|Goes too fast| THROTTLE["Speed Cop: Pauses the App"]
-        MEM -->|Gets too big| CG_OOM["Memory Cop: Force Quits the App"]
-    end
+    L4["Layer 4: Application Layer (e.g., Python Training App, Process PIDs)"] -->|Assigned to a specific boundary| L3["Layer 3: Cgroup Filesystem Layer (e.g., /sys/fs/cgroup/my_app)"]
+    L3 -->|Defines exact limits in plain-text| L2["Layer 2: Resource Configuration Layer (e.g., cpu.max, memory.max)"]
+    L2 -->|Enforced automatically by| L1["Layer 1: Kernel Enforcement Layer (e.g., CFS Scheduler, OOM Killer)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing an AI training platform. Your data scientists deploy a Python training app configured with a strict limit of `2 CPU cores`.
+Imagine you are managing an AI training platform. Your data scientists deploy a Python training app in **Layer 4: Application Layer** configured with a strict limit of `2 CPU cores`.
 
 During training, they complain that their app is running incredibly slowly. When you inspect the server, you notice the server's 16 CPU cores are mostly idle! 
 
-Because you understand the architecture, you know exactly what happened: the Python app spawned 16 workers that instantly tried to run as fast as possible, blowing past their **Speed Limit**! The **Speed Cop** caught them and forcefully paused (**Throttled**) the app for the rest of every single time window! You explain the mechanics to the data scientists, increase their CPU limit to 8 cores, and their AI training speed increases by 400%!
+Because you understand the architecture, you know exactly what happened: the Python app in **Layer 4** spawned 16 workers that instantly tried to run as fast as possible, hitting the exact limits defined in **Layer 2: Resource Configuration Layer** via the **Layer 3: Cgroup Filesystem Layer**. **Layer 1: Kernel Enforcement Layer** (the speed cop) caught them and forcefully paused (throttled) the app for the rest of every single time window! You explain the mechanics to the data scientists, increase their CPU limit to 8 cores, and their AI training speed increases by 400%!
 
 ---
 

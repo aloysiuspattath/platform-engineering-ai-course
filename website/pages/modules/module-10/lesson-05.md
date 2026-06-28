@@ -120,53 +120,30 @@ If Base64 Kubernetes Secret manifests are unencrypted, how do you store your Kub
 
 ```mermaid
 flowchart TD
-    subgraph GitOpsRepository [The Instruction Manual (Git Repository)]
-        CM["The Bulletin Board (ConfigMap)"]
-        ES["The Vault Request (ExternalSecret)"]
-    end
-
-    subgraph AWSCloud [The Secure Facility (AWS Cloud)]
-        ASM["The Bank Vault (AWS Secrets Manager)"]
-    end
-
-    subgraph K8sCluster [The Office Building (Kubernetes Cluster)]
-        ESO["The Courier (External Secrets Operator)"]
-        API["The Front Desk (kube-apiserver)"]
-        ETCD["The Locked Filing Cabinet (etcd Encrypted)"]
-        
-        subgraph WorkerNode [Desk (Worker Node)]
-            POD["The Worker (Pod)"]
-        end
-
-        CM -->|Submits| API
-        ES -->|Submits| ESO
-        ESO -->|1. Shows Badge| ASM
-        ASM -->|2. Hands Over Secret| ESO
-        ESO -->|3. Auto-creates Secret| API
-        API -->|4. Locks Away| ETCD
-        
-        POD -->|Reads| CM
-        POD -->|Requests Secret| API
-    end
+    L1["Layer 1: The Instruction Manual (e.g., Git Repository / ExternalSecret Manifest)"] -->|Submits request to| L2
+    L2["Layer 2: The Courier (e.g., External Secrets Operator)"] -->|Fetches credentials from| L3
+    L3["Layer 3: The Bank Vault (e.g., AWS Secrets Manager)"] -->|Returns secret to Courier, which creates| L4
+    L4["Layer 4: The Internal Locked Filing Cabinet (e.g., etcd Encrypted Secret)"] -->|Injected into| L5
+    L5["Layer 5: The Worker (e.g., Pod)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing a highly secure banking system.
+Imagine you are managing a highly secure banking system, structured via strict operational layers.
 
-Originally, the team managed credentials by putting passwords in standard text formats and placing them directly into the company's central Instruction Manual.
+Originally, the team managed credentials by putting passwords in standard text formats and placing them directly into the company's central Instruction Manual (**Layer 1**).
 
 During a routine security audit, auditors uncover two catastrophic violations: first, over 500 plain-text database passwords are sitting in plain sight because the text was not fully encrypted. Second, the active memory inside the system is storing those secrets in unencrypted plain text on the hard drives!
 
-Because you maintain elite standards, you lead a massive secret management overhaul. You transition the entire enterprise to **The Courier (External Secrets Operator)** and **The Locked Filing Cabinet (etcd Encryption)**.
+Because you maintain elite standards, you lead a massive secret management overhaul. You transition the entire enterprise to a layered model using **Layer 2: The Courier (External Secrets Operator)** and **Layer 4: The Locked Filing Cabinet (etcd Encryption)**.
 
-First, you configure the main system, commanding **The Front Desk** to encrypt all secrets at rest.
+First, you configure the main system, commanding the Control Plane to encrypt all secrets at rest at **Layer 4**.
 
-Second, you migrate all 500 plain-text database passwords and banking API keys entirely out of the Instruction Manual and store them securely inside **The Bank Vault (AWS Secrets Manager)**.
+Second, you migrate all 500 plain-text database passwords and banking API keys entirely out of the Instruction Manual and store them securely inside **Layer 3: The Bank Vault (AWS Secrets Manager)**.
 
-Finally, you deploy **The Courier** into your cluster and replace all old requests with clean **Vault Requests**. **The Courier** dynamically synchronizes the credentials directly from **The Bank Vault** into the system. Your fintech enterprise achieves absolute zero-trust secret governance!
+Finally, you deploy **The Courier** into your cluster and replace all old requests with clean Vault Requests at **Layer 1**. **The Courier (Layer 2)** dynamically synchronizes the credentials directly from **Layer 3** into **Layer 4**. Finally, **Layer 5 (The Worker)** securely reads the credentials at runtime. Your fintech enterprise achieves absolute zero-trust secret governance!
 
 ---
 

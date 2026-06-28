@@ -97,22 +97,16 @@ SSH is the legendary encrypted management protocol operating on TCP Port 22. It 
 
 ```mermaid
 flowchart TD
-    subgraph ClientMachine [The Engineer's Laptop (Client Machine)]
-        SSH_CLIENT["The Key Ring (Holds the Secret Key)"] -->|Requests Entry| SSHD["The Security Guard (Server Connection)"]
-    end
-
-    subgraph ServerSpace [The Secure Server Building (Server Environment)]
-        SSHD -->|Checks Rules| CONFIG["The Rulebook (Security Rules)"]
-        CONFIG -->|Checks ID| AUTH_KEY["The Guest List (Approved Public Keys)"]
-        AUTH_KEY -->|Matches!| SHELL["The VIP Room (Access Granted!)"]
-    end
+    L4["Layer 4: Client Key (e.g., The Engineer's Laptop with Secret Key)"] -->|Requests Entry| L3["Layer 3: Server Guard (e.g., The SSH Daemon)"]
+    L3 -->|Checks Rules| L2["Layer 2: Security Configuration (e.g., The Rulebook & Guest List)"]
+    L2 -->|Matches ID| L1["Layer 1: User Shell (e.g., The VIP Room)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of secure server access like trying to enter an exclusive club. On **The Engineer's Laptop (Client Machine)**, you have **The Key Ring (Holds the Secret Key)**. When you try to connect, you meet **The Security Guard (Server Connection)** at **The Secure Server Building (Server Environment)**. The guard checks **The Rulebook (Security Rules)**, which strictly says "No Passwords Allowed." Instead, the guard checks **The Guest List (Approved Public Keys)** to see if your key is authorized. If it matches, you are allowed into **The VIP Room (Access Granted!)**!
+Think of secure server access like a strict layered process. At **Layer 4: Client Key (e.g., The Engineer's Laptop with Secret Key)**, a connection request is made. It moves down to **Layer 3: Server Guard (e.g., The SSH Daemon)**. The guard checks **Layer 2: Security Configuration (e.g., The Rulebook & Guest List)** to verify if your key is authorized and passwords are disabled. If it matches, you are allowed into **Layer 1: User Shell (e.g., The VIP Room)**!
 
 Imagine you are managing a massive e-commerce platform. On Black Friday, at 9:00 AM, your entire customer-facing website suddenly goes offline. Customers attempting to visit your site are greeted with a terrifying browser warning: `Your connection is not private`.
 

@@ -88,28 +88,9 @@ The final character of your prompt is a critical safety indicator:
 
 ```mermaid
 flowchart TD
-    subgraph HumanInput ["You (The User)"]
-        KEYBOARD["Typing on Keyboard"]
-    end
-
-    subgraph TerminalEmulator ["The Screen (Terminal Window)"]
-        GUI["The Display App"]
-    end
-
-    subgraph ShellProgram ["The Translator (Shell)"]
-        PARSE["Grammar Checker (Parser)"]
-        PROMPT["The Welcoming Sign (Prompt)"]
-    end
-
-    subgraph OSKernel ["The Core Engine (Kernel)"]
-        EXEC["The Doer (Execution Engine)"]
-    end
-
-    KEYBOARD --> GUI
-    GUI --> PARSE
-    PARSE --> EXEC
-    EXEC --> PROMPT
-    PROMPT --> GUI
+    L4["Layer 4: Human Input (e.g., Typing on Keyboard)"] -->|Types into| L3["Layer 3: Terminal Emulator (e.g., Windows Terminal, iTerm2)"]
+    L3 -->|Sends text to| L2["Layer 2: The Shell (e.g., Bash, Zsh)"]
+    L2 -->|Translates and commands| L1["Layer 1: The OS Kernel (e.g., Execution Engine)"]
 ```
 
 ---
@@ -118,7 +99,7 @@ flowchart TD
 
 Imagine you are a Site Reliability Engineer (SRE) responding to a major production database outage at 3:00 AM at a company like Amazon. You have ten different terminal windows open connecting to various cloud servers.
 
-Because you understand the exact anatomy of "The Welcoming Sign (Prompt)", you never get confused. A quick glance at `db-admin@prod-database-01:~#` instantly tells you three mission-critical facts: you are logged in as `db-admin`, you are touching the production database server (`prod-database-01`), and the `#` symbol warns you that you possess absolute root administrative privileges! The commands you type are sent from "Typing on Keyboard" through "The Translator", checked by the "Grammar Checker", and run by "The Core Engine" seamlessly.
+Because you understand the exact anatomy of the shell prompt, you never get confused. A quick glance at `db-admin@prod-database-01:~#` instantly tells you three mission-critical facts: you are logged in as `db-admin`, you are touching the production database server (`prod-database-01`), and the `#` symbol warns you that you possess absolute root administrative privileges! The commands you type via **Layer 4: Human Input** are captured by **Layer 3: Terminal Emulator**, translated and checked by **Layer 2: The Shell**, and seamlessly executed by **Layer 1: The OS Kernel**.
 
 ---
 

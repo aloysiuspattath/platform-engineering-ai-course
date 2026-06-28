@@ -104,40 +104,20 @@ If you build a room but want to hand the title over to a standard developer name
 
 ```mermaid
 flowchart TD
-    subgraph TargetEntity [The People]
-        U[The Owner (User: u)]
-        G[The Roommates (Group: g)]
-        O[The Strangers (Others: o)]
-    end
-
-    subgraph PermValues [The House Keys]
-        R[Look Around Key (Read: r = 4)]
-        W[Rearrange Furniture Key (Write: w = 2)]
-        X[Enter Room Key (Execute: x = 1)]
-    end
-
-    subgraph CommandTools [The Locksmith Tools]
-        CHMOD[Change Locks (chmod)]
-        CHOWN[Transfer Title (chown)]
-    end
-
-    U --> R & W & X
-    G --> R & X
-    O --> R
-
-    CHMOD -->|Changes Key Access| TargetEntity
-    CHOWN -->|Hands Over Title| TargetEntity
+    L1["Layer 1: Target Entity (e.g., The User Owner, Group, or Others)"] -->|Is assigned| L2["Layer 2: Permission Values (e.g., Read=4, Write=2, Execute=1)"]
+    L2 -->|Evaluated during| L3["Layer 3: Access Request (e.g., Attempting to run a deployment script)"]
+    L3 -->|Modified using| L4["Layer 4: Command Tools (e.g., chmod or chown)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing an automated CI/CD deployment runner in an enterprise AWS cloud environment. Your developer commits a brand-new Python deployment script named `deploy_infra.py` to Git. 
-
-When the automated pipeline attempts to execute the script using `./deploy_infra.py`, the terminal crashes instantly with `Permission denied`. 
-
-Because you understand Linux permission mechanics perfectly, you know exactly what happened: the script was created on a Windows machine and lacks execute (`x`) permissions in its metadata! You update the pipeline to execute `chmod +x deploy_infra.py` before running the script. The script executes flawlessly, and your cloud infrastructure deploys successfully!
+Imagine you are managing an automated CI/CD deployment runner in an enterprise AWS cloud environment. Your developer commits a brand-new Python deployment script named `deploy_infra.py` to Git. This maps directly to our layered architecture:
+* **Layer 1: Target Entity:** The deployment runner acts as the user owner trying to interact with the script.
+* **Layer 2: Permission Values:** The script was created on a Windows machine and only has Read and Write permissions, lacking execute (`x`) in its metadata.
+* **Layer 3: Access Request:** When the automated pipeline attempts to execute the script using `./deploy_infra.py`, the terminal crashes instantly with `Permission denied` because the permissions are insufficient.
+* **Layer 4: Command Tools:** You update the pipeline to execute `chmod +x deploy_infra.py` before running the script. The script executes flawlessly, and your cloud infrastructure deploys successfully!
 
 ---
 

@@ -111,21 +111,10 @@ How does an application read secrets from Vault without writing massive custom A
 
 ```mermaid
 flowchart TD
-    subgraph GitOpsStorage [The Safe Box (Storing Passwords)]
-        PLAIN["Readable Password (Danger!)"] -->|sops -e| SOPS["Scrambled Password (Safe!)"]
-        SOPS -->|Safe to Commit!| GIT["Public Code Folder"]
-    end
-
-    subgraph DynamicEngine [The Password Vending Machine]
-        UNSEAL["Unlocking the Vending Machine (Needs multiple keys)"] --> KV["Storing temporary passwords inside"]
-    end
-
-    subgraph RuntimeInjection [The Running App]
-        GIT -->|sops -d| DECRYPT["Unscrambling with the Master Key"]
-        KV -->|Dynamic Lease| AGENT["The App's Helper (Asks for a password)"]
-        AGENT -->|Writes to RAM| TMPFS["Temporary Memory (Erases when turned off!)"]
-        TMPFS --> PROC["App runs using the temporary password"]
-    end
+    L1["Layer 1: Plaintext Secrets (e.g., Readable passwords that are dangerous)"] -->|Encrypts with| L2["Layer 2: Secrets Encryption (e.g., SOPS scrambles the password so it's safe to commit)"]
+    L2 -->|Pushes to| L3["Layer 3: Version Control (e.g., Git storing the scrambled password)"]
+    L3 -->|Deploys to| L4["Layer 4: Secrets Management Engine (e.g., Vault generating dynamic temporary passwords)"]
+    L4 -->|Injects into| L5["Layer 5: Runtime Memory (e.g., The app uses the password from temporary RAM, never written to disk)"]
 ```
 
 ---
@@ -134,13 +123,13 @@ flowchart TD
 
 Imagine you are hired to secure the systems for a massive bank. The company currently builds 100 different apps across 50 code folders.
 
-Every single folder contains files with "Readable Passwords" for databases and banking tools. Over 200 developers have downloaded these folders onto their personal laptops. 
+Every single folder contains **Layer 1: Plaintext Secrets** (e.g., Readable passwords that are dangerous). Over 200 developers have downloaded these folders onto their personal laptops. If a single developer's laptop is stolen, hackers would gain instant access to the bank's core databases.
 
-When you run a scan, you discover 500 readable passwords scattered everywhere! If a single developer's laptop is stolen, hackers would gain instant access to the bank's core databases.
+Because you know better, you execute a strict layered security overhaul. You start with **Layer 2: Secrets Encryption** (e.g., SOPS scrambles the password so it's safe to commit). Now, when code goes to **Layer 3: Version Control** (e.g., Git storing the scrambled password), it's completely unreadable without the master key!
 
-Because you know better, you execute a massive security overhaul. First, you implement "The Safe Box" for all 50 code folders. You take every readable password and scramble it. Now, developers can download the code freely; without the master key, the passwords just look like "Scrambled Passwords" and are completely unreadable!
+Finally, for the most critical banking apps, you deploy a **Layer 4: Secrets Management Engine** (e.g., Vault generating dynamic temporary passwords). Instead of using permanent passwords, apps get temporary leases.
 
-Finally, for the most critical banking apps, you deploy "The Password Vending Machine". Instead of using permanent passwords, you make the apps ask "The App's Helper" for a temporary password that automatically expires every 30 minutes. The password is kept only in "Temporary Memory", so it never touches a hard drive. Your bank achieves total secrecy, passes strict security audits flawlessly, and permanently eliminates password leaks!
+These temporary passwords are only sent to **Layer 5: Runtime Memory** (e.g., The app uses the password from temporary RAM, never written to disk). Your bank achieves total secrecy, passes strict security audits flawlessly, and permanently eliminates password leaks!
 
 ---
 

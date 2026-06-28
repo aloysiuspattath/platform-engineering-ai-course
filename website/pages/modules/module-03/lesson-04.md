@@ -91,31 +91,20 @@ When you need to see exactly which software processes are actively holding file 
 
 ```mermaid
 flowchart TD
-    subgraph UserSpace [The App Layer]
-        PROC["Running Program"] -->|Standard File Numbers| FD0["Default Connections (Keyboard & Screen)"]
-        PROC -->|Custom Connections| FD3["Open Files and Networks"]
-    end
-
-    subgraph VSLayer [The Universal Translator]
-        FD3 -->|Request to Read/Write| VFS["The File Manager"]
-        VFS -->|Looks up in| INODE["The File ID Book"]
-    end
-
-    subgraph PhysicalDisks [The Hardware Layer]
-        INODE --> EXT4["Main Hard Drive"]
-        INODE --> NFS["Network Drive"]
-    end
+    L4["Layer 4: Application Layer (e.g., Running Program, Web Server)"] -->|Requests File Access via File Descriptor| L3["Layer 3: Virtual Filesystem Layer (e.g., VFS, The File Manager)"]
+    L3 -->|Translates to| L2["Layer 2: Metadata Layer (e.g., Inodes, The File ID Book)"]
+    L2 -->|Points to| L1["Layer 1: Hardware Storage Layer (e.g., Ext4 Main Hard Drive, Physical Disk)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you manage a web server. You notice the server's **Main Hard Drive** is running low on space because a log file has grown to 50 Gigabytes.
+Imagine you manage a web server in **Layer 4: Application Layer**. You notice the server's **Layer 1: Hardware Storage Layer** is running low on space because a log file has grown to 50 Gigabytes.
 
 You log into the server and delete the massive log file. The command succeeds perfectly. However, when you check disk space, the hard drive still reports 100% full! 
 
-Because you understand the architecture, you know exactly what happened: your web server is still actively holding an **Open File Connection** pointing to the file's entry in the **File ID Book**! Deleting a file name only removes its name from the directory map; the system will *not* release the physical hard drive space until every connection to the file is closed! You reload the web server to gracefully close its **Custom Connections**. The system instantly clears the old ID, freeing up 50 Gigabytes of disk space in milliseconds!
+Because you understand the architecture, you know exactly what happened: your web server in **Layer 4** is still actively holding an open file descriptor pointing to the file's entry in **Layer 2: Metadata Layer**! Deleting a file name only removes its name from the directory map; the system will *not* release the physical hard drive space in **Layer 1** until every connection to the file is closed! You reload the web server to gracefully close its open file descriptors. **Layer 3: Virtual Filesystem Layer** instantly clears the old inode, freeing up 50 Gigabytes of disk space in milliseconds!
 
 ---
 

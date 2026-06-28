@@ -84,33 +84,20 @@ When the Linux kernel boots up the physical hardware, or when physical device dr
 
 ```mermaid
 flowchart TD
-    subgraph Ring3_UserSpace [The App Layer - Regular Software]
-        APP["The Main Program"] -->|The Dependency Finder| LDD["ldd (Lists Required Helper Files)"]
-        APP -->|Regular Function Calls| LTRACE["ltrace (Monitors App Functions)"]
-        LTRACE -->|Helper File| LIBC["Standard Helper Library"]
-    end
-
-    subgraph Ring0_KernelSpace [The Control Room - System Core]
-        LIBC -->|Requesting System Action| STRACE["strace (Monitors Core Requests)"]
-        STRACE --> KERNEL["The Core Engine"]
-    end
-
-    subgraph PhysicalHW_DriverLayer [The Hardware Layer]
-        KERNEL --> DRIVERS["Hardware Connectors (Drivers)"]
-        DRIVERS -->|Hardware Alerts| RINGBUF["The Core Logbook"]
-        RINGBUF -->|Read by| DMESG["dmesg (Views Core Logs)"]
-    end
+    L4["Layer 4: Application Layer (e.g., Main Program, User App)"] -->|Calls Dynamic Library Function (ltrace)| L3["Layer 3: Shared Library Layer (e.g., glibc, Standard Helper Library)"]
+    L3 -->|Makes System Call (strace)| L2["Layer 2: Kernel Layer (e.g., The Core Engine, Linux Kernel)"]
+    L2 -->|Interacts with Hardware Drivers (dmesg)| L1["Layer 1: Hardware Layer (e.g., Physical Devices, Drivers)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are deploying a custom AI app inside a container. When it launches, it crashes instantly with an error complaining about a missing "shared object file".
+Imagine you are deploying a custom AI app in **Layer 4: Application Layer** inside a container. When it launches, it crashes instantly with an error complaining about a missing "shared object file".
 
-Instead of blindly guessing what went wrong, you log into the container and use a tool to check its dependencies. First, you ask **The Dependency Finder** (`ldd`) to list everything the app needs. The output prints a beautiful table of required **Helper Files**, instantly highlighting that the required GPU helper file is "not found"!
+Instead of blindly guessing what went wrong, you log into the container and use a tool to check its dependencies. First, you ask `ldd` to list everything the app needs from **Layer 3: Shared Library Layer**. The output prints a beautiful table of required standard helper files, instantly highlighting that the required GPU helper file is "not found"!
 
-You realize the underlying GPU **Standard Helper Library** files were not included correctly in the container. You update your setup to inject the right files, verify them again using `ldd`, and your AI app launches flawlessly!
+You realize the underlying GPU libraries for **Layer 3** were not included correctly in the container. You update your setup to inject the right files, verify them again, and your AI app now correctly calls **Layer 3**, which then successfully makes system calls to **Layer 2: Kernel Layer** and finally reaches the hardware in **Layer 1: Hardware Layer**!
 
 ---
 

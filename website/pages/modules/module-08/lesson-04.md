@@ -116,29 +116,18 @@ When you finish Drafting the Changes at The Writer's Desk, you Submit for Review
 
 Next, we move to The Publishing Process. A Coworker gives a Thumbs Up on your work. Once you say "Go Ahead and Publish!", the system Safely Applies the Changes in a Secure Room. Done! The Changes are Live, and no one had to risk making the updates manually from their own laptop.
 
+This entire pipeline operates as a strict sequence of layers. The changes start at Layer 1 (The Writer's Desk), move through Layer 3 (The Automated Editor) for safety checks, wait for Layer 4 (The Peer Approval), and are finally executed at Layer 5 (The Publishing Process).
+
 ---
 
 # Architecture
 
 ```mermaid
 flowchart TD
-    subgraph RefactorWorkspace [The Writer's Desk]
-        HCL["Drafting the Changes (main.tf)"] --> PR["Submit for Review (Pull Request)"]
-    end
-
-    subgraph AtlantisEngine [The Automated Editor]
-        PR -->|Webhook| ATLANTIS["Notices the Submission"]
-        ATLANTIS --> LINT["1. Grammar & Safety Check (Linting & Sec)"]
-        LINT --> PLAN["2. Preview the Impact (Plan)"]
-        PLAN -->|Posts PR Comment| COMMENT["Leaves a Comment: 'Nothing will be broken or deleted!'"]
-    end
-
-    subgraph ProductionExecution [The Publishing Process]
-        COMMENT --> APPROVE["A Coworker gives a Thumbs Up"]
-        APPROVE --> COMMENT_APPLY["You say 'Go Ahead and Publish!'"]
-        COMMENT_APPLY --> APPLY["3. Safely Applies the Changes in a Secure Room"]
-        APPLY --> MERGE["Done! The Changes are Live!"]
-    end
+    L1["Layer 1: The Writer's Desk (e.g., Drafting the Changes in main.tf)"] -->|Submitted to| L2["Layer 2: The Review Stage (e.g., GitHub Pull Request)"]
+    L2 -->|Analyzed by| L3["Layer 3: The Automated Editor (e.g., Atlantis checking grammar and impact)"]
+    L3 -->|Approved by| L4["Layer 4: The Peer Approval (e.g., A Coworker's thumbs up)"]
+    L4 -->|Deployed via| L5["Layer 5: The Publishing Process (e.g., Automated atlantis apply in production)"]
 ```
 
 ---

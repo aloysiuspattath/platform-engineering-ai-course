@@ -87,32 +87,22 @@ When an application fires a packet addressed to `8.8.8.8`, how does the Linux ke
 
 ```mermaid
 flowchart TD
-    subgraph LocalSubnet [The Office Building (Local Network)]
-        SRV_A["Alice's Computer"] -->|Message to Bob| SRV_B["Bob's Computer"]
-        SRV_A -->|Message to the Outside| ROUTE_T["The Mailroom Directory (Routing Table)"]
-    end
-
-    subgraph RoutingEngine [The Dispatch Center (Routing Engine)]
-        ROUTE_T -->|Matches Exit Rule| GW["The Main Exit Door (Default Gateway)"]
-    end
-
-    subgraph PublicInternet [The Outside World (Internet)]
-        GW -->|Translates Address| INTERNET["The Global Post Office (Internet Router)"]
-        INTERNET --> GOOGLE["Google's Servers"]
-    end
+    L4["Layer 4: Application Source (e.g., Alice's Computer sending a message)"] -->|Checks| L3["Layer 3: Local Routing (e.g., The Mailroom Directory / Routing Table)"]
+    L3 -->|Forwards to| L2["Layer 2: Gateway (e.g., The Main Exit Door / Default Gateway)"]
+    L2 -->|Routes to| L1["Layer 1: Global Internet (e.g., The Global Post Office & Google's Servers)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of your local network like **The Office Building (Local Network)**. **Alice's Computer** can send a message directly to **Bob's Computer** because they are in the same building. But if Alice wants to send a message to **Google's Servers** in **The Outside World (Internet)**, she has to check **The Mailroom Directory (Routing Table)**. The directory tells her to send the message to **The Main Exit Door (Default Gateway)**. From there, it goes to **The Global Post Office (Internet Router)** which figures out how to reach the final destination!
+Think of your local network communication as a strict layered process. At **Layer 4: Application Source (e.g., Alice's Computer sending a message)**, a message is generated for the outside world. It moves down to **Layer 3: Local Routing (e.g., The Mailroom Directory / Routing Table)** to find the correct path. The directory tells it to forward the message to **Layer 2: Gateway (e.g., The Main Exit Door / Default Gateway)**. From there, it is routed out to **Layer 1: Global Internet (e.g., The Global Post Office & Google's Servers)** which figures out how to reach the final destination!
 
 Imagine you are building a brand-new cloud network. You create a public section for your web servers and a private section for your databases.
 
 You deploy a database server into the private section. When you try to install security patches, the terminal freezes and eventually aborts with `Connection timed out`.
 
-Because you understand how **The Mailroom Directory** works, you don't panic. You check the directory on the database server. The output shows how to reach other computers in the private section, but the rule for **The Main Exit Door** is completely missing! 
+Because you understand how **Layer 3: Local Routing** works, you don't panic. You check the directory on the database server. The output shows how to reach other computers in the private section, but the rule for **Layer 2: Gateway** is completely missing! 
 
 You instantly realize what happened: because the private section has no exit door pointing to the outside, the server has absolutely no idea how to push messages out to the public internet! You update your configuration to add a rule pointing to an exit door, verify the directory updates, and your database updates flawlessly!
 

@@ -108,34 +108,9 @@ To protect your servers from unauthorized network packets, Platform Engineers en
 
 ```mermaid
 flowchart TD
-    subgraph Internet [The Public Internet]
-        CLIENT["Visitor (Web Browser)"]
-    end
-
-    subgraph AWS_VPC [The Cloud Neighborhood (Virtual Private Cloud)]
-        IGW["The Front Door (Internet Gateway)"]
-        
-        subgraph PublicSubnet [The Front Yard (Public Area)]
-            PUB_RT["The Public Directory (Route Table)"]
-            ALB["The Traffic Cop (Load Balancer)"]
-            NAT["The Safe Exit (NAT Gateway)"]
-        end
-
-        subgraph PrivateSubnet [The Secure Vault (Private Area)]
-            PRIV_RT["The Private Directory (Route Table)"]
-            APP["The Smart Assistant (AI App)"]
-            DB["The Brain (Database)"]
-        end
-    end
-
-    CLIENT -->|Visits the Site| IGW
-    IGW --> PUB_RT
-    PUB_RT --> ALB
-    ALB -->|Directs Traffic| APP
-    APP -->|Asks for Info| DB
-    DB -->|Needs an Update| PRIV_RT
-    PRIV_RT --> NAT
-    NAT --> IGW
+    L1["Layer 1: External Client (e.g., Visitor's Web Browser)"] -->|Visits the site through| L2["Layer 2: Network Gateway (e.g., Internet Gateway / The Front Door)"]
+    L2 -->|Directs traffic to| L3["Layer 3: Public Routing (e.g., Load Balancer / The Front Yard)"]
+    L3 -->|Passes requests to| L4["Layer 4: Private Compute & Storage (e.g., AI App and Database / The Secure Vault)"]
 ```
 
 ---
@@ -144,11 +119,14 @@ flowchart TD
 
 Imagine you are a Lead Platform Engineer hired to architect the cloud foundation for a highly secure healthcare enterprise handling sensitive patient medical records (HIPAA compliance).
 
-Think of your cloud network as a highly secure, gated community. The **Cloud Neighborhood** is your entire private property. You have a **Front Yard (Public Area)** where guests arrive, and a **Secure Vault (Private Area)** deep inside where the valuables are kept.
+Think of your cloud network as a highly secure layered model:
 
-When visitors come to your application, they enter through **The Front Door (Internet Gateway)**. A friendly **Traffic Cop (Load Balancer)** in the public yard greets them and safely directs their requests. The requests are then passed along to **The Smart Assistant (AI App)** which lives inside the gated private area. If the Smart Assistant needs to remember something, it talks to **The Brain (Database)**, which is kept completely hidden from the outside world.
+- **Layer 1: External Client (e.g., Visitor's Web Browser)** represents the external visitors trying to access your application.
+- **Layer 2: Network Gateway (e.g., Internet Gateway / The Front Door)** is the front door of your cloud neighborhood, controlling access from the outside.
+- **Layer 3: Public Routing (e.g., Load Balancer / The Front Yard)** acts as a traffic cop in the public yard, safely directing requests.
+- **Layer 4: Private Compute & Storage (e.g., AI App and Database / The Secure Vault)** is the secure vault deep inside where your valuable workloads and sensitive data are kept hidden from the outside world.
 
-If The Brain needs to fetch an update from the outside world, it isn't allowed to use the Front Door directly. Instead, it uses a one-way **Safe Exit (NAT Gateway)** to securely fetch what it needs without letting anyone else sneak in! Your enterprise achieves perfect network isolation; patient medical records remain physically unreachable from the public internet, passing HIPAA compliance audits flawlessly!
+When visitors come to your application, they start at Layer 1 and enter through Layer 2. A friendly traffic cop in Layer 3 greets them and safely directs their requests. The requests are then passed along to the Smart Assistant and Database which live inside Layer 4. If the Database needs to fetch an update from the outside world, it isn't allowed to use Layer 2 directly. Instead, it uses a one-way Safe Exit (NAT Gateway) securely. Your enterprise achieves perfect network isolation; patient medical records remain physically unreachable from the public internet, passing HIPAA compliance audits flawlessly!
 
 ---
 

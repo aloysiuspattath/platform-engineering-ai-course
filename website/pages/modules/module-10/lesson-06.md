@@ -121,55 +121,32 @@ If HPA or KEDA scales your Deployment from 3 Pods to 500 Pods, your existing phy
 
 ```mermaid
 flowchart TD
-    subgraph ExternalCloud [The Outside World (Cloud Boundary)]
-        SQS["The Waiting Room (Queue)"]
-        EC2["The Server Factory (Cloud API)"]
-    end
-
-    subgraph K8sCluster [The Office Building (Kubernetes Cluster)]
-        MS["The Watchman (Metrics Server)"]
-        HPA["The Auto-Scaler (HPA)"]
-        KEDA["The Queue Manager (KEDA)"]
-        KARP["The Office Expander (Karpenter)"]
-        
-        DEP_WEB["The Web Department (Deployment)"]
-        DEP_WRK["The Processing Department (Deployment)"]
-        
-        subgraph WorkerNodes [Desks (Worker Nodes)]
-            POD1["Busy Worker (Pod CPU 95%)"]
-            POD2["Waiting Worker (Pod Pending: No Desks!)"]
-        end
-
-        MS -->|Report High Usage| HPA
-        HPA -->|Hire More| DEP_WEB
-        SQS -->|Report Long Line| KEDA
-        KEDA -->|Hire More from 0| DEP_WRK
-        
-        POD2 -->|Needs a Desk| KARP
-        KARP -->|Order New Desk| EC2
-        EC2 -->|Delivers Desk in 45s!| WorkerNodes
-    end
+    L1["Layer 1: The Workload Demand (e.g., CPU Spikes / AWS SQS Queue)"] -->|Monitored by| L2
+    L2["Layer 2: The Autoscaler Intelligence (e.g., HPA / KEDA)"] -->|Calculates needs and updates| L3
+    L3["Layer 3: The Deployment Manager (e.g., Kubernetes Deployment)"] -->|Creates pending workloads for| L4
+    L4["Layer 4: The Office Expander (e.g., Karpenter Node Provisioner)"] -->|Provisions physical hardware at| L5
+    L5["Layer 5: The Server Factory (e.g., Cloud EC2 Infrastructure)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing an AI image generation company. The platform operates a highly compute-intensive AI generation service.
+Imagine you are managing an AI image generation company. The platform operates a highly compute-intensive AI generation service relying on a strict layered scaling model.
 
 Originally, the team configured the service using a standard auto-scaler targeting 80% usage and relied on a legacy scaler bound to a specific server type.
 
-During a major viral user surge, the AI generation queues flood with 50,000 user requests. The auto-scaler successfully triggers a scale-up. However, because the existing desks are full, the new workers must wait.
+During a major viral user surge, the AI generation queues flood with 50,000 user requests at **Layer 1: The Workload Demand**. The auto-scaler successfully triggers a scale-up at **Layer 2**. However, because the existing desks are full, the new workers must wait at **Layer 3**.
 
 The legacy scaler detects the waiting workers and tries to order more of the specific server type. Because there is a shortage of that server type, it fails to launch a single server! Your new workers remain stuck waiting for two hours, and user requests time out globally!
 
-Because you maintain elite standards, you take command of the scaling re-architecture. You transition the entire AI enterprise to **The Queue Manager (KEDA)** and **The Office Expander (Karpenter)**.
+Because you maintain elite standards, you take command of the scaling re-architecture. You transition the entire AI enterprise to **Layer 2: The Autoscaler Intelligence (KEDA)** and **Layer 4: The Office Expander (Karpenter)**.
 
-First, you deploy a **Queue Manager** configured to scale directly on the length of the waiting room.
+First, you deploy **Layer 2 (KEDA)** configured to scale directly on the length of the waiting room at Layer 1.
 
-Second, you deploy **The Office Expander (Karpenter)**. You configure it to dynamically provision any available desks.
+Second, you deploy **Layer 4 (Karpenter)**. You configure it to dynamically provision any available desks.
 
-Now, when a viral surge hits, **The Queue Manager** detects the queue depth instantly and scales the department. **The Office Expander** intercepts the waiting workers, identifies that certain desks are unavailable, instantly selects available alternative desks, and provisions them in 45 seconds! Your AI enterprise achieves absolute elastic scalability, bypasses shortages seamlessly, and scales down to zero overnight to save millions in costs!
+Now, when a viral surge hits, **Layer 2 (KEDA)** detects the queue depth instantly and scales the department. **Layer 4 (Karpenter)** intercepts the waiting workers, identifies that certain desks are unavailable, instantly selects available alternative desks, and provisions them via **Layer 5 (Cloud API)** in 45 seconds! Your AI enterprise achieves absolute elastic scalability, bypasses shortages seamlessly, and scales down to zero overnight to save millions in costs!
 
 ---
 

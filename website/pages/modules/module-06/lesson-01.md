@@ -112,22 +112,12 @@ To verify that containers are just standard Linux processes wrapped in namespace
 
 ```mermaid
 flowchart TD
-    subgraph UserTerminal [Your Terminal]
-        CLI["The Remote Control (Docker CLI)"] -->|Sends Commands| DOCKERD["The Master Manager (Docker Daemon)"]
-    end
-
-    subgraph ContainerEngine [The Docker Factory]
-        DOCKERD -->|Talks to| CONTAINERD["The Foreperson (containerd)"]
-        CONTAINERD -->|Directs| RUNC["The Blue-Collar Worker (runc)"]
-    end
-
-    subgraph HostLinuxKernel [The Core Engine (Host OS Kernel)]
-        RUNC -->|Builds| NS["Isolation Forcefields (Namespaces)"]
-        RUNC -->|Sets up| CG["Resource Throttles (Cgroups)"]
-        NS --> PROC["The Actual App (Container Process)"]
-        CG --> PROC
-    end
+    L4["Layer 4: User Interface (e.g., Docker CLI sending run commands)"] -->|Controls| L3["Layer 3: Container Engine (e.g., Docker Daemon & containerd)"]
+    L3 -->|Directs| L2["Layer 2: Container Runtime (e.g., runc creating isolation)"]
+    L2 -->|Configures| L1["Layer 1: The Host OS Kernel (e.g., Linux Namespaces and Cgroups)"]
 ```
+
+The diagram above demonstrates a top-to-bottom layered architecture. **Layer 4** represents the user interface where commands are issued. These commands are processed by **Layer 3**, the container engine, which then directs **Layer 2**, the runtime, to actually create the container. Finally, the runtime configures **Layer 1**, the Host OS Kernel, applying real-world constraints like Linux Namespaces and Cgroups to run your app securely.
 
 ---
 

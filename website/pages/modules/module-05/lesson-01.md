@@ -95,33 +95,24 @@ To navigate this massive graph of objects, Git relies on two master mechanisms:
 
 ```mermaid
 flowchart TD
-    subgraph GitReferences [The Guidebook (Git References)]
-        HEAD["The 'You Are Here' Sign (HEAD Pointer)"] -->|points to| MAIN["The Main Bookmark (Branch Ref)"]
-        MAIN -->|looks at| COMMIT["The Snapshot (Commit Object)"]
-    end
-
-    subgraph GitDatabase [The Filing Cabinet (Git Database)]
-        COMMIT -->|uses| TREE_ROOT["The Map of Folders (Root Tree)"]
-        COMMIT -->|came from| PARENT["The Previous Snapshot (Parent Commit)"]
-        TREE_ROOT -->|contains| BLOB_1["The Raw File Data (Blob Object)"]
-        TREE_ROOT -->|contains| TREE_SUB["The Sub-folder Map (Tree Object)"]
-        TREE_SUB -->|contains| BLOB_2["More Raw File Data (Blob Object)"]
-    end
+    L4["Layer 4: Working State (e.g., HEAD Pointer in .git/HEAD)"] -->|Points to| L3["Layer 3: Branch Reference (e.g., main branch in .git/refs/heads/main)"]
+    L3 -->|Looks at| L2["Layer 2: Snapshot (e.g., Commit Object Hash)"]
+    L2 -->|Uses| L1["Layer 1: Object Database (e.g., Blobs and Trees in .git/objects)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of Git like a giant, highly organized filing cabinet (the **Git Database**). 
+Think of Git's architecture as a simple, top-to-bottom layered system.
 
-Imagine you are a beginner building a complex Python script. You work for six hours writing 500 lines of code. When you tell Git to track this file (using `git add`), Git takes your code and safely locks it inside the filing cabinet as **The Raw File Data (Blob Object)**. 
+At **Layer 4: Working State (e.g., HEAD Pointer in .git/HEAD)**, Git maintains a "You Are Here" sign that tells your terminal exactly where it is looking. This pointer simply delegates to the next layer down.
 
-To keep things organized, Git uses **The Map of Folders (Tree Object)** to remember where your files live, much like a table of contents. When you finally save your work (using `git commit`), Git takes a picture of the entire map and creates **The Snapshot (Commit Object)**, linking it to **The Previous Snapshot** so you have a complete history of your project.
+It points to **Layer 3: Branch Reference (e.g., main branch in .git/refs/heads/main)**, which acts as a bookmark keeping track of the latest changes on that specific path of work. 
 
-To navigate this massive filing cabinet, Git uses a simple guidebook. **The "You Are Here" Sign (HEAD Pointer)** tells you exactly where you are currently looking, usually pointing to **The Main Bookmark (Branch Ref)**.
+The bookmark directly looks at **Layer 2: Snapshot (e.g., Commit Object Hash)**, which represents a permanent picture of your code at a specific moment in time.
 
-So, if you ever accidentally delete your code before saving a snapshot, you don't need to panic! As long as Git filed it away as **The Raw File Data**, you can always dig into the filing cabinet and get your 500 lines of code back!
+Finally, the snapshot uses **Layer 1: Object Database (e.g., Blobs and Trees in .git/objects)**, the massive filing cabinet where your raw file data and folder structures are physically locked away and stored safely.
 
 ---
 

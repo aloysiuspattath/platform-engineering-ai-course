@@ -106,31 +106,17 @@ When someone from The Engineer's Laptop tries to Start Building, they first chec
 
 Once inside, they update the master ledger in The Secure Vault and store it in The Locked Filing Cabinet. Best of all, every time a change is made, the system saves a copy in case of mistakes! This means if someone accidentally writes the wrong information into the ledger, we can easily pull out yesterday's good copy.
 
+This can be understood as a strict sequence of layers. Layer 1 (The Engineer's Laptop) must first pass through Layer 2 (The Lock Manager) before it is allowed to touch Layer 3 (The Secure Vault).
+
 ---
 
 # Architecture
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperWorkspace [The Engineer's Laptop]
-        HCL["Blueprint File (main.tf)"] --> INIT["Setup Connection (terraform init)"]
-        INIT --> APPLY["Start Building (terraform apply)"]
-    end
-
-    subgraph LockEngine [The Sign-Out Sheet (State Locking)]
-        APPLY -->|1. Requests Lock| DDB["The Digital Clipboard (DynamoDB)"]
-        DDB -->|Lock Acquired| LOCK["Room is in Use! (Lock Active)"]
-    end
-
-    subgraph RemoteStorage [The Secure Vault (Remote Storage)]
-        LOCK -->|2. Pulls & Modifies State| S3["The Locked Filing Cabinet (S3 Bucket)"]
-        S3 -->|Object Versioning| BACKUP["Saved a Copy in Case of Mistakes!"]
-    end
-
-    subgraph ConcurrentGuard [The Bouncer (Collision Defense)]
-        DEV2["Coworker tries to build at the same time"] -->|Checks Lock| DDB
-        DDB -->|Lock Active| ABORT["Access Denied: Please wait your turn!"]
-    end
+    L1["Layer 1: The Engineer's Laptop (e.g., Developer running terraform apply)"] -->|Requests access from| L2["Layer 2: The Lock Manager (e.g., AWS DynamoDB table)"]
+    L2 -->|Grants access to| L3["Layer 3: The Secure Vault (e.g., AWS S3 Bucket storing terraform.tfstate)"]
+    L3 -->|Updates and backs up| L4["Layer 4: The Cloud Environment (e.g., Live AWS Infrastructure)"]
 ```
 
 ---

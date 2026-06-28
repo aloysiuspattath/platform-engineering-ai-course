@@ -106,37 +106,24 @@ A **Pull Request** (or Merge Request) is not a native Git CLI concept; it is an 
 
 ```mermaid
 flowchart TD
-    subgraph LocalLaptop [Your Computer (Local Repository)]
-        MAIN_L["Your Main Working Copy (Local main)"] -->|make a new copy| FEAT["Your New Feature Copy (Local feature)"]
-        FEAT -->|send to cloud| REMOTE_FEAT
-    end
-
-    subgraph GitHubServer [The Cloud Server (GitHub)]
-        REMOTE_FEAT["Cloud Feature Copy (Remote feature)"] -->|ask for review| PR["The Review Checkpoint (Pull Request)"]
-        PR -->|1. automated checks| TESTS["Robot Testers (CI/CD Pipeline)"]
-        PR -->|2. peer review| REVIEW["Human Reviewer (Code Review)"]
-        TESTS -->|pass| MERGE["Combine with Main Copy (Merge)"]
-        REVIEW -->|approve| MERGE
-        MERGE -->|automatic delivery| DEPLOY["Live Website (Production)"]
-    end
-
-    subgraph SyncWorkflow [Getting Updates from the Cloud]
-        MERGE -->|git fetch| FETCH["Update the Cloud Bookmark safely"]
-        MAIN_L -->|git pull| MERGE_LOCAL["Download changes into your Main Copy"]
-    end
+    L4["Layer 4: Local Workspace (e.g., Local feature branch on Laptop)"] -->|Pushes to| L3["Layer 3: Remote Tracking (e.g., GitHub Cloud Repository)"]
+    L3 -->|Triggers| L2["Layer 2: Quality Gate (e.g., Automated CI/CD Pipeline & Pull Request Review)"]
+    L2 -->|Merges into| L1["Layer 1: Production Trunk (e.g., main branch triggering CD deployment)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you and a group of friends are writing a book together. Instead of everyone scribbling over the exact same piece of paper at once, you use **Your Computer (Local Repository)**. You make **Your New Feature Copy (Local feature)** from the master draft and write your new chapter there.
+Think of team collaboration in Git as a simple, four-layered assembly line.
 
-When you're done, you send it up to **The Cloud Server (GitHub)** as a **Cloud Feature Copy**. But before your chapter can be officially added to the book, it goes through **The Review Checkpoint (Pull Request)**. 
+It begins at **Layer 4: Local Workspace (e.g., Local feature branch on Laptop)**, where you write and test your new code changes in complete isolation.
 
-Here, **Robot Testers** check your spelling and grammar automatically, while a **Human Reviewer** reads it to make sure the story makes sense. Once they both give the thumbs up, your chapter gets to **Combine with Main Copy (Merge)**. An **Automatic Delivery System** then publishes the updated book to the **Live Website (Production)** for everyone to see!
+When ready, you push your work up to **Layer 3: Remote Tracking (e.g., GitHub Cloud Repository)**, allowing the rest of the team and automated systems to see your proposed changes.
 
-To make sure your friends have your new chapter on their computers, they simply use `git pull` to **Download changes into their Main Copy**, keeping everyone perfectly in sync!
+This automatically triggers **Layer 2: Quality Gate (e.g., Automated CI/CD Pipeline & Pull Request Review)**, where robots test for spelling and grammar, and human reviewers ensure the logic makes sense.
+
+Once approved, the code drops into **Layer 1: Production Trunk (e.g., main branch triggering CD deployment)**, merging seamlessly with everyone else's work to update the live product!
 
 ---
 

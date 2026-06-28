@@ -85,29 +85,21 @@ By default, when you ask the Librarian to get a book, they pause and ask `Are yo
 
 ```mermaid
 flowchart TD
-    subgraph RemoteRepos [The Master Library (Remote Repositories)]
-        REPO["The Secure Vault of Verified Books (Official Repositories)"]
-    end
-
-    subgraph CacheLayer [The Local Catalog (Cache & Index)]
-        REPO -->|Fetch Latest Book List (apt update)| CACHE["Your Desk's Card Catalog (Local Cache)"]
-    end
-
-    subgraph ExecutionLayer [The Librarian (Package Manager)]
-        CACHE -->|Order Book (apt install)| INSTALL["Find Book & Get Required Reading (Dependency Resolution)"]
-        INSTALL --> DISK["Place on Your Bookshelf (Installed Binaries)"]
-    end
+    L1["Layer 1: The Master Library (e.g., Official Ubuntu Remote Repositories)"] -->|Fetches latest catalog via apt update| L2["Layer 2: The Local Catalog (e.g., Local /var/lib/apt/lists Cache)"]
+    L2 -->|Initiates order via apt install| L3["Layer 3: The Librarian (e.g., apt Dependency Resolution)"]
+    L3 -->|Places on bookshelf| L4["Layer 4: Execution Layer (e.g., Installed Binaries on Disk)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are an Infrastructure Engineer building an automated base image for an AI engineering workstation using a tool like Packer or Docker. Your engineers need `git`, `curl`, `htop`, and `python3` pre-installed on their machines.
+Imagine you are an Infrastructure Engineer building an automated base image for an AI engineering workstation using a tool like Packer or Docker. Your engineers need `git`, `curl`, `htop`, and `python3` pre-installed on their machines. This maps perfectly to our layered architecture:
 
-Instead of writing complex, fragile scripts to download individual installers from the internet, you simply insert a single, pristine package management command into your configuration template: `sudo apt update && sudo apt install -y git curl htop python3`. 
-
-When the automated builder launches, `apt` instantly contacts the official Ubuntu repositories, updates its local catalog cache, perfectly resolves all required underlying C-libraries, and installs all four tools silently in the background. Your AI engineering base image builds flawlessly and reproducibly every single time!
+* **Layer 1: The Master Library:** The official Ubuntu remote repositories host the verified `.deb` packages for `git`, `curl`, `htop`, and `python3`.
+* **Layer 2: The Local Catalog:** When the automated builder executes `sudo apt update`, it fetches the latest index from Layer 1 and updates the local cache at `/var/lib/apt/lists`.
+* **Layer 3: The Librarian:** When `sudo apt install -y` runs, `apt` performs dependency resolution to automatically identify required underlying C-libraries.
+* **Layer 4: Execution Layer:** The resolved binaries are finally unpacked and placed on the system disk, making the tools ready for use. Your AI engineering base image builds flawlessly and reproducibly every single time!
 
 ---
 

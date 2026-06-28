@@ -101,21 +101,12 @@ True Platform Engineering mastery requires maintaining a clean, highly optimized
 
 ```mermaid
 flowchart TD
-    subgraph CrashingContainer [When Things Go Wrong]
-        CRASH["The App Crashes (Leaves a clue)"] --> CODE["Checking the Clues (Exit Codes)"]
-    end
-
-    subgraph DiagnosticWorkflow [Playing Detective]
-        CODE --> LOGS["1. Reading the Diary (docker logs)"]
-        LOGS --> INSPECT["2. Looking Under the Hood (docker inspect)"]
-        INSPECT --> EXEC["3. Stepping Inside the Room (docker exec)"]
-    end
-
-    subgraph EngineOptimization [Taking Out the Trash]
-        EXEC --> PRUNE["4. Cleaning up old junk (docker system prune)"]
-        PRUNE --> STABLE["A Happy, Healthy System"]
-    end
+    L4["Layer 4: The Failure Event (e.g., Container crashes with Exit Code 137)"] -->|Triggers| L3["Layer 3: Log Diagnostics (e.g., Checking 'docker logs' for OOM errors)"]
+    L3 -->|Requires| L2["Layer 2: Internal Inspection (e.g., Using 'docker exec' to check running state)"]
+    L2 -->|Leads to| L1["Layer 1: System Maintenance (e.g., Clearing garbage with 'docker system prune')"]
 ```
+
+This top-to-bottom workflow represents a typical debugging and maintenance cycle. When **Layer 4** identifies a failure event like a crashed container, it immediately triggers **Layer 3**, where engineers analyze container logs for clues. Those clues often require deeper **Layer 2** internal inspection using execution commands. Finally, the resolution process moves to **Layer 1**, where system-wide maintenance ensures the host engine remains healthy and optimized.
 
 ---
 

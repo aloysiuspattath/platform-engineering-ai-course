@@ -88,22 +88,8 @@ A professional Platform Engineer does not memorize every command flag. Instead, 
 
 ```mermaid
 flowchart TD
-    subgraph RootFS ["The Filing Cabinet (Filesystem)"]
-        ROOT["The Top Drawer (Root)"] --> VAR["System Drawer (/var)"]
-        ROOT --> HOME["Users Drawer (/home)"]
-        HOME --> USER["Your Personal Folder ( ~ )"]
-        USER --> PROJ["Your Projects"]
-    end
-
-    subgraph Navigation ["How You Move Around (Commands)"]
-        PWD["'Where am I?' (pwd)"]
-        LS["'What is inside?' (ls)"]
-        CD["'Go back' (cd)"]
-    end
-
-    PWD -->|Identifies| USER
-    LS -->|Inspects| USER
-    CD -->|Moves to| HOME
+    L3["Layer 3: Human Intent (e.g., 'Where am I?', 'What is inside?')"] -->|Translates to| L2["Layer 2: Navigational Commands (e.g., pwd, ls, cd)"]
+    L2 -->|Operates on| L1["Layer 1: The Filesystem (e.g., Root Directory, /var System Drawer, /home)"]
 ```
 
 ---
@@ -112,7 +98,7 @@ flowchart TD
 
 Imagine you are investigating a failing web application on a remote production cloud server. You know the error logs are stored somewhere inside `/var/log`, but you don't know the exact file name.
 
-Using your foundational "How You Move Around" tools, you execute `cd /var/log` to jump directly into the "System Drawer". You then execute `ls -lh` (long, human-readable) to 'What is inside?', instantly spotting a massive 500-Megabyte log file named `error.log`. Because you know how to navigate and inspect directories, you isolate the problem in seconds without needing a graphical file explorer!
+Starting with **Layer 3: Human Intent** ("I need to move and see what is inside"), you translate this into **Layer 2: Navigational Commands**. You execute `cd /var/log` to jump directly into the System Drawer of **Layer 1: The Filesystem**. You then execute `ls -lh` (long, human-readable), instantly spotting a massive 500-Megabyte log file named `error.log`. Because you know how to navigate and inspect directories via the command line, you isolate the problem in seconds without needing a graphical file explorer!
 
 ---
 

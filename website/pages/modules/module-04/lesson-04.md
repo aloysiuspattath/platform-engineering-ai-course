@@ -96,34 +96,24 @@ Nginx is the world's dominant web server and reverse proxy. Its configuration fi
 
 ```mermaid
 flowchart TD
-    subgraph ClientSpace [The Customers (External Web Clients)]
-        CLIENT_A["The Customer (Asking for the API)"] -->|Makes a Request| NGINX["The Receptionist (Reverse Proxy)"]
-    end
-
-    subgraph ProxyEngine [The Front Desk (Proxy Engine)]
-        NGINX -->|Checks the Request| UPSTREAM["The Task Manager (Load Balancer)"]
-    end
-
-    subgraph BackendServers [The Workers (Hidden Backend Servers)]
-        UPSTREAM -->|Hands off Task| APP_1["Worker 1 (Python Server)"]
-        UPSTREAM -->|Hands off Task| APP_2["Worker 2 (Python Server)"]
-        UPSTREAM -->|Hands off Task| APP_3["Worker 3 (Python Server)"]
-    end
+    L4["Layer 4: External Client (e.g., The Customer Asking for the API)"] -->|Makes a Request| L3["Layer 3: Reverse Proxy (e.g., The NGINX Receptionist)"]
+    L3 -->|Checks the Request| L2["Layer 2: Load Balancer (e.g., The Task Manager)"]
+    L2 -->|Hands off Task| L1["Layer 1: Backend Server (e.g., The Python Worker)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of a web application like a busy restaurant. **The Customer** arrives at **The Front Desk** and makes a request. **The Receptionist (Reverse Proxy)** takes the order and hands it to **The Task Manager (Load Balancer)**. The manager looks at all **The Workers (Hidden Backend Servers)** and gives the order to the worker who is the least busy, like **Worker 1 (Python Server)**. The worker completes the task, hands it back to the receptionist, and the receptionist serves it to the customer!
+Think of a web application like a strict layered process. At **Layer 4: External Client (e.g., The Customer Asking for the API)**, a request is made. It moves down to **Layer 3: Reverse Proxy (e.g., The NGINX Receptionist)** who takes the order. The receptionist hands it to **Layer 2: Load Balancer (e.g., The Task Manager)**. Finally, the manager gives the order to **Layer 1: Backend Server (e.g., The Python Worker)**. The worker completes the task and passes it back up the layers!
 
-Imagine you are managing a highly popular AI chatbot service. Your **Receptionist** sits at the front door, handing out incoming customer questions to a team of 5 **Workers**.
+Imagine you are managing a highly popular AI chatbot service. Your **Layer 3: Reverse Proxy** sits at the front door, handing out incoming customer questions to a team of 5 backend workers.
 
 During a massive traffic surge, customers begin reporting that their chat windows are suddenly failing, displaying a dreaded `502 Bad Gateway` error page.
 
-Because you understand how **The Front Desk** works, you don't panic. You know exactly what `502 Bad Gateway` means: **The Receptionist** is perfectly healthy and took the order, but when they tried to hand it to **The Workers**, the workers were either missing or refused to take the order!
+Because you understand how **Layer 3: Reverse Proxy** works, you don't panic. You know exactly what `502 Bad Gateway` means: the proxy is perfectly healthy and took the order, but when it tried to hand it down to **Layer 1: Backend Server**, the workers were either missing or refused to take the order!
 
-You go to the kitchen and check on the workers. They are completely gone! You check the security cameras (system logs) and discover they passed out from exhaustion (the servers crashed). You wake up the workers (restart the service), **The Receptionist** successfully hands them orders again, and the `502 Bad Gateway` errors vanish instantly!
+You go to the backend and check on the workers. They are completely gone! You check the security cameras (system logs) and discover they passed out from exhaustion (the servers crashed). You wake up the workers (restart the service), **Layer 3: Reverse Proxy** successfully hands them orders again, and the `502 Bad Gateway` errors vanish instantly!
 
 ---
 

@@ -105,23 +105,12 @@ When attaching storage to a container, Docker supports two CLI flags:
 
 ```mermaid
 flowchart TD
-    subgraph HostNetworking [The Computer's Internet Connection]
-        WIRE["Incoming Visitor (Network Packet)"] --> IPT["The Traffic Cop (iptables)"]
-        IPT -->|Rewrites Destination| BRIDGE["The Internal Router (docker0 bridge)"]
-    end
-
-    subgraph ContainerStorage [The Running App]
-        BRIDGE --> PROC["The App Worker (Container Process)"]
-        PROC -->|Writes ephemeral logs| COW["The Temporary Scratchpad (Deleted on removal)"]
-        PROC -->|Writes database tables| MOUNT["The Inside Storage Plug"]
-    end
-
-    subgraph HostFilesystem [Your Computer's Hard Drive & Memory]
-        MOUNT -->|Safe Vault Mount| VOL["The Safe Vault (Persists forever!)"]
-        PROC -->|Reads live code| BIND["The Direct Folder Link (Live Reloading)"]
-        PROC -->|Writes secret keys| TMPFS["The Memory Stick (Never touches disk!)"]
-    end
+    L4["Layer 4: External Networking (e.g., Incoming user traffic on port 8080)"] -->|Routes through| L3["Layer 3: Host Traffic Rules (e.g., iptables mapping to docker0 bridge)"]
+    L3 -->|Reaches| L2["Layer 2: Container Processes (e.g., Running web app isolated in virtual network)"]
+    L2 -->|Writes data to| L1["Layer 1: Persistent Storage (e.g., Named Volumes or Bind Mounts on Host Filesystem)"]
 ```
+
+This layered diagram clarifies the interactions between the host system and the running container. Starting at **Layer 4**, external networking traffic arrives at the host. **Layer 3** manages traffic rules that seamlessly route the network packets to **Layer 2**, where the isolated container processes reside. Finally, when the container needs to save data persistently, it connects to **Layer 1**, utilizing robust storage mechanisms like Named Volumes or Bind Mounts directly on the host filesystem.
 
 ---
 

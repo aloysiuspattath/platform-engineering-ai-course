@@ -75,30 +75,9 @@ Modern cloud platforms (Amazon Web Services, Google Cloud, Microsoft Azure) and 
 
 ```mermaid
 flowchart TD
-    subgraph Layer4 ["The Sky (Cloud & AI)"]
-        AI["Smart AI Brains"]
-        K8S["Fleet Manager (Kubernetes)"]
-        CLOUD["Rented Computers (Cloud)"]
-    end
-
-    subgraph Layer3 ["The Foundation (Linux)"]
-        STAB["Never Crashes (High Stability)"]
-        SEC["Fort Knox (Security)"]
-        PERF["Super Fast (Performance)"]
-    end
-
-    subgraph Layer2 ["The Village (Open Source)"]
-        OSS["Free Blueprints (Open Source)"]
-        COMM["Worldwide Teamwork"]
-    end
-
-    subgraph Layer1 ["Free to Use"]
-        ECON["Grows Without Costing a Fortune"]
-    end
-
-    Layer4 --> Layer3
-    Layer3 --> Layer2
-    Layer2 --> Layer1
+    L4["Layer 4: Cloud & AI (e.g., Kubernetes, Cloud Servers, Smart AI)"] -->|Runs on| L3["Layer 3: Linux Foundation (e.g., High Stability Servers, Secure Enclaves)"]
+    L3 -->|Built by| L2["Layer 2: Open Source Community (e.g., Free Blueprints, Global Collaborative Code)"]
+    L2 -->|Enables| L1["Layer 1: Economic Growth (e.g., Cost-effective scaling without licensing fees)"]
 ```
 
 ---
@@ -107,7 +86,7 @@ flowchart TD
 
 Consider the global financial market, such as the New York Stock Exchange (NYSE) or major high-frequency trading firms. These institutions process millions of financial transactions every second, worth billions of dollars. 
 
-If a trading server freezes or forces a reboot for even 3 seconds, the company loses millions of dollars. The NYSE operates entirely on "The Foundation" because its "Never Crashes" stability, predictable low-latency performance, and "Fort Knox" security ensure the engine runs flawlessly. Built by "The Village", it uses "Free Blueprints" so engineers can verify everything works safely, scaling up like a giant "Fleet Manager" in "The Sky" without licensing fees.
+If a trading server freezes or forces a reboot for even 3 seconds, the company loses millions of dollars. The NYSE scales its infrastructure using **Layer 4: Cloud & AI** solutions like Kubernetes because they run entirely on the **Layer 3: Linux Foundation**, relying on its high stability servers and secure design to ensure the engine runs flawlessly. This foundation is built by the **Layer 2: Open Source Community**, leveraging global collaborative code so engineers can verify everything works safely, which ultimately enables **Layer 1: Economic Growth** by scaling massively without expensive commercial licensing fees.
 
 ---
 

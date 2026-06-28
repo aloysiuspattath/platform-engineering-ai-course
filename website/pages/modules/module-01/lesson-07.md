@@ -81,19 +81,9 @@ cat /var/log/syslog | grep "error"
 # Architecture
 
 ```mermaid
-flowchart LR
-    subgraph InputLayer ["The Source (Reading Text)"]
-        FILE["Giant Book (Log File)"] --> CAT["Read Aloud (cat)"]
-    end
-
-    subgraph PipeLayer ["The Funnel (Pipe)"]
-        CAT -->|10,000 Lines of Text| PIPE["The Tube ( | )"]
-    end
-
-    subgraph FilterLayer ["The Filter (Searching)"]
-        PIPE --> GREP["Keyword Finder (grep)"]
-        GREP -->|5 Matching Lines| SCREEN["Your Screen"]
-    end
+flowchart TD
+    L3["Layer 3: The Source (e.g., Reading a massive payment log file using 'cat')"] -->|Streams 10,000 lines of text to| L2["Layer 2: The Funnel (e.g., The Unix Pipe '|' acting as a transit tube)"]
+    L2 -->|Channels text into| L1["Layer 1: The Filter (e.g., Finding the 'FAILED' keyword using 'grep' and printing to screen)"]
 ```
 
 ---
@@ -104,7 +94,7 @@ Imagine you are managing a Kubernetes cluster powering an enterprise banking app
 
 If you tried to open that massive log file in a graphical text editor like Notepad, the computer would freeze and crash. 
 
-Instead, using your masterful terminal piping skills, you execute `cat payment_service.log | grep "10:14" | grep "FAILED"`. By reading from "The Source", pushing text through "The Funnel", and utilizing "The Filter", Linux filters out the 50,000 irrelevant lines and prints the exact single line containing the customer's failure root cause to "Your Screen"!
+Instead, using your masterful terminal piping skills, you execute `cat payment_service.log | grep "10:14" | grep "FAILED"`. You start at **Layer 3: The Source**, using `cat` to read the massive payment log file. This data instantly streams down into **Layer 2: The Funnel**, where the Unix Pipe (`|`) acts as a transit tube. Finally, it reaches **Layer 1: The Filter**, where `grep` searches for the 'FAILED' keyword, filtering out the 50,000 irrelevant lines and printing only the exact single line containing the customer's failure root cause to your screen!
 
 ---
 

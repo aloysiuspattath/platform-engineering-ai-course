@@ -90,40 +90,17 @@ Linux Kernel ──┼──► RHEL ─────┬──► Fedora (Cutting
 
 ```mermaid
 flowchart TD
-    subgraph UseCases ["What You Need (The Job)"]
-        UC_DEV["AI & Cloud Work"]
-        UC_ENT["Strict Business Servers"]
-        UC_CONT["Tiny App Packages (Containers)"]
-    end
-
-    subgraph Distros ["The Flavor of Linux (The Tool)"]
-        D_UBUNTU["The Popular Choice (Ubuntu/Debian)"]
-        D_RHEL["The Corporate Suit (RHEL)"]
-        D_ALPINE["The Minimalist (Alpine)"]
-    end
-
-    subgraph Packages ["The App Store (Package Manager)"]
-        P_APT["Standard App Store (apt)"]
-        P_DNF["Corporate App Store (dnf)"]
-        P_APK["Tiny App Store (apk)"]
-    end
-
-    UC_DEV --> D_UBUNTU
-    UC_ENT --> D_RHEL
-    UC_CONT --> D_ALPINE
-
-    D_UBUNTU --> P_APT
-    D_RHEL --> P_DNF
-    D_ALPINE --> P_APK
+    L3["Layer 3: Workload Use Cases (e.g., AI Development, Business Servers, Microservice Containers)"] -->|Dictates choice of| L2["Layer 2: Linux Distros (e.g., Ubuntu, RHEL, Alpine)"]
+    L2 -->|Determines| L1["Layer 1: Package Managers (e.g., apt, dnf, apk)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are architecting the infrastructure for a major ride-sharing application like Uber. You have two vastly different technical requirements:
-1. **The AI Development Servers:** Your data scientists need powerful "AI & Cloud Work" tools. For this, you deploy "The Popular Choice", as it provides flawless out-of-the-box support for AI. You can easily download libraries using its "Standard App Store".
-2. **The Microservice Containers:** Your location-tracking service needs to be a "Tiny App Package". For this, you build using "The Minimalist", reducing the image size from 500MB down to 15MB using the "Tiny App Store", allowing containers to launch instantly!
+Imagine you are architecting the infrastructure for a major ride-sharing application like Uber. You have two vastly different technical requirements dictated by **Layer 3: Workload Use Cases**:
+1. **The AI Development Servers:** Your data scientists need powerful tools. For this, you choose from **Layer 2: Linux Distros** by deploying Ubuntu (the popular choice), as it provides flawless out-of-the-box support for AI. You can easily download libraries using its native **Layer 1: Package Managers** (specifically `apt`).
+2. **The Microservice Containers:** Your location-tracking service needs to be a tiny package. For this, you build using Alpine Linux from **Layer 2**, reducing the image size from 500MB down to 15MB. It uses the tiny `apk` from **Layer 1**, allowing containers to launch instantly!
 
 ---
 

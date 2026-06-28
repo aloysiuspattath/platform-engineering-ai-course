@@ -75,25 +75,20 @@ Because giving everyone the master key directly (logging in as `The Landlord`) i
 
 ```mermaid
 flowchart TD
-    subgraph MultiUserModel [The House Rules]
-        ROOT["The Landlord (root / UID 0)"] --> SYS["The Housekeepers (System Accounts / UID 1 - 999)"]
-        ROOT --> USERS["The Tenants (Standard Users / UID 1000+)"]
-    end
-
-    subgraph ElevationMechanism [The VIP Pass (Sudo Security Gateway)]
-        USERS -->|Asks to use a master key| SUDO["The Bouncer (/etc/sudoers Verification)"]
-        SUDO -->|Allowed| EXEC["Temporary Landlord Powers"]
-    end
+    L1["Layer 1: The Root Administrator (e.g., UID 0 / Landlord)"] -->|Creates & manages| L2["Layer 2: Standard Users & Service Accounts (e.g., UID 1000+ / Junior Engineers)"]
+    L2 -->|Requests elevation via sudo| L3["Layer 3: Sudo Security Gateway (e.g., /etc/sudoers Verification)"]
+    L3 -->|Grants temporary powers| L4["Layer 4: Administrative Execution (e.g., Restarting Database)"]
 ```
 
 ---
 
 # Real-World Example
 
-Consider a massive enterprise cloud infrastructure team at a financial corporation like Goldman Sachs. You have three distinct entities running on a production database server:
-1. **The Database Daemon:** Runs under a restricted service account named `postgres (UID 110)`. If a hacker compromises the database software, they are trapped inside UID 110 and cannot access the rest of the server!
-2. **The Junior Engineers:** Logged in under standard accounts (`UID 1001`, `1002`). They can inspect log files in their home directories but cannot modify database system settings.
-3. **The Senior Site Reliability Engineers:** Logged in under standard accounts (`UID 1005`). When they need to restart the database daemon, they execute `sudo systemctl restart postgresql`. The action is securely logged to the system audit trail, guaranteeing perfect operational transparency and security.
+Consider a massive enterprise cloud infrastructure team at a financial corporation like Goldman Sachs. The layered architecture above directly applies:
+* **Layer 1: The Root Administrator** is the ultimate authority, usually handled by provisioning scripts to set up the environment.
+* **Layer 2: Standard Users & Service Accounts** include the Database Daemon running under `postgres (UID 110)` and Junior Engineers (`UID 1001`). They operate with standard privileges.
+* **Layer 3: Sudo Security Gateway** comes into play when Senior Site Reliability Engineers (`UID 1005`) need to make system changes. They submit a request using `sudo`.
+* **Layer 4: Administrative Execution** is the final step, granting temporary powers to execute `sudo systemctl restart postgresql`. The action is securely logged to the system audit trail, guaranteeing perfect operational transparency and security.
 
 ---
 

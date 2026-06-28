@@ -113,25 +113,18 @@ How do you know what ingredients to provide, or what meal you'll get, without re
 
 Think of the shared module repository as The Master Recipe Book. It contains the Ingredient List (`variables.tf`), the Cooking Instructions (`main.tf`), and a description of The Final Dish (`outputs.tf`). Once a recipe gets its Official Seal of Approval (a version tag), you can place Your Order from The Local Kitchen. When you're ready, you Fetch the Recipe, Check the Ingredients to make sure you didn't mess up (preventing an Allergy Warning for bad inputs!), and finally Start Cooking! The `terraform-docs` tool simply looks at the ingredients and automatically writes a clean, easy-to-read menu (`README.md`) so everyone knows exactly what to order.
 
+This can be understood as a strict sequence of layers. Layer 1 (The Master Recipe Book) is securely versioned at Layer 2 (The Official Seal of Approval). Only then is it consumed by Layer 3 (The Local Kitchen), verified at Layer 4 (The Ingredient Checker), and finally provisioned at Layer 5 (The Final Dish).
+
 ---
 
 # Architecture
 
 ```mermaid
 flowchart TD
-    subgraph EnterpriseModuleRepo [The Master Recipe Book]
-        MOD_VARS["Ingredient List (variables.tf)"] --> MOD_MAIN["Cooking Instructions (main.tf)"]
-        MOD_MAIN --> MOD_OUT["The Final Dish (outputs.tf)"]
-        MOD_OUT -->|git tag v1.0.0| GIT["Version 1.0 (Official Seal of Approval)"]
-        MOD_VARS --> DOCS["Auto-Generates the Menu (README.md)"]
-    end
-
-    subgraph CallingEnvironment [The Local Kitchen (Your Environment)]
-        PROD["Your Order (main.tf calling the module)"] --> INIT["Fetch Recipe (terraform init)"]
-        INIT --> PLAN["Check Ingredients (terraform plan)"]
-        PLAN -->|Input Validation Failed| ABORT["Allergy Warning! Bad Ingredients!"]
-        PLAN -->|Input Validation Passed| APPLY["Start Cooking (terraform apply)"]
-    end
+    L1["Layer 1: The Master Recipe Book (e.g., Enterprise Module Repository with variables.tf, main.tf, outputs.tf)"] -->|Tagged and Released as| L2["Layer 2: The Official Seal of Approval (e.g., Git Version Tag v1.0.0)"]
+    L2 -->|Imported by| L3["Layer 3: The Local Kitchen (e.g., Your Environment's main.tf calling the module)"]
+    L3 -->|Checked and Validated by| L4["Layer 4: The Ingredient Checker (e.g., terraform plan verifying inputs)"]
+    L4 -->|Cooked into| L5["Layer 5: The Final Dish (e.g., terraform apply provisioning resources)"]
 ```
 
 ---

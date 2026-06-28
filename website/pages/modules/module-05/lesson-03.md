@@ -98,34 +98,24 @@ To verify that your rebasing operations successfully maintained a clean, linear 
 
 ```mermaid
 flowchart TD
-    subgraph MessyFeature [Your Messy Rough Draft (Feature Branch)]
-        C1["Snapshot 1: Add new stuff"] --> C2["Snapshot 2: Fix a typo"]
-        C2 --> C3["Snapshot 3: Fix another typo"]
-    end
-
-    subgraph InteractiveRebase [The Magic Editor (Interactive Rebase)]
-        C1 -->|Keep this one (pick)| EDIT["Your Editing Screen"]
-        C2 -->|Mash into previous (squash)| EDIT
-        C3 -->|Mash into previous (squash)| EDIT
-    end
-
-    subgraph CleanTrunk [The Perfect Final Book (Main Branch)]
-        EDIT -->|Creates one perfect summary snapshot| ATOMIC["Perfect Snapshot: All the new stuff combined"]
-        BASE["The Existing Story (Main)"] --> ATOMIC
-    end
+    L4["Layer 4: Raw History (e.g., Messy Local Feature Branch Commits)"] -->|Opened in| L3["Layer 3: Interactive Editor (e.g., git rebase -i interface)"]
+    L3 -->|Squashes into| L2["Layer 2: Atomic Commit (e.g., Single Clean Rebased Commit Object)"]
+    L2 -->|Replays onto| L1["Layer 1: Linear Timeline (e.g., Pristine Main Branch History)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are writing a new chapter for a book, but you keep saving **Your Messy Rough Draft** every few minutes. You have a bunch of tiny saves like "Snapshot 1: Add new stuff," "Snapshot 2: Fix a typo," and "Snapshot 3: Fix another typo."
+Think of advanced history curation as a four-layered editing process.
 
-If you publish this directly into **The Perfect Final Book (Main Branch)**, the book's history will look incredibly cluttered and confusing for anyone reading the timeline.
+You start with **Layer 4: Raw History (e.g., Messy Local Feature Branch Commits)**, which is like a rough draft with dozens of tiny, chaotic save points. 
 
-To fix this, you open **The Magic Editor (Interactive Rebase)**. The editor lets you review your messy saves on **Your Editing Screen**. You decide to *keep* the very first save, but you tell the editor to *mash* the other two typo-fixes into the first one. 
+To clean this up, you load those saves into **Layer 3: Interactive Editor (e.g., git rebase -i interface)**, a magic tool that lets you decide exactly how to combine or discard each draft.
 
-Like magic, Git perfectly condenses your three messy saves into a single **Perfect Snapshot**. Now, when you add your chapter to **The Existing Story**, it looks like you wrote the whole thing perfectly on the first try!
+The editor condenses your work into **Layer 2: Atomic Commit (e.g., Single Clean Rebased Commit Object)**, producing one perfectly summarized snapshot of your entire effort.
+
+Finally, this pristine snapshot is placed cleanly onto **Layer 1: Linear Timeline (e.g., Pristine Main Branch History)**, leaving an easy-to-read, straight-line history without confusing merge diamonds!
 
 ---
 

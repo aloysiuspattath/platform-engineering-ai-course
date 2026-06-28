@@ -115,28 +115,18 @@ Before sending your Blueprint File (`main.tf`) from The Engineer's Desk to be bu
 
 Once your blueprints pass the checkpoint, The Construction Crew uses `terraform plan` for a final Rehearsal, providing The Summary of what will change, and finally uses `terraform apply` to actually Build the Finished Cloud Infrastructure!
 
+This process can be visualized as a simple, linear stack from the code you write down to the physical servers that run. Notice how Layer 1 (The Blueprint) is validated by Layer 3 (The Security Inspectors) before finally becoming Layer 5 (The Finished Cloud).
+
 ---
 
 # Architecture
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperWorkspace [The Engineer's Desk]
-        HCL["Blueprint File (main.tf)"] --> INIT["1. Setup (Gets tools ready)"]
-        INIT --> FMT["2. Spellcheck (Checks for typos)"]
-    end
-
-    subgraph SecurityGate [The Security Checkpoint]
-        FMT --> TFLINT["3. Blueprint Checker (Finds bad building parts)"]
-        TFLINT --> TFSEC["4. Safety Inspector (Finds unlocked doors)"]
-    end
-
-    subgraph ExecutionEngine [The Construction Crew]
-        TFSEC --> PLAN["5. Rehearsal (Shows what will be built)"]
-        PLAN -->|Inspects Cloud APIs| DIFF["The Summary: What gets added, changed, or removed"]
-        DIFF --> APPLY["6. Build (Actually builds the house)"]
-        APPLY --> CLOUD["Finished Cloud Infrastructure"]
-    end
+    L1["Layer 1: The Blueprint (e.g., main.tf file with HCL code)"] -->|Sent to| L2["Layer 2: The Tool Setup (e.g., terraform init downloading plugins)"]
+    L2 -->|Checked by| L3["Layer 3: The Security Inspectors (e.g., tflint and tfsec)"]
+    L3 -->|Processed into| L4["Layer 4: The Rehearsal Plan (e.g., terraform plan showing diff)"]
+    L4 -->|Built by| L5["Layer 5: The Finished Cloud (e.g., Physical AWS EC2 instances running)"]
 ```
 
 ---

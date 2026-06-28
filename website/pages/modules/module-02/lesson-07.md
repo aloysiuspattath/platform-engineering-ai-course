@@ -103,25 +103,21 @@ When you write a brand-new recipe card (e.g., `backup.sh`), Linux sees it as jus
 
 ```mermaid
 flowchart TD
-    subgraph ScriptCreation [Writing the Recipe (Script Architecture)]
-        SHEBANG["The Cookbook Selection (#!/bin/bash)"] --> VARS["The Ingredients (Variables)"]
-        VARS --> COND["The Taste Test (If/Else Conditionals)"]
-        COND --> LOOP["Stirring Repeatedly (Loops)"]
-    end
-
-    subgraph ExecutionEngine [Cooking the Meal (Execution Mechanics)]
-        SCRIPT[The Recipe Card] -->|Getting Kitchen Clearance (chmod +x)| EXEC["Start Cooking (./script.sh)"]
-        EXEC --> EXIT["The Final Taste (Exit Code: 0 for Yum, 1 for Yuck)"]
-    end
+    L1["Layer 1: Script Header (e.g., #!/bin/bash Shebang)"] -->|Defines| L2["Layer 2: Environment Variables (e.g., $BACKUP_DIR)"]
+    L2 -->|Evaluated by| L3["Layer 3: Logical Control Flow (e.g., if/else and loops)"]
+    L3 -->|Returns| L4["Layer 4: Execution Outcome (e.g., Exit Code 0 for Success)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are a Site Reliability Engineer managing an enterprise Postgres database cluster. You need to create an automated daily backup script that verifies if the backup storage directory exists, creates a timestamped archive of the database, logs the success message to the system journal, and exits cleanly.
+Imagine you are a Site Reliability Engineer managing an enterprise Postgres database cluster. You need to create an automated daily backup script that verifies if the backup storage directory exists, creates a timestamped archive of the database, logs the success message to the system journal, and exits cleanly. This maps perfectly to our layered architecture:
 
-Instead of performing this backup manually every night at midnight, you write a pristine Bash script named `pg_backup.sh` containing your variables, `if/else` directory checks, and `cp` commands. You secure the file with `chmod +x pg_backup.sh` and configure a systemd timer (or cron job) to execute it automatically every night at 12:00 AM. Your database backups execute flawlessly and reproducibly every single night while you sleep!
+* **Layer 1: Script Header:** The script begins with the `#!/bin/bash` shebang, instructing the kernel how to execute it.
+* **Layer 2: Environment Variables:** You define variables like `$BACKUP_DIR` to hold the destination path for the database archive.
+* **Layer 3: Logical Control Flow:** You use `if/else` statements to check if the directory exists and a `for` loop to iterate over databases.
+* **Layer 4: Execution Outcome:** The script completes the `cp` commands and returns an Exit Code of `0` to signal a successful backup, running flawlessly every night while you sleep!
 
 ---
 

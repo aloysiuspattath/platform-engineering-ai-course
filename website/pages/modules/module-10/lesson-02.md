@@ -136,49 +136,32 @@ How does Kubernetes know whether your container is healthy enough to receive inc
 
 ```mermaid
 flowchart TD
-    subgraph K8sCluster [The Production Floor (Kubernetes Cluster)]
-        DEP["The Rollout Manager (Deployment: 3 units)"]
-        
-        subgraph OldRS [The Old Workforce (Old ReplicaSet)]
-            POD_V1["Old Worker Unit (Terminating)"]
-        end
-
-        subgraph NewRS [The New Workforce (New ReplicaSet)]
-            POD_V2_1["New Worker Unit 1 (Running)"]
-            POD_V2_2["New Worker Unit 2 (Running)"]
-            POD_V2_3["New Worker Unit 3 (Pending)"]
-        end
-
-        DEP -->|Retires Old| OldRS
-        DEP -->|Hires New| NewRS
-    end
-
-    subgraph HealthEngine [The Health Inspector (kubelet Probe Engine)]
-        PROBE1["Pulse Check: Pass (Liveness Probe)"] -->|Healthy| POD_V2_1
-        PROBE2["Traffic Readiness: Pass (Readiness Probe)"] -->|Ready for Traffic| POD_V2_1
-        PROBE3["Traffic Readiness: Fail (Readiness Probe)"] -->|Not Ready: Stop Traffic!| POD_V2_2
-    end
+    L1["Layer 1: The Rollout Manager (e.g., Kubernetes Deployment Controller)"] -->|Manages desired state of| L2
+    L2["Layer 2: The Workforce Manager (e.g., ReplicaSet)"] -->|Spins up and scales| L3
+    L3["Layer 3: The Work Unit (e.g., Pod)"] -->|Continuously evaluated by| L4
+    L4["Layer 4: The Health Inspector (e.g., kubelet Probe Engine)"] -->|Determines traffic readiness for| L5
+    L5["Layer 5: The Network Routing (e.g., Live User Traffic)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing an airline's booking system. The system runs on a **Production Floor (Kubernetes Cluster)**.
+Imagine you are managing an airline's booking system. The system runs on a **Production Floor (Kubernetes Cluster)** functioning through a strict layered architecture.
 
-Originally, the team deployed the flight search microservice using standalone Worker Units and completely omitted Readiness and Liveness checks.
+Originally, the team deployed the flight search microservice directly at **Layer 3 (The Work Unit)** and completely omitted Readiness and Liveness checks at **Layer 4**.
 
-One Friday afternoon, the software engineering team ships a brand-new release of the flight search API. Because they lack a **Rollout Manager**, they manually dismiss the old workers and hire new ones.
+One Friday afternoon, the software engineering team ships a brand-new release of the flight search API. Because they lack a **Layer 1: Rollout Manager**, they manually dismiss the old workers and hire new ones.
 
-When the new Worker Units spin up, they start instantly, but the internal system takes exactly 45 seconds to prepare its massive database connection pools. Because there is no check, the system assumes the workers are ready the exact millisecond they show up!
+When the new Worker Units spin up, they start instantly, but the internal system takes exactly 45 seconds to prepare its massive database connection pools. Because there is no check at **Layer 4: The Health Inspector**, the system assumes the workers are ready the exact millisecond they show up!
 
-The system instantly floods the brand-new Worker Units with thousands of live user flight search requests. Because the database pools aren't ready, every single user request fails! Thousands of customers abandon their bookings!
+The system instantly floods the brand-new Worker Units with thousands of live user flight search requests at **Layer 5 (Network Routing)**. Because the database pools aren't ready, every single user request fails! Thousands of customers abandon their bookings!
 
-Because you maintain elite standards, you take command of the workload re-architecture. You transition the flight search microservice to a **Rollout Manager (Deployment)** containing strict **Pulse Checks (Liveness Probes)** and **Traffic Readiness Checks (Readiness Probes)** managed by a **Health Inspector (kubelet Probe Engine)**.
+Because you maintain elite standards, you take command of the workload re-architecture. You transition the flight search microservice to be governed by **Layer 1 (Deployment)**, which manages **Layer 2 (ReplicaSet)**, and enforce strict Pulse Checks and Traffic Readiness Checks at **Layer 4 (kubelet Probe Engine)**.
 
 You configure a Readiness check to ensure it passes *exclusively* after database pools are fully initialized. You configure a zero-downtime strategy.
 
-Now, when the team ships a new version, the **Rollout Manager** spins up a new **Worker Unit** in a **New Workforce**. The **Health Inspector** continuously checks the **Traffic Readiness**. For the first 45 seconds, the check fails, so the system refuses to send a single user request to the new **Worker Unit**! Once it passes, the system routes live traffic cleanly to the new **Worker Unit**, and safely retires an **Old Worker Unit** from the **Old Workforce**. Your airline enterprise achieves absolute zero-downtime deployments with **zero dropped user requests**!
+Now, when the team ships a new version, the **Layer 1 Rollout Manager** commands **Layer 2** to spin up a new **Layer 3 Worker Unit**. **Layer 4 (The Health Inspector)** continuously checks the Traffic Readiness. For the first 45 seconds, the check fails, so **Layer 5 (Network Routing)** refuses to send a single user request to the new Worker Unit! Once it passes, the system routes live traffic cleanly to the new Worker Unit, and safely retires an old Worker Unit. Your airline enterprise achieves absolute zero-downtime deployments with **zero dropped user requests**!
 
 ---
 

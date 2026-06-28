@@ -84,34 +84,22 @@ What happens if a parent process suddenly crashes and dies while its child proce
 
 ```mermaid
 flowchart TD
-    subgraph ProcessCreation [The Copy-and-Replace Sequence]
-        PARENT["Parent Process (The Boss)"] -->|1. Make an Exact Copy| CHILD_CLONE["The Twin"]
-        CHILD_CLONE -->|2. Replace Brain with New Program| CHILD_NEW["New Process (The Assistant)"]
-    end
-
-    subgraph ZombieLifecycle [Ghost Programs & Cleanup]
-        CHILD_NEW -->|Process Exits| ZOMBIE["Ghost State (Dead but taking up space)"]
-        ZOMBIE -->|Parent acknowledges the death| REAPED["System Clears the Record"]
-    end
-
-    subgraph OrphanAdoption [Adoption of Abandoned Children]
-        PARENT -->|Parent Crashes / Dies| ORPHAN["Abandoned Process (Lost Parent)"]
-        ORPHAN -->|Adopted by| PID1["The Ultimate Foster Parent (PID 1)"]
-        PID1 -->|Clears record when child dies| REAPED
-    end
+    L4["Layer 4: Process Management Layer (e.g., Parent Process, Bash Shell)"] -->|Forks an exact copy| L3["Layer 3: Process Execution Layer (e.g., Child Process, Web Worker)"]
+    L3 -->|Process terminates and enters ghost state| L2["Layer 2: Process Cleanup Layer (e.g., Zombie Process State)"]
+    L2 -->|Parent acknowledges death and clears record| L1["Layer 1: OS Process Table Layer (e.g., System PID Table)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of process creation like a manager (the parent) hiring an assistant by first making an **Exact Copy** of themselves (**The Twin**), and then **Replacing the Brain** of the twin to do a new task.
+Think of process creation like a manager in **Layer 4: Process Management Layer** hiring an assistant by first making an exact copy of themselves in **Layer 3: Process Execution Layer**, and then replacing the brain of the copy to do a new task.
 
-Imagine you deploy a custom app where it acts as the top boss (**The Ultimate Foster Parent**) inside a container. The app frequently creates assistants to process images. However, the developers forgot to have the manager **acknowledge the death** of the assistants when they finished.
+Imagine you deploy a custom app where it acts as the top boss in **Layer 4: Process Management Layer** inside a container. The app frequently creates assistants in **Layer 3: Process Execution Layer** to process images. However, the developers forgot to have the manager acknowledge the death of the assistants when they finished.
 
-Suddenly, your container freezes! When you inspect it, you see 5,000 assistants in a **Ghost State (Dead but taking up space)**! 
+Suddenly, your container freezes! When you inspect it, you see 5,000 assistants in **Layer 2: Process Cleanup Layer**! 
 
-Because you understand the architecture, you know exactly what happened: your app was running as the boss but didn't know how to do **Ghost Programs & Cleanup**! You update the setup to use a dedicated foster parent program (`tini`) that automatically **acknowledges the death** and ensures the **System Clears the Record** for all dead assistants, keeping your container healthy forever!
+Because you understand the layered architecture, you know exactly what happened: your app was running as the boss but didn't know how to clean up Layer 2! You update the setup to use a dedicated foster parent program (`tini`) that automatically acknowledges the death and ensures **Layer 1: OS Process Table Layer** clears the record for all dead assistants, keeping your container healthy forever!
 
 ---
 

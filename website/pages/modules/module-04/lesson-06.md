@@ -93,40 +93,28 @@ True diagnostic mastery requires combining your entire Module 04 knowledge into 
 
 ```mermaid
 flowchart TD
-    subgraph NetworkInterface [The Network Door (Network Interface)]
-        WIRE["The Outside Cable"] -->|Raw Traffic| ETH0["The Doorway (Listening to Everything)"]
-    end
-
-    subgraph KernelEngine [The Mail Sorting Room (Kernel Engine)]
-        ETH0 -->|Copy of Traffic| BPF["The Sorter (Filtering for Web Traffic)"]
-        BPF -->|Ignores Unmatched| DROP["The Trash (Ignoring Other Traffic)"]
-        BPF -->|Passes Matches| RING3["The Analyst's Desk (User Space)"]
-    end
-
-    subgraph UserSpace [The Detective's Office (Analysis Space)]
-        RING3 --> TCPDUMP["The Recorder (Saving the Traffic)"]
-        TCPDUMP -->|Writes to File| FILE["The Case File (Saved Recording)"]
-        FILE -->|Export & Open| WIRESHARK["The Magnifying Glass (Analysis Tool)"]
-    end
+    L4["Layer 4: Network Interface (e.g., The Network Door Intercepting Mail)"] -->|Copies Traffic| L3["Layer 3: Kernel Engine (e.g., The Mail Sorting Room Filtering Traffic)"]
+    L3 -->|Passes Matches| L2["Layer 2: User Space Capture (e.g., The Recorder Saving to Case File)"]
+    L2 -->|Exports File| L1["Layer 1: Packet Analysis (e.g., The Detective's Magnifying Glass)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of packet analysis like a detective monitoring a suspect's mail. The mail arrives through **The Outside Cable** at **The Network Door (Network Interface)**, where **The Doorway** is instructed to intercept everything. It goes into **The Mail Sorting Room (Kernel Engine)**, where **The Sorter (Filtering for Web Traffic)** throws irrelevant mail into **The Trash** and sends the important mail to **The Analyst's Desk (User Space)**. Up in **The Detective's Office (Analysis Space)**, **The Recorder (Saving the Traffic)** logs everything into **The Case File (Saved Recording)**, which the detective later inspects closely with **The Magnifying Glass (Analysis Tool)**!
+Think of packet analysis like a strict layered process. At **Layer 4: Network Interface (e.g., The Network Door Intercepting Mail)**, the raw traffic arrives. It moves down to **Layer 3: Kernel Engine (e.g., The Mail Sorting Room Filtering Traffic)** where irrelevant mail is thrown away and important mail is forwarded. The data is passed down to **Layer 2: User Space Capture (e.g., The Recorder Saving to Case File)** which logs everything. Finally, the recorded file is sent to **Layer 1: Packet Analysis (e.g., The Detective's Magnifying Glass)** where you inspect it closely!
 
 Imagine you are debugging a massive, highly confusing cloud anomaly. Your cloud servers are trying to download a large file from an external source. The download starts successfully, but stalls exactly at 15 Megabytes and eventually fails with a timeout.
 
 The connection works perfectly. The firewall rules are completely open. The developers are completely baffled.
 
-Because you are an elite packet analyst, you become the detective. You set up **The Recorder** on the server while starting the download.
+Because you are an elite packet analyst, you become the detective. You set up **Layer 2: User Space Capture** on the server while starting the download.
 
 You watch the data flood the terminal. You see the initial connection complete perfectly. You see the security checks complete. You see small pieces of data flowing perfectly. 
 
 Then, the moment the large file begins downloading, you notice something extraordinary: the external server attempts to send massive packages that are 1500 bytes large. Your server instantly fires back an error stating "This package is too big for my door (max 1460 bytes)!" The external server ignores the error and continuously resends the large 1500-byte packages, which are forcefully dropped by your server's doorway!
 
-You have discovered a legendary networking anomaly: a package size mismatch! Because your network door can only accept 1460 bytes, it cannot accept the incoming 1500-byte packages. You update your doorway size settings, verify the clean data flow using your analysis tools, and the files download flawlessly!
+You have discovered a legendary networking anomaly: a package size mismatch! Because your **Layer 4: Network Interface** can only accept 1460 bytes, it cannot accept the incoming 1500-byte packages. You update your doorway size settings, verify the clean data flow using your analysis tools, and the files download flawlessly!
 
 ---
 

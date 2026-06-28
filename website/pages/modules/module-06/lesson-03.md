@@ -99,27 +99,12 @@ To ensure your **Master Blueprint (compose.yaml)** can be safely committed to Gi
 
 ```mermaid
 flowchart TD
-    subgraph DeclarativeManifest [Your App's Instruction Manuals]
-        YAML["The Master Blueprint (compose.yaml)"] --> ENV["The Secret Vault (.env File)"]
-    end
-
-    subgraph ComposeEngine [The Conductor (Docker Compose)]
-        YAML -->|docker compose up -d| UP["Figuring Out What Needs to be Built"]
-        ENV --> UP
-        UP -->|1. Creates Virtual Network| NET["The Private Phone Line (Virtual Network)"]
-        UP -->|2. Creates Volume| VOL["The Hard Drive (Persistent Volume)"]
-    end
-
-    subgraph RunningTopology [The Running App Team]
-        NET --> DB["The Database Worker"]
-        VOL -->|Plugs into storage| DB
-        DB -->|Healthcheck: pg_isready| HC["Is it awake yet? (Health Check)"]
-        NET --> API["The API Worker"]
-        HC -->|Passes| API
-        API -->|Service Discovery| DNS["The Internal Phonebook (DNS)"]
-        DNS --> DB
-    end
+    L4["Layer 4: Declarative Configuration (e.g., compose.yaml and .env files)"] -->|Defines| L3["Layer 3: The Orchestrator Engine (e.g., Docker Compose processing configuration)"]
+    L3 -->|Provisions| L2["Layer 2: Virtual Infrastructure (e.g., Docker Networks and Volumes)"]
+    L2 -->|Hosts| L1["Layer 1: The Application Services (e.g., Postgres Database and API containers)"]
 ```
+
+This top-to-bottom layered architecture shows how Docker Compose orchestrates multi-container applications. At **Layer 4**, declarative configurations define the desired state. The **Layer 3** orchestrator engine parses these files and automatically sets up **Layer 2**, the virtual infrastructure (like networks and storage volumes). Once the infrastructure is ready, **Layer 1** deploys the actual application services seamlessly connected together.
 
 ---
 

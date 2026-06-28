@@ -121,30 +121,11 @@ When debugging a cluster-wide orchestration collapse involving thousands of Pods
 
 ```mermaid
 flowchart TD
-    subgraph K8sCluster [The Office Building (Kubernetes Cluster)]
-        API["The Front Desk (Master Event Hub)"]
-        
-        subgraph WorkerNode [Desk 1 (Worker Node: NotReady)]
-            KLET["The Foreman (kubelet Process)"]
-            CRI["The Engine (Container Runtime: Crashed!)"]
-            
-            POD1["Worker A (Pod STATUS: Out of Memory)"]
-            POD2["Worker B (Pod STATUS: Continuous Crashing)"]
-            
-            KLET -->|Reports to| API
-            KLET -->|Commands| CRI
-            CRI -->|Runs| POD1
-            CRI -->|Runs| POD2
-        end
-    end
-
-    subgraph DiagnosticEngine [The Detective Toolkit (Diagnostic Engine)]
-        EVT["1. Review Security Tapes (kubectl get events)"] -->|Spots Event Storm| API
-        DESC["2. Interview the Manager (kubectl describe pod)"] -->|Spots Out of Memory| POD1
-        LOGS["3. Read the Worker's Diary (kubectl logs)"] -->|Inspects Fatal Error| POD2
-        DBG["4. Send in a Specialist (kubectl debug)"] -->|Injects Ephemeral Shell| POD2
-        SSH["5. Inspect the Building Wiring (SSH and journalctl)"] -->|Inspects Foreman Logs| KLET
-    end
+    L1["Layer 1: The Global Overview (e.g., Cluster Events / kubectl get events)"] -->|Narrows scope to| L2
+    L2["Layer 2: The Resource Inspector (e.g., Pod Manifest / kubectl describe pod)"] -->|Pinpoints crashing containers for| L3
+    L3["Layer 3: The Application Internals (e.g., Container Output / kubectl logs)"] -->|Requires deeper live analysis via| L4
+    L4["Layer 4: The Live Interaction (e.g., Ephemeral Shell / kubectl debug)"] -->|Escalates node-level failures to| L5
+    L5["Layer 5: The Physical Infrastructure (e.g., Host Operating System / SSH and journalctl)"]
 ```
 
 ---
@@ -157,13 +138,15 @@ You open your terminal and observe a catastrophic landscape: 100 workers are stu
 
 Your team is panicking, frantically removing workers without success.
 
-Because you maintain elite standards, you take command of the emergency room and execute our **Canonical Troubleshooting Hierarchy**.
+Because you maintain elite standards, you take command of the emergency room and execute our **Canonical Troubleshooting Hierarchy**, moving down through the strict diagnostic layers.
 
-First, you **Review Security Tapes**. You instantly observe a massive chronological storm of failure events.
+At **Layer 1: The Global Overview**, you review the security tapes (`kubectl get events`). You instantly observe a massive chronological storm of failure events across the cluster.
 
-Second, you **Interview the Manager** for the Worker and observe a failing check. You immediately **Read the Worker's Diary** and extract the physical trace: `Fatal Error: connection pool exhausted`.
+This narrows your scope to **Layer 2: The Resource Inspector**, where you interview the manager (`kubectl describe pod`) for the failing Worker and observe a failing readiness check.
 
-Third, to debug why the 20 desks dropped offline, you **Inspect the Building Wiring** by connecting directly into the desk and reading the Foreman logs. The system logs instantly reveal the fatal root cause: unable to assign addresses.
+This points you directly to **Layer 3: The Application Internals**, where you read the worker's diary (`kubectl logs`) and extract the physical trace: `Fatal Error: connection pool exhausted`. If the logs were missing, you could have utilized **Layer 4: The Live Interaction** (`kubectl debug`) to securely examine the running environment.
+
+Finally, to debug why the 20 desks dropped offline entirely, you escalate to **Layer 5: The Physical Infrastructure** by inspecting the building wiring (SSH and `journalctl`) on the host. The system logs instantly reveal the fatal root cause: unable to assign addresses.
 
 You have uncovered the master root cause in under three minutes! A rogue background job had spun up thousands of temporary workers, exhausting the addresses and starving the connection pools! You terminate the rogue background job, and your entire food delivery platform auto-heals perfectly!
 

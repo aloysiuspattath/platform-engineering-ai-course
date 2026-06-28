@@ -108,22 +108,10 @@ True security mastery requires verifying **Image Provenance** (proving exactly w
 
 ```mermaid
 flowchart TD
-    subgraph LocalBuild [Building the App]
-        DF["App Recipe (Using old ingredients)"] --> BUILD["Baking the App"]
-    end
-
-    subgraph ScannerEngine [The Health Inspector]
-        BUILD --> TRIVY["Scan the App for deadly bugs"]
-        TRIVY -->|Unpacks Layers| PARSE["Checking the ingredients list"]
-        PARSE -->|Queries NVD| NVD["The Global Bad Bug List"]
-    end
-
-    subgraph CIQualityGate [The Bouncer (Stopping Bad Code)]
-        NVD -->|Matches CVE-2021-3452 (Score: 9.8)| REPORT["Found a critical disease (Score: 9.8 out of 10)"]
-        REPORT -->|--exit-code 1| ABORT["Red Alert! Stop everything!"]
-        ABORT --> REMEDY["Fix the Recipe (Use fresh ingredients)"]
-        REMEDY --> TRIVY2["Scan again (All clean!) -> Green light!"]
-    end
+    L1["Layer 1: Code Build (e.g., Compiling the healthcare app with its dependencies)"] -->|Sends image to| L2["Layer 2: Vulnerability Scanner (e.g., Trivy checking the app for known deadly bugs like Log4j)"]
+    L2 -->|Queries against| L3["Layer 3: Vulnerability Database (e.g., National Vulnerability Database listing bad bugs)"]
+    L3 -->|Reports critical issues to| L4["Layer 4: CI/CD Quality Gate (e.g., The pipeline blocks the deployment because of a critical score)"]
+    L4 -->|Forces developers to perform| L5["Layer 5: Remediation (e.g., Updating the recipe with fresh, secure ingredients before scanning again)"]
 ```
 
 ---
@@ -132,15 +120,17 @@ flowchart TD
 
 Imagine you are the Head of Security for a big healthcare website. Your team builds 50 different mini-apps to run the site.
 
-One morning, news breaks about a catastrophic bug in a popular piece of code called Log4j (a "critical disease" scoring 10 out of 10). If an app has this bug, a bad guy can break in just by typing a simple phrase into a login box!
+One morning, news breaks about a catastrophic bug in a popular piece of code called Log4j. If an app has this bug, a bad guy can break in easily!
 
-Across the company, managers are panicking. No one knows which of the 50 mini-apps use this broken code. Junior developers are manually logging into servers, frantically "checking the ingredients list" by hand.
+Across the company, managers are panicking. No one knows which of the 50 mini-apps use this broken code. But because you prepared ahead of time with a strict layered approach, you remain perfectly calm.
 
-Because you prepared ahead of time, you remain perfectly calm. You already set up "The Health Inspector" (an automated scanner) and "The Bouncer" to watch all your apps. You tell the Health Inspector to scan all 50 mini-apps at once.
+It starts with **Layer 1: Code Build** (e.g., Compiling the healthcare app with its dependencies). Once built, it automatically goes to **Layer 2: Vulnerability Scanner** (e.g., Trivy checking the app for known deadly bugs like Log4j). 
 
-Within three minutes, the inspector checks all the recipes against "The Global Bad Bug List" and prints a clean report showing exactly which three mini-apps have the bug.
+The scanner checks the ingredients against **Layer 3: Vulnerability Database** (e.g., National Vulnerability Database listing bad bugs). Within minutes, it identifies exactly which apps are vulnerable.
 
-You know exactly what to do. You "Fix the Recipe" for those three apps by using updated, fresh ingredients. The Bouncer checks them one last time, sees the scan is "All clean!", gives the "Green light!", and your patched apps go live before a single hacker can exploit the flaw!
+This triggers **Layer 4: CI/CD Quality Gate** (e.g., The pipeline blocks the deployment because of a critical score). The broken code is completely stopped from going live. 
+
+Finally, this strict block forces developers to perform **Layer 5: Remediation** (e.g., Updating the recipe with fresh, secure ingredients before scanning again). The pipeline scans the fixed apps, they pass, and your patched apps go live safely!
 
 ---
 

@@ -127,56 +127,30 @@ Legacy `Ingress` resources suffer from a massive limitation: they combine infras
 
 ```mermaid
 flowchart TD
-    subgraph Internet [The Outside World (Public Internet)]
-        CLIENT["The Customer (Client Web Browser)"]
-    end
-
-    subgraph CloudLoadBalancer [The Front Gate (Cloud Boundary)]
-        CLB["The Megaphone (External Cloud Load Balancer)"]
-    end
-
-    subgraph K8sCluster [The Office Building (Kubernetes Cluster)]
-        INGRESS["The Receptionist (Ingress Controller)"]
-        
-        subgraph InternalNetwork [The Internal Directory (CoreDNS Network)]
-            SVC_API["The Payment Desk (Service: payment-api)"]
-            SVC_WEB["The Web Desk (Service: web-frontend)"]
-            
-            EP_API["The Extension List (EndpointSlice)"]
-        end
-
-        subgraph WorkerNodes [Desks (Worker Nodes)]
-            POD1["Worker A (Pod: payment-api-abc)"]
-            POD2["Worker B (Pod: payment-api-xyz)"]
-        end
-    end
-
-    CLIENT --> CLB
-    CLB --> INGRESS
-    INGRESS -->|Rule: /api| SVC_API
-    INGRESS -->|Rule: /web| SVC_WEB
-    SVC_API -->|Looks up extensions| EP_API
-    EP_API -->|Routes call| POD1
-    EP_API -->|Routes call| POD2
+    L1["Layer 1: The Outside World (e.g., Client Web Browser)"] -->|Sends public request to| L2
+    L2["Layer 2: The Front Gate (e.g., External Cloud Load Balancer)"] -->|Forwards to| L3
+    L3["Layer 3: The Receptionist (e.g., Ingress Controller / Gateway API)"] -->|Evaluates rules and routes to| L4
+    L4["Layer 4: The Internal Directory (e.g., Service & EndpointSlice)"] -->|Resolves physical IP and connects to| L5
+    L5["Layer 5: The Worker (e.g., Pod on a Worker Node)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you are managing an online gaming enterprise. The platform runs a complex backend consisting of a user authentication service, a multiplayer matchmaking service, and a game asset download store.
+Imagine you are managing an online gaming enterprise. The platform runs a complex backend consisting of a user authentication service, a multiplayer matchmaking service, and a game asset download store, all structured in strict layers.
 
-Originally, the team exposed every single microservice to the public internet by creating twenty separate **Megaphones (External Load Balancers)**.
+Originally, the team exposed every single microservice to the public internet by creating twenty separate **Layer 2 (External Load Balancers)** pointing directly to backend nodes.
 
-During a review, you discover two massive failures: first, the company is paying over $500 per month solely for twenty separate physical megaphones. Second, managing security certificates across twenty separate endpoints has become an unmanageable nightmare!
+During a review, you discover two massive failures: first, the company is paying over $500 per month solely for twenty separate physical load balancers. Second, managing security certificates across twenty separate endpoints has become an unmanageable nightmare!
 
-Because you maintain elite standards, you execute a massive networking re-architecture. You transition the entire gaming enterprise to **The Receptionist (Gateway API)**.
+Because you maintain elite standards, you execute a massive networking re-architecture. You transition the entire gaming enterprise to **Layer 3: The Receptionist (Gateway API)**.
 
-First, you delete all twenty **Megaphones** and replace them with secure, internal **Desks (ClusterIP Services)**. All microservices are now physically unreachable from the public internet.
+First, you delete all twenty load balancers and replace them with secure, internal **Layer 4 (ClusterIP Services)**. All microservices at **Layer 5 (Pods)** are now physically unreachable directly from the public internet.
 
-Second, you deploy a single **Receptionist** configured with a centralized, automated security certificate. This provisions exactly ONE high-performance **Megaphone**.
+Second, you deploy a single **Layer 3 Receptionist** configured with a centralized, automated security certificate. This provisions exactly ONE high-performance **Layer 2 Load Balancer** that handles all **Layer 1** traffic.
 
-Finally, you empower the individual gaming engineering teams to author their own independent routing rules. The authentication team routes their traffic to their **Desk**; the matchmaking team routes traffic to theirs. Your gaming enterprise achieves absolute networking security, slashes megaphone costs by 95%, and permanently eliminates certificate expiration!
+Finally, you empower the individual gaming engineering teams to author their own independent routing rules at Layer 3. The authentication team routes their traffic to their specific Layer 4 directory; the matchmaking team routes traffic to theirs. Your gaming enterprise achieves absolute networking security, slashes load balancer costs by 95%, and permanently eliminates certificate expiration!
 
 ---
 

@@ -106,22 +106,10 @@ How do you enforce that a Kubernetes cluster refuses to run an unsigned containe
 
 ```mermaid
 flowchart TD
-    subgraph BuildPipeline [The Factory Assembly Line]
-        CODE["Approved Code Arrives"] --> BUILD["Building the App"]
-        BUILD --> SYFT["Writing down the exact Ingredient List"]
-        SYFT --> COSIGN["Putting a Tamper-Proof Seal on the Box"]
-        COSIGN --> PUSH["Shipping the Box to the Warehouse"]
-    end
-
-    subgraph ClusterAdmission [The Security Guard at the Door]
-        DEPLOY["Trying to bring the App inside"] --> KYVERNO["The Guard checks the Seal"]
-        KYVERNO -->|Verify| VERIFY["Verifying the seal isn't fake"]
-    end
-
-    subgraph ProductionExecution [The Final Decision]
-        VERIFY -->|Seal is real| ALLOW["App goes inside safely!"]
-        VERIFY -->|Seal is broken or missing| BLOCK["App is thrown in the trash!"]
-    end
+    L1["Layer 1: Code Build (e.g., Compiling the telecom app)"] -->|Generates| L2["Layer 2: Software Bill of Materials (e.g., Syft writes down the exact open-source ingredient list)"]
+    L2 -->|Signs with| L3["Layer 3: Cryptographic Signature (e.g., Cosign applies a tamper-proof digital seal to the image)"]
+    L3 -->|Pushes to| L4["Layer 4: Container Registry (e.g., The signed app is stored securely in the warehouse)"]
+    L4 -->|Enforced by| L5["Layer 5: Admission Controller (e.g., Kyverno acts as a security guard, blocking unsigned apps from running in production)"]
 ```
 
 ---
@@ -130,15 +118,15 @@ flowchart TD
 
 Imagine you manage the computer systems for a massive global telecom company. Your platform runs on 500 different mini-apps built by dozens of teams around the world.
 
-One morning, a new government law is announced: any software company doing business with the government must provide a verified "Ingredient List" for their apps and prove with a "Tamper-Proof Seal" that no one messed with the code.
+One morning, a new government law is announced: any software company doing business with the government must provide a verified ingredient list for their apps and prove with a tamper-proof seal that no one messed with the code.
 
-Across the company, managers are panicking. They have no idea what open-source code is hidden inside their old apps, and they have no way to prove their apps weren't tampered with during shipping.
+Across the company, managers are panicking. They have no idea what open-source code is hidden inside their old apps. Because you prepared ahead of time, you take charge by building a strict layered supply chain.
 
-Because you prepared ahead of time, you take charge. You build a highly secure "Factory Assembly Line" for all your apps. 
+It begins with **Layer 1: Code Build** (e.g., Compiling the telecom app). Immediately after, the pipeline generates **Layer 2: Software Bill of Materials** (e.g., Syft writes down the exact open-source ingredient list). 
 
-First, you make sure the assembly line automatically writes down the exact "Ingredient List" for every single app built. Then, you use a special tool to put a digital "Tamper-Proof Seal" on both the app and its ingredient list.
+Next, to prove the app wasn't altered, it is protected by **Layer 3: Cryptographic Signature** (e.g., Cosign applies a tamper-proof digital seal to the image). The fully verified image is then pushed to **Layer 4: Container Registry** (e.g., The signed app is stored securely in the warehouse).
 
-Finally, you hire a digital "Security Guard at the Door" for all your servers. You instruct the guard to forcefully reject any app that tries to run without a valid, unbreakable seal. Your company achieves total security, passes the government audits flawlessly, and guarantees that zero tampered code will ever run on your servers!
+Finally, before any code runs on your servers, it must pass **Layer 5: Admission Controller** (e.g., Kyverno acts as a security guard, blocking unsigned apps from running in production). Your company achieves total security, passes the government audits flawlessly, and guarantees that zero tampered code will ever run on your servers!
 
 ---
 

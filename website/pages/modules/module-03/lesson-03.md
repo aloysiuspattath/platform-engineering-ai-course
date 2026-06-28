@@ -89,35 +89,20 @@ What happens if both physical RAM and hard drive Swap space become 100% complete
 
 ```mermaid
 flowchart TD
-    subgraph VirtualLayer [The Fake Infinite Memory]
-        APP["App's Imaginary Memory"] -->|The Translator| PT["The Memory Map"]
-    end
-
-    subgraph PhysicalLayer [Actual Physical Memory]
-        PT -->|Real Data Blocks| RAM["Actual Memory Chips"]
-        PT -->|Buffer / Cache| CACHE["Speedy File Storage"]
-    end
-
-    subgraph EmergencyDisk [The Emergency Overflow]
-        RAM -->|Memory Full: Moving to Disk| SWAP["Hard Drive Overflow Space"]
-    end
-
-    subgraph KernelDefense [The Emergency Memory Cop]
-        RAM -->|100% Exhausted| OOM["The System Guard"]
-        SWAP -->|100% Exhausted| OOM
-        OOM -->|Finds the Biggest Memory Hog| SIGKILL["Force Quits the App"]
-    end
+    L4["Layer 4: Virtual Memory Layer (e.g., App's Imaginary Memory Space)"] -->|Translates addresses| L3["Layer 3: Page Table Layer (e.g., The Memory Map)"]
+    L3 -->|Maps to real hardware| L2["Layer 2: Physical Memory Layer (e.g., RAM Chips, Cache)"]
+    L2 -->|Spills over when full| L1["Layer 1: Storage Layer (e.g., Swap Space on Hard Drive)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of memory management like giving every app a **Fake Infinite Memory** space to play in, while **The Translator** secretly maps it to the **Actual Physical Memory**. 
+Think of memory management like giving every app **Layer 4: Virtual Memory Layer** space to play in, while **Layer 3: Page Table Layer** secretly translates it to **Layer 2: Physical Memory Layer**.
 
-Imagine you deploy an app inside a container with a strict memory limit of `2 Gigabytes`. During peak hours, the app experiences a slight memory leak and attempts to grab `2.1 Gigabytes` of **Actual Memory Chips**. 
+Imagine you deploy an app inside a container with a strict memory limit of `2 Gigabytes`. During peak hours, the app experiences a slight memory leak and attempts to grab `2.1 Gigabytes` of RAM in **Layer 2**.
 
-Suddenly, the app vanishes! Because you understand the architecture, you know exactly what happened: when the app breached its limit, **The Emergency Memory Cop** instantly stepped in. It **Finds the Biggest Memory Hog** (your app) and **Force Quits the App** to protect the rest of the server from crashing! You update the app's settings to keep memory safely below 2 Gigabytes, and everything runs flawlessly!
+Suddenly, the app vanishes! Because you understand the layered architecture, you know exactly what happened: when the app breached its limit, the OS realized **Layer 2** was exhausted. Instead of moving to **Layer 1: Storage Layer** (Swap), the OS memory cop stepped in and force-quit the app to protect the rest of the server! You update the app's settings to keep memory safely below 2 Gigabytes, and everything runs flawlessly!
 
 ---
 

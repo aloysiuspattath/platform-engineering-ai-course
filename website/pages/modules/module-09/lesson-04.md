@@ -114,22 +114,9 @@ How do you prevent developers from merging expensive Terraform configurations in
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperWorkspace [The Architect's Desk]
-        HCL["The Blueprint (main.tf)"] --> PR["Submit Design for Review"]
-    end
-
-    subgraph CI_CD_Engine [The Automatic Estimator]
-        PR -->|New Design Received| INFRACOST["The Cost Calculator (Infracost)"]
-        INFRACOST -->|Checks the Price Tag| DIFF["Calculates Monthly Bill"]
-        DIFF -->|Prints the Bill Estimate| COMMENT["Cost Estimate: +$150/mo"]
-    end
-
-    subgraph ProductionCloud [The Construction Site]
-        COMMENT -->|Approved!| APPLY["Approve and Build!"]
-        APPLY --> SPOT["The Discount Materials Store (Spot Instances)"]
-        APPLY --> BUDGET["The Spending Alarm (AWS Budget)"]
-        BUDGET -->|Bill gets too high!| ALERT["Rings the Alarm Bell!"]
-    end
+    L1["Layer 1: Design Phase (e.g., The Architect's Desk / main.tf)"] -->|Submits blueprint to| L2["Layer 2: Cost Estimation (e.g., Infracost Engine / The Calculator)"]
+    L2 -->|Calculates and approves monthly bill for| L3["Layer 3: Provisioning (e.g., Deployment Pipeline / The Construction Crew)"]
+    L3 -->|Deploys cost-optimized resources to| L4["Layer 4: Production Cloud (e.g., Spot Instances & AWS Budgets / The Construction Site)"]
 ```
 
 ---
@@ -138,15 +125,16 @@ flowchart TD
 
 Imagine you are a Lead Platform Engineer hired to manage cloud financial operations for a major global logistics and flight tracking enterprise. The company operates a massive AWS environment containing 500 EC2 instances and 100 terabytes of S3 storage across dozens of engineering accounts.
 
-Think of building cloud infrastructure like building a massive city. Previously, your architects were drawing up blueprints for giant skyscrapers, and the construction crew would just build them instantly without ever asking how much the materials cost. At the end of the month, the CFO would receive a terrifyingly huge bill!
+Think of your FinOps strategy as a highly governed, strict layered process:
 
-To fix this, you set up a **FinOps (Financial Operations)** strategy.
+- **Layer 1: Design Phase (e.g., The Architect's Desk / main.tf)** is where developers draft the initial blueprints for new cloud skyscrapers.
+- **Layer 2: Cost Estimation (e.g., Infracost Engine / The Calculator)** is the automatic estimator that checks the price tag before a single brick is laid.
+- **Layer 3: Provisioning (e.g., Deployment Pipeline / The Construction Crew)** is the automated crew that actually builds the approved infrastructure.
+- **Layer 4: Production Cloud (e.g., Spot Instances & AWS Budgets / The Construction Site)** is the live city, featuring discount materials (Spot Instances) and a giant spending alarm (AWS Budget) to prevent cost overruns.
 
-First, you tell your construction crew to start buying supplies from **The Discount Materials Store (Spot Instances)** whenever possible, getting up to 90% off for non-critical buildings! You also walk through the city and demolish all the abandoned, half-built structures (orphaned EBS volumes), immediately saving thousands of dollars.
+Previously, your architects at Layer 1 were drawing up blueprints and the Layer 3 crew would just build them instantly without ever asking how much the materials cost. At the end of the month, the CFO would receive a terrifyingly huge bill!
 
-Next, you place an **Automatic Estimator** on every **Architect's Desk**. Now, whenever an architect submits a new blueprint, the estimator instantly **Checks the Price Tag** and prints out a clear **Cost Estimate** right on the design before a single brick is laid.
-
-Finally, you install a giant **Spending Alarm (AWS Budget)** on the construction site. If the monthly spending gets dangerously close to the limit, it instantly **Rings the Alarm Bell!**, alerting the managers before the budget is blown. Your FinOps initiative successfully slashes the company's annual bill by millions of dollars, earning you massive praise from executive leadership!
+To fix this, you set up this **FinOps (Financial Operations)** layered strategy. Now, whenever an architect submits a new blueprint at Layer 1, it passes to Layer 2 which instantly prints out a clear cost estimate. If approved, Layer 3 provisions the resources in Layer 4 using discount materials whenever possible. Finally, you have a giant spending alarm installed in Layer 4 to ring if the monthly spending gets dangerously close to the limit. Your FinOps initiative successfully slashes the company's annual bill by millions of dollars, earning you massive praise from executive leadership!
 
 ---
 

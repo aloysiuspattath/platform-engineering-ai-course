@@ -109,38 +109,24 @@ True Platform Engineering mastery requires practicing professional team etiquett
 
 ```mermaid
 flowchart TD
-    subgraph DivergentBranches [Two Different Paths (Branches)]
-        BASE["The Shared Starting Point (Merge Base)"] -->|Ours| HEAD["Your Changes (Ours)"]
-        BASE -->|Theirs| FEAT["Their Changes (Theirs)"]
-    end
-
-    subgraph MergeEngine [The Git Referee (Merge Engine)]
-        HEAD -->|Try to Combine| MERGE["Git checks what changed from the start"]
-        FEAT --> MERGE
-        MERGE -->|Sees a Collision| CONFLICT["Shouts 'CONFLICT!' and leaves warning markers"]
-    end
-
-    subgraph ResolutionWorkflow [How You Fix It]
-        CONFLICT --> STATUS["1. Check what's broken (git status)"]
-        STATUS --> EDIT["2. Open file and pick the right text"]
-        EDIT --> ADD["3. Tell Git it's fixed (git add)"]
-        ADD --> COMMIT["4. Save the combined version (git commit)"]
-    end
+    L4["Layer 4: Divergent State (e.g., Overlapping Changes in main.tf)"] -->|Triggers| L3["Layer 3: Collision Detection (e.g., Git 3-Way Merge Engine pausing)"]
+    L3 -->|Injects| L2["Layer 2: Conflict Markers (e.g., <<<<<<< HEAD blocks in files)"]
+    L2 -->|Requires| L1["Layer 1: Human Resolution (e.g., Manual Edits & git commit)"]
 ```
 
 ---
 
 # Real-World Example
 
-Imagine you and a teammate start with the exact same document, which is **The Shared Starting Point**. You go down **Two Different Paths**. You change a sentence to say "Apples are great," (**Your Changes**) while your teammate changes that exact same sentence to say "Oranges are best" (**Their Changes**).
+Think of merge conflict resolution as a structured, four-layer intervention.
 
-When you try to combine your documents, **The Git Referee** steps in. It checks both changes against the starting point, sees that you both tried to change the exact same sentence, and **Shouts 'CONFLICT!'** because it doesn't know which fruit is better! Git will leave special warning markers in the text so you can find the collision.
+It begins at **Layer 4: Divergent State (e.g., Overlapping Changes in main.tf)**, where two engineers have accidentally walked down different paths and modified the exact same sentence. 
 
-To fix it, you simply follow **How You Fix It**:
-1. Run `git status` to find out which file has the collision.
-2. Open the file, find the warning markers, and decide how the sentence should actually read (maybe "Apples and Oranges are both great!"). Delete the warning markers.
-3. Tell Git you've fixed it by running `git add`.
-4. Finally, save your combined masterpiece by running `git commit`. You just resolved a conflict!
+When they try to combine their work, it triggers **Layer 3: Collision Detection (e.g., Git 3-Way Merge Engine pausing)**, where the system acts as a referee, noticing the contradiction and stopping the process.
+
+To show you exactly where the problem is, the system injects **Layer 2: Conflict Markers (e.g., <<<<<<< HEAD blocks in files)** directly into the text as loud, visible warnings. 
+
+Finally, the process falls to **Layer 1: Human Resolution (e.g., Manual Edits & git commit)**, where you open the file, untangle the text, and confirm the fix to complete the merge.
 
 ---
 

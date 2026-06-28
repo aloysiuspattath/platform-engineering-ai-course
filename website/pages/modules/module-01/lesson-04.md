@@ -75,20 +75,8 @@ In the professional Platform Engineering world, you rarely run heavy enterprise 
 
 ```mermaid
 flowchart TD
-    subgraph LocalSetup ["Your Personal Computer Setup"]
-        WIN["Your Windows Laptop"] --> WSL["The Translator (WSL2)"]
-        WSL --> LIN_WSL["The Core Engine (Ubuntu Linux)"]
-    end
-
-    subgraph CloudSetup ["The Internet Setup (Cloud)"]
-        BROWSER["Web Browser"] --> SSH["Secret Tunnel (SSH)"]
-        SSH --> CLOUD_VM["Rented Cloud Computer"]
-    end
-
-    subgraph DesktopVM ["The Matryoshka Setup (Virtual Machine)"]
-        HOST["Your Computer (Windows/Mac)"] --> HYP["The Simulator (VirtualBox)"]
-        HYP --> GUEST["The Pretend Computer (Linux VM)"]
-    end
+    L3["Layer 3: Client Access Tools (e.g., Windows Laptop, Web Browser)"] -->|Connects via| L2["Layer 2: Connection & Virtualization Mechanisms (e.g., WSL2, SSH Tunnel, VirtualBox)"]
+    L2 -->|Provides access to| L1["Layer 1: Target Linux Environments (e.g., Local Ubuntu Linux, Remote Cloud VM)"]
 ```
 
 ---
@@ -97,7 +85,7 @@ flowchart TD
 
 Consider a globally distributed engineering team at a company like GitHub or Microsoft. When a new software engineer is hired, they are not mailed a heavy, complex Linux laptop and told to spend three days installing operating systems.
 
-Instead, the engineer opens "Your Windows Laptop", launches "The Translator (WSL2)" or clicks a button to open a "Rented Cloud Computer" in their web browser via a "Secret Tunnel". Within 30 seconds, they have access to a blazing-fast, standardized Ubuntu Linux terminal perfectly pre-configured for enterprise development.
+Instead, the engineer opens their **Layer 3: Client Access Tools** (like a Windows Laptop or Web Browser) and launches a **Layer 2: Connection & Virtualization Mechanism** (such as WSL2 or an SSH Tunnel). Within 30 seconds, this provides secure, seamless access to their **Layer 1: Target Linux Environments** (a standardized local Ubuntu Linux instance or a Remote Cloud VM) perfectly pre-configured for enterprise development.
 
 ---
 

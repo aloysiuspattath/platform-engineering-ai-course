@@ -98,38 +98,26 @@ In Kubernetes, every time you create a new microservice (e.g., `my-database`), K
 
 ```mermaid
 flowchart TD
-    subgraph ContainerSpace [The Container (App Environment)]
-        APP["The App (Trying to find the Database)"] --> HOSTS["1. Check The Personal Address Book (Local Hosts File)"]
-        HOSTS -->|Not Found| RESOLV["2. Check The Main Phonebook Pointer (Resolver Config)"]
-    end
-
-    subgraph ClusterDNS [The Local Operator (Internal DNS)]
-        RESOLV -->|Asks for Number| COREDNS["The Directory Service (Internal Server)"]
-        COREDNS -->|Returns IP Address| APP
-    end
-
-    subgraph ExternalLookup [The Global Operators (External DNS)]
-        COREDNS -->|External Domain| ROOT["The Master Directory (Root)"]
-        ROOT --> TLD["The Domain Branch (TLD)"]
-        TLD --> AUTH["The Final Authority (Authoritative Server)"]
-    end
+    L4["Layer 4: Application Request (e.g., The App Trying to find the Database)"] -->|Queries| L3["Layer 3: Local Resolver (e.g., The Main Phonebook Pointer / Resolver Config)"]
+    L3 -->|Forwards to| L2["Layer 2: Internal DNS (e.g., The Directory Service / Internal Server)"]
+    L2 -->|Escalates to| L1["Layer 1: External DNS (e.g., The Global Operators / Root & TLD)"]
 ```
 
 ---
 
 # Real-World Example
 
-Think of DNS like looking up phone numbers. **The App (Trying to find the Database)** inside **The Container (App Environment)** first checks **The Personal Address Book (Local Hosts File)**. If the number isn't there, it checks **The Main Phonebook Pointer (Resolver Config)**, which points to **The Local Operator (Internal DNS)**. **The Directory Service (Internal Server)** knows all the internal numbers. But if you ask for an outside number, it asks **The Global Operators (External DNS)**, going from **The Master Directory (Root)** to **The Domain Branch (TLD)** to **The Final Authority (Authoritative Server)**!
+Think of DNS resolution as a strict layered process. At **Layer 4: Application Request (e.g., The App Trying to find the Database)**, a request is made to look up a name. If it's not found locally, it queries **Layer 3: Local Resolver (e.g., The Main Phonebook Pointer / Resolver Config)**. The resolver forwards the request down to **Layer 2: Internal DNS (e.g., The Directory Service / Internal Server)** which handles all the internal numbers. But if you ask for an outside number, it escalates to **Layer 1: External DNS (e.g., The Global Operators / Root & TLD)** to find the final authority!
 
 Imagine you are managing a massive server cluster. One morning, developers report that their apps have suddenly stopped communicating with an external cloud payment system.
 
 You log into the failing app and execute `curl https://api.stripe.com`. The terminal freezes for 10 seconds and aborts with `Could not resolve host`.
 
-Because you understand how **The Main Phonebook Pointer** works, you execute a structured investigation. First, you inspect the pointer file. The file points perfectly to **The Directory Service**. 
+Because you understand how **Layer 3: Local Resolver** works, you execute a structured investigation. First, you inspect the pointer file. The file points perfectly to **Layer 2: Internal DNS**. 
 
 Second, you manually ask the directory service for the address. The output returns `connection timed out; no servers could be reached`! 
 
-You instantly realize what happened: **The Local Operator** has crashed or become unreachable! Because the apps cannot reach the operator, they cannot translate names into numbers. You restart the operator, verify reachability, and your payment systems recover instantly!
+You instantly realize what happened: **Layer 2: Internal DNS** has crashed or become unreachable! Because the apps cannot reach the operator, they cannot translate names into numbers. You restart the operator, verify reachability, and your payment systems recover instantly!
 
 ---
 

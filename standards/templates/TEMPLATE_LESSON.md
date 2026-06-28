@@ -56,11 +56,11 @@ Outputs: Standards-compliant lesson markdown.
 
 # Architecture
 
-<!-- Visual explanation of the architecture or system model using Mermaid or ASCII diagrams. -->
-<!-- IMPORTANT: All diagrams and explanations MUST use simple, accessible layman's terms (e.g., "The Core Engine" instead of "Kernel") rather than overly complex jargon. Ensure the accompanying text matches the simplified diagram labels. -->
+<!-- Visual explanation of the architecture or system model using Mermaid. -->
+<!-- IMPORTANT: DO NOT use complex branching flowcharts or subgraphs. All diagrams MUST be a strictly linear, top-to-bottom layered hierarchy (e.g., `flowchart TD` with a single line of logic `A --> B --> C`). Every node MUST include a concrete, real-world example in brackets to aid beginner comprehension (e.g., `L4["Layer 1: Hardware (e.g., CPU, RAM)"]`). Keep the text simple and analogies relatable. -->
 
 ```mermaid
-<!-- Insert Mermaid diagram explaining the architecture -->
+<!-- Insert Layered Mermaid diagram explaining the architecture -->
 ```
 
 ---
