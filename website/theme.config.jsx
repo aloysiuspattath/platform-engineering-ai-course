@@ -27,7 +27,7 @@ export default {
     title: "On This Page"
   },
   footer: {
-    text: (
+    content: (
       <div className="w-full flex flex-col mt-12 py-8 border-t border-slate-200 dark:border-slate-800">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Platform Engineering Course</h2>
