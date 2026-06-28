@@ -344,6 +344,26 @@ The Unix Pipe takes the text output of one command and channels it directly as t
 
 * Discuss the architectural parallels between the classic Unix Pipe philosophy (chaining small CLI tools together) and modern event-driven microservice architectures (chaining small containerized services together via message queues).
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What `mkdir -p` does**: It creates a directory and automatically generates any missing parent directories required to establish the full path.
+* **Rename a file**: Use the `mv` command to move the file to the same location with a new name (e.g., `mv old.txt new.txt`).
+* **Purpose of `grep`**: It searches text streams or files for specific keywords and prints only the matching lines.
+
+### Intermediate
+* **`>` vs `>>`**: The `>` symbol overwrites the file entirely with new output, destroying existing contents. The `>>` symbol appends the new output to the very end of the existing file.
+* **Danger of `cp` / `mv` without `-i`**: By default, `cp` and `mv` will silently overwrite an existing target file if it has the same name. In production, this can instantly destroy critical data without warning, which `-i` prevents by explicitly asking for confirmation.
+
+### Advanced
+* **File descriptors and piping**: By default, the pipe (`|`) only sends standard output (file descriptor 1) to the next command, while standard error (fd 2) prints directly to the screen. `2>&1` redirects standard error into standard output, merging both streams so that `grep` can filter both normal output and error messages simultaneously.
+
+### Scenario-Based Discussions
+* **Unix Pipe vs Microservices**: Both architectural paradigms rely on creating small, single-purpose components (CLI tools vs. microservices) that communicate through standardized text streams (Unix pipes vs. Kafka queues/HTTP JSON). By avoiding monolithic designs, both approaches allow engineers to compose, scale, and debug complex data flows predictably and modularly.
+
+</details>
+
 ---
 
 # Further Reading

@@ -403,6 +403,26 @@ Explain why a vulnerability scanner inspects application lock files (`package-lo
 
 * Discuss the operational trade-offs of enforcing a strict zero-vulnerability policy (`--severity HIGH,CRITICAL --exit-code 1`) across an enterprise CI/CD pipeline versus allowing developers to bypass scans using `.trivyignore` files, specifically addressing how to handle unpatched upstream base image vulnerabilities without grinding developer deployment velocity to a halt.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is a CVE?**: Common Vulnerabilities and Exposures, a globally recognized identifier (e.g., CVE-2021-3452) for publicly known cybersecurity vulnerabilities.
+* **What is the difference between a High and Critical CVSS score?**: High severity flaws are serious but usually require complex setups or existing credentials. Critical severity flaws (9.0-10.0) are typically exploitable over the network by anonymous attackers, leading to immediate Remote Code Execution.
+* **What does `trivy image` do?**: It scans the filesystem layers of a container image for known OS packages and application dependencies, checking them against global vulnerability databases.
+
+### Intermediate
+* **Explain how Trivy inspects a container image without running a container process.**: Trivy unpacks the static, read-only `.tar` archive of the image layers and parses package manager manifests (`/var/lib/dpkg/status`, `package-lock.json`) to cross-reference with its vulnerability database.
+* **Why is `--exit-code 1` critical for CI/CD DevSecOps pipelines?**: It turns a passive scanner into an active quality gate. If Trivy finds vulnerabilities, the `1` exit code automatically causes the pipeline runner (e.g., GitHub Actions) to fail and block the deployment or merge.
+
+### Advanced
+* **Explain how container vulnerability scanners parse OCI image tarballs...**: Scanners read the `manifest.json` to map out layer blobs (`.tar.gz`). They sequentially overlay these layers in memory to build a complete filesystem tree. For statically linked binaries (Go/Rust), scanners must perform deep binary analysis to extract embedded module metadata instead of reading standard package manifests.
+
+### Scenario-Based Discussions
+* **Discuss the operational trade-offs of enforcing a strict zero-vulnerability policy...**: A strict policy prevents vulnerable code from reaching production but can permanently block CI/CD pipelines if an upstream fix doesn't exist yet (Zero-Day). Introducing governed `.trivyignore` files allows temporary suppression of non-exploitable or unpatchable CVEs to maintain velocity, provided security teams rigorously review and time-box these exceptions.
+
+</details>
+
 ---
 
 # Further Reading

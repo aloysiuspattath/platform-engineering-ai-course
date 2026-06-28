@@ -456,6 +456,25 @@ Explain why `docker compose config` is an essential troubleshooting tool when wo
 
 * Discuss the architectural trade-offs of deploying a multi-tier microservice application to a single heavy production virtual machine using Docker Compose versus orchestrating the microservices across a multi-node Kubernetes cluster (Stage 4), specifically addressing high availability and rolling zero-downtime deployments.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[Docker Compose]**: A declarative orchestration tool that allows you to define and manage multi-container applications using a single `compose.yaml` file.
+* **[`docker run` vs `docker compose up`]**: `docker run` is imperative, executing a single container manually with complex CLI flags. `docker compose up` is declarative, automatically provisioning networks, volumes, and multiple containers simultaneously based on a version-controlled YAML manifest.
+* **[`docker compose down -v`]**: It stops and removes all containers, networks, and images created by `up`, and the `-v` flag additionally deletes all attached persistent named volumes (wiping the database/state clean).
+
+### Intermediate
+* **[Internal DNS service discovery]**: When Compose starts up, it automatically creates a custom bridge network and attaches all declared services to it. Docker’s embedded CoreDNS server running on that network maps the YAML service names (e.g., `database` or `cache`) to their corresponding internal container IP addresses, allowing services to communicate via simple hostnames.
+* **[Securely passing secrets]**: You use variable interpolation in the `compose.yaml` file (e.g., `${DB_PASSWORD}`) and store the actual values in a local `.env` file. You then add the `.env` file to your `.gitignore` to prevent sensitive credentials from being committed to the repository.
+
+### Advanced
+* **[Project names and container labels]**: Compose determines which containers belong to which topology using a project name (by default, the directory name). Compose injects metadata labels (like `com.docker.compose.project=myproject`) onto every container, network, and volume it creates. By explicitly passing `-p anotherproject`, you instruct Compose to build a completely separate topology with different labels, allowing multiple identical environments (like `dev` and `qa`) to run side-by-side on the same daemon without namespace collisions.
+
+### Scenario-Based Discussions
+* **[Compose on VM vs. Kubernetes]**: Docker Compose is incredibly simple and perfectly suited for monolithic VMs or local development. However, it lacks high availability (if the VM dies, the entire application goes down) and native zero-downtime rolling deployments. Kubernetes is vastly more complex but solves this by orchestrating replicas across a multi-node cluster, providing automated failover, self-healing, and seamless rolling updates. Compose should be heavily utilized for developer environments, while Kubernetes is built for fault-tolerant production.
+
+</details>
 ---
 
 # Further Reading

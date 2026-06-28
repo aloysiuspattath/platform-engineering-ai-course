@@ -327,6 +327,26 @@ The `ssh` command establishes a secure, encrypted terminal connection to a remot
 
 * Discuss the security and productivity trade-offs of mandating browser-based remote cloud development environments (like GitHub Codespaces) versus allowing engineers to develop locally on their physical laptops using WSL2.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is WSL2**: Windows Subsystem for Linux (WSL2) allows Windows users to run a real Linux kernel alongside their Windows apps without dual-booting or setting up complex desktop VMs, making learning safe and easy.
+* **What is SSH**: Secure Shell (SSH) is an encrypted network protocol used for secure terminal access to remote servers. It operates on port 22 by default.
+* **Check username and hostname**: Use the command `whoami` for the active username and `hostname` for the machine's name.
+
+### Intermediate
+* **WSL2 vs Type-2 Hypervisor**: A Type-2 hypervisor runs as a standard application on top of the host OS and virtualizes the entire hardware stack, making it heavy. WSL2 uses a lightweight utility VM (Hyper-V architecture) that boots almost instantly and perfectly integrates the file systems of Windows and Linux.
+* **No plain SSH passwords**: Passwords can be brute-forced or stolen by automated scripts. Enterprises mandate cryptographic SSH Key Pairs (public/private keys) or ephemeral certificates which are practically impossible to guess.
+
+### Advanced
+* **WSL2 memory allocation**: WSL2 dynamically allocates and shrinks memory based on the Linux guest's actual needs using Hyper-V's Dynamic Memory feature, unlike traditional VMs that permanently reserve a fixed chunk of RAM upon boot.
+
+### Scenario-Based Discussions
+* **Codespaces vs WSL2 trade-offs**: Codespaces provide centralized, instantly-available, highly secure environments that keep source code off physical laptops (preventing data theft if a laptop is lost), but require constant internet connectivity and ongoing cloud compute costs. WSL2 allows full offline capability and has zero ongoing cloud costs, but puts enterprise source code onto physical devices which must be strictly managed by IT policies.
+
+</details>
+
 ---
 
 # Further Reading

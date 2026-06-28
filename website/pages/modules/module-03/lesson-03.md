@@ -351,6 +351,26 @@ The Python microservice breached its strictly configured cgroup memory limit, tr
 
 * Discuss the operational trade-offs of relying on traditional hard drive Swap space to prevent application out-of-memory crashes on standalone cloud virtual machines versus architecting immutable, fail-fast container memory limits in a cloud-native platform environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Virtual Memory**: An abstraction that provides each process with the illusion of a large, contiguous memory space, isolated from other processes and mapped to physical RAM or disk by the OS.
+* **free -h**: A command that displays the total, used, free, and cached physical memory and swap space on a system in human-readable formats (e.g., MB, GB).
+* **Swap space**: A designated area on a hard drive used as overflow when physical RAM is full; the kernel moves dormant memory pages here to free up active RAM.
+
+### Intermediate
+* **VSZ vs RSS**: VSZ (Virtual Memory Size) is the total memory space promised/mapped to the process (including shared libraries and unallocated space), whereas RSS (Resident Set Size) is the actual physical RAM currently occupied by the process.
+* **Disabling Swap on Kubernetes**: Platform Engineers disable swap (`swapoff -a`) so containers enforce strict memory limits. If swap were enabled, memory-leaking containers would overflow to disk, causing silent disk thrashing and degrading node performance unpredictably instead of failing fast via OOM kill.
+
+### Advanced
+* **OOM Score Calculation**: The kernel calculates an `oom_score` based primarily on the percentage of physical RAM the process is consuming; the highest score gets killed. The `oom_score_adj` is a user-defined value (-1000 to 1000) added to this score, allowing administrators to protect critical daemons (like SSH) by lowering their score, or penalize unimportant tasks.
+
+### Scenario-Based Discussions
+* **Swap vs Immutable Limits**: Traditional swap prevents immediate application crashes by spilling memory to disk, but leads to "Swap Thrashing," severely degrading performance and making root cause analysis difficult. Immutable, fail-fast container limits trigger an immediate OOMKill when memory leaks occur. This instantly restarts a fresh instance and generates clear observability events, making systems self-healing and predictable at scale.
+
+</details>
+
 ---
 
 # Further Reading

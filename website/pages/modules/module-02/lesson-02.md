@@ -383,6 +383,27 @@ Execute (`x`) permission on a file allows the operating system to run it as a pr
 
 * Discuss the security risks and compliance implications of an engineering organization where developers routinely use `chmod 777` to resolve permission errors in a shared development environment.
 
+
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **r, w, and x**: They stand for Read (`r`), Write (`w`), and Execute (`x`). For files, this controls reading, modifying, and executing. For directories, it controls listing contents (`r`), creating/deleting files (`w`), and entering the directory (`x`).
+* **chmod command**: `chmod` stands for "change mode" and is used to alter the access permissions (read, write, execute) of files and directories for the owner, group, and others.
+* **Changing file owner**: You would use the `chown` command: `sudo chown sarah filename`. (If you also need to change the group, `sudo chown sarah:sarah filename`).
+
+### Intermediate
+* **Mathematical calculation for 755**: Octal mode calculates permissions by assigning numerical values: Read = 4, Write = 2, Execute = 1. `7` (Owner) = 4 + 2 + 1. `5` (Group) = 4 + 1. `5` (Others) = 4 + 1. Thus, 755 grants full rights to the owner and read/execute rights to everyone else.
+* **SSH aborting for 644 permissions**: SSH mandates strict security for private keys (`~/.ssh/id_rsa`). `644` allows "others" to read the file, risking key theft. SSH aborts the connection and demands `600` (read/write by owner only) to guarantee the cryptographic material is inaccessible to others.
+
+### Advanced
+* **Linux umask mechanism**: The OS starts with base permissions: `666` for files and `777` for directories. The `umask` acts as a subtractive filter, masking out specific permission bits. For example, a umask of `022` subtracts write access for group (2) and others (2). Thus, `666 - 022 = 644` for files, and `777 - 022 = 755` for directories.
+
+### Scenario-Based Discussions
+* **Security risks of chmod 777**: Using `chmod 777` grants universal read, write, and execute access, violating the principle of least privilege. It exposes sensitive data to unauthorized internal users, allows malware to easily overwrite or execute files, creates compliance failures during audits (e.g., SOC2, PCI-DSS), and makes tracing accountability impossible.
+
+</details>
+
 ---
 
 # Further Reading

@@ -376,6 +376,26 @@ Explain why `git push --force-with-lease` is architecturally superior and safer 
 
 * Discuss the operational trade-offs of enforcing a strict linear history requirement (`Pull Request Squash-and-Merge`) across an enterprise engineering organization versus allowing verbose merge commits, specifically addressing how each strategy impacts automated GitOps rollback pipelines (e.g., ArgoCD).
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **`git merge` vs `git rebase`**: `git merge` creates a new merge commit combining two histories (diamond-shaped graph), preserving exact chronology. `git rebase` unplugs local commits and replays them cleanly on top of an updated target branch, creating a perfectly linear history without merge commits.
+* **`git rebase -i`**: Opens an interactive text editor allowing you to pick, squash, reword, or drop specific commits in your branch history before sharing them.
+* **The Golden Rule of Rebasing**: Never rebase commits that exist on a public branch shared with other engineers. Rebasing generates brand-new commit hashes, causing catastrophic branch divergence for teammates tracking the original history.
+
+### Intermediate
+* **`git cherry-pick`**: Surgically extracts a specific commit object from another branch and cleanly replays its file changes directly onto your active branch, avoiding a full merge.
+* **`git push --force-with-lease`**: Rebasing rewrites history (new hashes), which GitHub's standard push rejects to prevent data loss. `--force-with-lease` safely overwrites the remote branch only if no teammate has added new commits since your last fetch, preventing accidental deletion of others' work.
+
+### Advanced
+* **Undoing a Rebase (`ORIG_HEAD` and `git reflog`)**: Before starting a dangerous operation like rebase, Git saves your original state pointer in `.git/ORIG_HEAD`. You can reset back to it (`git reset --hard ORIG_HEAD`). If lost, `git reflog` records every local `HEAD` movement across the repository's history, allowing you to discover the exact pre-rebase commit hash and forcefully restore the branch.
+
+### Scenario-Based Discussions
+* **Squash-and-Merge vs. Verbose Merge Commits**: Enforcing strict linear history (Squash-and-Merge) condenses feature noise into a single atomic commit. This provides an incredibly readable ledger, ensuring that automated GitOps rollbacks (ArgoCD) can cleanly revert an entire feature at once without untangling dozens of intermediate `wip` commits. Verbose merge commits preserve detailed granular history but clutter the graph, making rapid emergency rollbacks much more complex and error-prone.
+
+</details>
+
 ---
 
 # Further Reading

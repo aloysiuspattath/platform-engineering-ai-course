@@ -294,6 +294,26 @@ Operating systems translate human interactions and software commands into the el
 
 * Discuss the architectural trade-offs between deploying an enterprise platform on an open-source operating system versus a proprietary operating system.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is Linux**: Linux is a free, open-source operating system kernel created by Linus Torvalds in 1991.
+* **Purpose of an OS**: An operating system acts as a translator and manager, bridging physical hardware (CPU, memory) with human users and software applications.
+* **Check kernel version**: Use the command `uname -r` to check the kernel release version, or `uname -a` for all system details.
+
+### Intermediate
+* **User Space vs Kernel Space**: User Space is where normal applications (like web browsers) run with limited privileges, while Kernel Space is the core privileged area where the kernel directly controls and manages physical hardware.
+* **Headless production servers**: Production servers run headless (without GUIs) to maximize performance, reduce memory/CPU overhead, and minimize security attack surfaces. Administration is done via the command line.
+
+### Advanced
+* **"Everything is a file"**: This Unix philosophy means Linux treats physical hardware devices (like hard drives or network adapters) as standard files. Engineers can read or write to hardware using the same exact tools they use to read or write text documents.
+
+### Scenario-Based Discussions
+* **Open-source vs proprietary OS**: Open-source OS (like Linux) offers zero licensing costs, full architectural transparency, and huge community support, ideal for modern cloud and AI platforms. Proprietary OS (like Windows Server) involves high licensing costs and closed code but can offer tight integration with legacy enterprise software (e.g., Active Directory).
+
+</details>
+
 ---
 
 # Further Reading

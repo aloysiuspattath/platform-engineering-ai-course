@@ -543,6 +543,26 @@ Explain why utilizing OpenID Connect (OIDC) Identity Federation in GitHub Action
 
 * Discuss the architectural trade-offs of establishing a multi-account enterprise identity strategy that relies on creating individual IAM Users in a central "Identity VPC" and assuming cross-account IAM Roles into member accounts versus deploying centralized AWS IAM Identity Center (SSO) integrated with an external SAML 2.0 Identity Provider (e.g., Okta), specifically addressing onboarding friction, credential rotation overhead, and centralized access compliance auditing.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[IAM User vs. IAM Role]**: An IAM User has permanent credentials (like passwords or long-lived `AKIA` access keys). An IAM Role has no permanent credentials; instead, trusted entities (like EC2 instances, lambda functions, or federated identities) assume the role to receive temporary, auto-expiring security tokens.
+* **[Four Core IAM Elements]**: The four core elements are `Effect` (Allow or Deny), `Action` (the specific API operations allowed or denied, e.g., `s3:GetObject`), `Resource` (the specific ARNs targeted), and `Condition` (optional rules such as requiring MFA or a specific source IP).
+* **[aws sts get-caller-identity]**: This command acts like `whoami` for AWS. It returns the current active caller's Account ID, User ID, and the ARN of the IAM identity (User or assumed Role) making the API request.
+
+### Intermediate
+* **[IAM Evaluation Logic]**: AWS starts with a Default Deny for all requests. It then looks for an Explicit Allow in the attached policies. If an Explicit Allow is found, access is permitted, UNLESS there is any matching Explicit Deny in any applicable policy. An Explicit Deny always trumps an Allow.
+* **[Trust Policy vs. Permission Policy]**: A Trust Policy defines *who* or *what* is allowed to assume the IAM role (e.g., an EC2 instance or GitHub Actions via OIDC). A Permission Policy defines *what actions* the role can perform against *which resources* once it has been successfully assumed.
+
+### Advanced
+* **[OIDC JWT Validation and Session Tags]**: When an external OIDC token (JWT) is passed to `sts:AssumeRoleWithWebIdentity`, AWS STS reaches out to the configured OIDC Provider URL to fetch its public keys and thumbprints, using them to cryptographically verify the JWT's signature. STS then checks if the JWT claims (e.g., `sub`, `aud`) match the Trust Policy conditions. IAM Session Tags (`sts:TagSession`) can be passed during role assumption to attach temporary tags to the active session, allowing permission policies to dynamically evaluate access using `aws:PrincipalTag` conditions without creating separate roles.
+
+### Scenario-Based Discussions
+* **[Cross-Account IAM Users vs. IAM Identity Center]**: Using a central Identity account with IAM Users and cross-account assumed roles creates high management overhead (manual onboarding/offboarding, enforcing permanent key rotation, and fragmented audit trails). AWS IAM Identity Center (SSO) integrated with Okta resolves this by centralizing authentication. It provides seamless SSO for users via SAML 2.0, completely eliminates permanent AWS access keys, automates lifecycle management through SCIM provisioning, and offers a single, unified CloudTrail audit log for compliance, dramatically reducing onboarding friction and risk.
+
+</details>
+
 ---
 
 # Further Reading

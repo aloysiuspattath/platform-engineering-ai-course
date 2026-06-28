@@ -365,6 +365,27 @@ Add an ampersand (`&`) to the end of the command (e.g., `./migrate.sh &`). The e
 
 * Discuss the operational trade-offs of running heavy background administrative tasks using `nohup` or `tmux` directly on cloud servers versus architecting dedicated asynchronous worker queues (e.g., Celery, AWS SQS) in an enterprise platform environment.
 
+
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **PID and PID 1**: A PID (Process ID) is a unique numerical identifier assigned by the kernel to every running process. `PID 1` is always assigned to the init system (usually `systemd` on modern Linux), which is the first process launched by the kernel and the parent of all other processes.
+* **ps aux command**: `ps aux` displays a snapshot of all currently running processes on the system across all users (`a`), providing detailed user-centric information (`u`), including processes not attached to a terminal (`x`).
+* **Why avoid kill -9**: `kill -9` sends a `SIGKILL` signal, which abruptly terminates the process at the kernel level without warning. The process cannot intercept it to save state, close file descriptors, or release locks, which can lead to data corruption or orphaned resources. `SIGTERM` (`kill -15`) should always be used first.
+
+### Intermediate
+* **jobs, fg, and bg commands**: `jobs` lists the background tasks currently managed by your shell session. `fg` brings a background or suspended job to the foreground so you can interact with it. `bg` resumes a suspended job and lets it continue executing asynchronously in the background.
+* **Purpose of grep -v grep**: When you run `ps aux | grep [pattern]`, the `grep` command itself becomes a running process containing the pattern. Piping to `grep -v grep` filters out that `grep` process from the output, leaving only the actual target process you are searching for.
+
+### Advanced
+* **OOM killer and oom_score_adj**: The OOM killer assigns each process an `oom_score` based primarily on memory consumption. When memory is exhausted, the kernel kills the process with the highest score. An SRE can lower or set a negative value in `/proc/[pid]/oom_score_adj` for critical daemons (like SSHD or a database), drastically reducing their score and protecting them from being targeted.
+
+### Scenario-Based Discussions
+* **nohup/tmux vs async worker queues**: Running tasks with `nohup`/`tmux` is quick and requires no infrastructure overhead, but lacks observability, retries, distributed scaling, and fault tolerance. Worker queues (Celery/SQS) introduce architectural complexity but provide robust durability, horizontal scalability, automated retries, and comprehensive metric tracking crucial for enterprise-grade automation.
+
+</details>
+
 ---
 
 # Further Reading

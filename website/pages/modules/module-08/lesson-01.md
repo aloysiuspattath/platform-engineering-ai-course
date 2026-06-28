@@ -519,6 +519,26 @@ Explain why `terraform plan` is an essential safety gatekeeper before executing 
 
 * Discuss the architectural trade-offs of establishing an enterprise cloud automation strategy that relies on HashiCorp Terraform (HCL) versus adopting AWS Cloud Development Kit (CDK) utilizing TypeScript/Python, specifically addressing developer onboarding friction, dry-run diff readability, and multi-cloud vendor lock-in.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is ClickOps**: ClickOps refers to manually provisioning cloud infrastructure via web console clicks. It is bad because it lacks idempotency, leads to configuration drift, cannot be version-controlled, and makes disaster recovery slow and error-prone.
+* **resource vs data block**: A `resource` block instructs Terraform to create, update, or destroy infrastructure. A `data` block is a read-only query that fetches information about existing infrastructure created outside of the current Terraform code.
+* **terraform init**: It initializes a working directory containing Terraform configuration files. This includes downloading the necessary provider plugins, initializing the state backend, and downloading modules.
+
+### Intermediate
+* **Implicit vs Explicit dependencies**: Implicit dependencies are automatically inferred by Terraform when one resource references an attribute of another (e.g., `vpc_id = aws_vpc.main.id`). Explicit dependencies are manually defined using the `depends_on` meta-argument to enforce ordering when there are no direct attribute references but a startup order is still required.
+* **Why run tfsec**: Running `tfsec` (or similar static analysis tools) before committing ensures that security vulnerabilities, such as unencrypted storage or open security groups, are caught and remediated during the development phase, preventing insecure infrastructure from reaching production.
+
+### Advanced
+* **DAG and parallel execution**: During the `plan` phase, Terraform parses the HCL to build a Directed Acyclic Graph (DAG) of all resources based on their implicit and explicit dependencies. During execution, it traverses this graph. Any nodes (resources) that do not have dependencies on one another can be provisioned simultaneously. By default, Terraform uses a graph walking algorithm with up to 10 concurrent worker threads (`-parallelism=10`) to create these independent resources in parallel, vastly reducing deployment time.
+
+### Scenario-Based Discussions
+* **Terraform (HCL) vs AWS CDK**: Terraform uses HCL, a domain-specific declarative language that offers unparalleled dry-run diff readability (`terraform plan`) and supports multi-cloud vendor deployments via its vast provider ecosystem. AWS CDK allows developers to write infrastructure using familiar programming languages (TypeScript/Python), which lowers onboarding friction for developers but makes it difficult to read infrastructure state diffs due to imperative logic loops and restricts you tightly to the AWS ecosystem.
+
+</details>
+
 ---
 
 # Further Reading

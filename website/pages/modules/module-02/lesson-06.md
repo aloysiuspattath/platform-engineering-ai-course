@@ -383,6 +383,27 @@ Deleting the `apt` cache `/var/lib/apt/lists/*` removes unnecessary metadata, wh
 
 * Discuss the architectural trade-offs of installing system dependencies directly onto cloud virtual machines using package managers (`apt`, `dnf`) versus packaging all application dependencies directly into immutable Docker container images in an enterprise deployment pipeline.
 
+
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Package manager**: A package manager is a system tool (like `apt`, `yum`, or `dnf`) that automates the process of installing, upgrading, configuring, and removing software. It resolves dependencies automatically by fetching pre-compiled binaries from centralized repositories.
+* **-y flag**: The `-y` (yes) flag automatically answers "yes" to all interactive prompts during the installation process, making it essential for non-interactive automated scripts and CI/CD pipelines.
+* **Searching using apt**: You use the `apt search` command followed by your keyword. For example, `apt search nginx` will query the local package cache and return all available packages matching that name.
+
+### Intermediate
+* **apt remove vs apt autoremove**: `apt remove [package]` deletes the explicitly specified software but leaves behind any isolated dependencies that were installed alongside it. `apt autoremove` scans the system and safely deletes all unused, orphaned dependencies that are no longer required by any installed program, freeing up disk space.
+* **Executing apt update first**: Cloud server images often contain stale package indexes. `apt update` securely downloads the latest list of available software and version numbers from remote repositories. Without running it, `apt install` will attempt to fetch old versions using broken, expired URLs, causing the installation to fail.
+
+### Advanced
+* **GPG cryptographic signatures**: When a package is built, the repository maintainer signs it with their private GPG key. When `apt` downloads the package, it compares the attached signature against the maintainer's public GPG key stored locally in the OS's trusted keyring. If the cryptographic math validates, it guarantees the package was built by the authorized owner and has not been maliciously tampered with in transit.
+
+### Scenario-Based Discussions
+* **Package managers vs Docker images**: Installing directly via package managers (often orchestrated by Ansible/Chef) is lightweight and natively integrates with the OS, but leads to configuration drift ("works on my machine") and slow, mutable rollbacks. Packaging everything into immutable Docker images guarantees identical execution across all environments and enables lightning-fast deployments, but introduces overhead in container orchestration (Kubernetes) and the need to proactively scan the nested image layers for CVEs.
+
+</details>
+
 ---
 
 # Further Reading

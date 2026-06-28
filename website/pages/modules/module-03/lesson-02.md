@@ -346,6 +346,26 @@ The first step is `sys_fork`, where the kernel creates an exact duplicate clone 
 
 * Discuss the operational trade-offs of deploying complex multi-process applications (e.g., Nginx + PHP-FPM) inside a single container using a process manager like Supervisord versus decoupling them into separate single-process containers in a Kubernetes pod.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Zombie Process**: A child process that has finished execution but still occupies an entry in the process table because its parent hasn't called `wait()` to read its exit status.
+* **pstree**: A command line utility that displays running processes as a visual ASCII tree, highlighting parent-child relationships.
+* **Parent Crash**: The child process becomes an "orphan" and is immediately adopted by `PID 1` (usually systemd or init), which will properly reap it when it dies.
+
+### Intermediate
+* **fork() vs execve()**: `fork()` clones the current process to create an identical child, while `execve()` replaces the child's memory space and program entirely with a new binary.
+* **Killing a Zombie**: You cannot kill a zombie process because it is already dead. You must kill its parent process so the zombie becomes an orphan, gets adopted by `PID 1`, and is reaped.
+
+### Advanced
+* **Copy-On-Write (COW)**: During `fork()`, the kernel doesn't immediately copy physical RAM. It points the child to the parent's memory pages and marks them read-only. Only if the parent or child tries to modify a page does the kernel duplicate it (a page fault), saving immense memory and time.
+
+### Scenario-Based Discussions
+* **Single vs Multi-Process Containers**: Using a single container with Supervisord groups everything together, simplifying legacy app migration but violating the "one process per container" principle, complicating logging and scaling. Decoupling into a Kubernetes Pod (separate Nginx and PHP-FPM containers) allows independent scaling, distinct resource limits, and native stdout logging, making it the superior cloud-native choice despite slight networking/volume setup overhead.
+
+</details>
+
 ---
 
 # Further Reading

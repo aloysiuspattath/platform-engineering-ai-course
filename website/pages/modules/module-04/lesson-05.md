@@ -370,6 +370,26 @@ A Public Key is openly shared and used by anyone to encrypt data or verify digit
 
 * Discuss the architectural trade-offs of securing internal microservice communication across a Kubernetes cluster using manual OpenSSL certificate generation versus deploying an automated Service Mesh (e.g., Istio / Linkerd) providing mutual TLS (mTLS) with automated zero-touch certificate rotation.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Symmetric vs Asymmetric**: Symmetric encryption uses a single shared secret key for both encryption and decryption (fast). Asymmetric uses a mathematically linked Key Pair—a Public Key (shared freely) and a Private Key (kept strictly secret)—enabling secure identity verification over untrusted networks (slower).
+* **X.509 certificate**: A digital identity document that cryptographically binds a Public Key to a specific domain name (like `example.com`), signed by a globally trusted Certificate Authority (CA).
+* **`PasswordAuthentication no`**: A master `sshd_config` hardening directive that disables password logins entirely, completely neutralizing brute-force password guessing attacks and enforcing cryptographic SSH keys.
+
+### Intermediate
+* **TLS Handshake**: 1) `ClientHello` (ciphers/random bytes), 2) `ServerHello` (chosen cipher, certificate, random bytes), 3) Client verifies the certificate against its local trusted CA store, 4) Client uses the server's Public Key to securely encrypt a new Symmetric Session Key, 5) Server decrypts it with its Private Key, and both switch to fast symmetric encryption.
+* **`0600` SSH key permissions**: A private key grants absolute server access. If permissions are too open (e.g., readable by other users), the SSH client forcefully aborts the connection because the key is considered compromised. `0600` ensures only the owning user can read or modify the file.
+
+### Advanced
+* **DHE & Perfect Forward Secrecy (PFS)**: Instead of encrypting the session key directly with the server's static RSA public key, Diffie-Hellman Ephemeral (DHE) generates a unique, temporary mathematical key pair for *every single session*. The server's static private key is only used to *sign* these ephemeral parameters. Because the ephemeral session keys are destroyed instantly after the connection closes, an attacker who steals the server's long-term private key months later cannot retroactively decrypt past captured traffic.
+
+### Scenario-Based Discussions
+* **Manual OpenSSL vs Automated Service Mesh mTLS**: Manual OpenSSL is simple but operationally unscalable, inevitably leading to catastrophic outages when engineers forget to rotate expiring certificates. An automated Service Mesh (Istio/Linkerd) dynamically injects Envoy sidecar proxies that handle mutual TLS (mTLS) automatically, transparently rotating short-lived certificates via an internal CA without touching application code, though this introduces immense operational complexity and sidecar memory overhead.
+
+</details>
+
 ---
 
 # Further Reading

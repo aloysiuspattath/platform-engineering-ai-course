@@ -429,6 +429,26 @@ Explain why Mozilla SOPS encrypts YAML values (`password: ENC[AES256...]`) while
 
 * Discuss the architectural trade-offs of establishing an enterprise secret management strategy that relies on committing SOPS-encrypted files directly to GitOps repositories versus establishing a centralized HashiCorp Vault dynamic secret cluster, specifically addressing infrastructure maintenance overhead, secret rotation velocity, and disaster recovery procedures.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is the difference between Encryption in Transit and Encryption at Rest?**: Encryption in transit protects data moving across a network (e.g., TLS/HTTPS), preventing packet sniffing. Encryption at rest protects data stored on physical disks (e.g., AES-256), preventing data theft if hardware is stolen.
+* **Why is Base64 encoding not secure for storing secrets?**: Base64 is merely an encoding format, not encryption. Anyone who reads the Base64 string can instantly decode it back to plain-text without needing a key.
+* **What does `sops -e` do?**: It selectively encrypts the values in a YAML/JSON configuration file while keeping the structural keys in plain-text, enabling safe commits to Git.
+
+### Intermediate
+* **Explain how HashiCorp Vault's dynamic lease engine improves enterprise security...**: Instead of static, long-lived passwords that can be leaked, Vault dynamically generates short-lived, unique credentials on-demand and automatically revokes them when the lease expires.
+* **Why should you use `gitleaks` before pushing code to GitHub?**: `gitleaks` scans your local commits for regex patterns matching API keys and passwords. Catching them locally prevents irreversible credential exposure on public or shared Git repositories.
+
+### Advanced
+* **Explain how HashiCorp Vault utilizes Shamir's Secret Sharing algorithm...**: Vault encrypts its data with a master key, which is itself encrypted by an unseal key. Shamir's algorithm splits this unseal key into multiple shares distributed to different human operators. A specific threshold (e.g., 3 of 5) of these shares must be combined to reconstruct the unseal key. Vault Agent authenticates via Kubernetes Service Account Tokens (JWTs), which Vault verifies against the Kubernetes API to securely inject credentials without static tokens.
+
+### Scenario-Based Discussions
+* **Discuss the architectural trade-offs of SOPS vs Vault...**: SOPS is lightweight, serverless, and perfect for GitOps natively, requiring zero infrastructure overhead, but lacks dynamic rotation. Vault provides elite dynamic secret rotation and centralized auditing but requires significant operational overhead (managing unseal procedures, High Availability, and disaster recovery). Enterprises typically use SOPS for base infrastructure bootstrapping and Vault for runtime application credentials.
+
+</details>
+
 ---
 
 # Further Reading

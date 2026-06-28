@@ -369,6 +369,25 @@ Explain why configuring log rotation (`max-size: 10m`) in `/etc/docker/daemon.js
 
 * Discuss the operational trade-offs of establishing a production container debugging workflow that relies on `docker exec` interactive shell attachment versus enforcing immutable, air-gapped container runtimes (Distroless) where engineers must rely exclusively on external centralized telemetry (Fluentd / Prometheus / CloudWatch).
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[`Exit Code 137`]**: It means the process was terminated by `SIGKILL` (Signal 9, 128 + 9 = 137). In containers, this almost always indicates an Out-Of-Memory (OOMKilled) event where the host kernel killed the process for exceeding its cgroup memory limit.
+* **[`docker logs --tail 100` purpose]**: It safely fetches only the last 100 lines of logs from a container, preventing terminal buffer overflows and SSH session crashes that occur when requesting gigabytes of unthrottled raw historical logs.
+* **[`docker stats` purpose]**: It provides a live, real-time dashboard (similar to `top` or `htop`) displaying CPU, memory, and network I/O usage for all active containers on the Docker host.
+
+### Intermediate
+* **[`docker attach` vs `docker exec -it`]**: `docker attach` connects your terminal directly to the container's primary PID 1 process. If you hit `Ctrl+C`, you kill PID 1, crashing the entire container! `docker exec -it` safely spawns a *brand-new* secondary process (like `/bin/sh`) inside the running namespace, allowing you to debug and exit without affecting the primary application.
+* **[Failing `exec` on Distroless]**: Distroless images are stripped down to the absolute bare minimum and do not contain any shell binaries (`/bin/sh` or `/bin/bash`). Therefore, the Docker engine cannot spawn a shell inside the namespace because the executable physically does not exist.
+
+### Advanced
+* **[Exit codes, `containerd`, and logs]**: When a process dies, the Linux kernel notifies `runc`. `runc` informs `containerd` (the runtime supervisor), which then sends a gRPC event to the Docker daemon (`dockerd`) containing the exact exit status. For logging, when `runc` starts the container, it connects the container's `stdout` and `stderr` file descriptors to a logging pipe managed by the Docker daemon. The daemon then streams these bytes to the configured log driver (e.g., local JSON files, Fluentd, or CloudWatch).
+
+### Scenario-Based Discussions
+* **[`docker exec` vs Immutable Distroless Telemetry]**: Allowing `docker exec` provides engineers with immense flexibility during an outage, enabling them to inspect files, run `strace`, and debug interactively. However, it requires including shells and tools in the image, significantly increasing the security attack surface. Enforcing Distroless mandates absolute immutability and maximum security by removing shells, but trades off local debuggability. In this model, SREs must invest heavily in comprehensive centralized observability (Stage 5 metrics, logs, and distributed tracing), relying on system telemetry rather than manual shell interaction to diagnose failures.
+
+</details>
 ---
 
 # Further Reading

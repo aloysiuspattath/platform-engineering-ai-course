@@ -547,6 +547,26 @@ Explain why a StatefulSet requires a Headless Service (`clusterIP: None`), speci
 
 * Discuss the architectural trade-offs of establishing an enterprise storage strategy that relies on deploying a highly available distributed cloud native storage engine directly inside Kubernetes (e.g., Rook/Ceph or Portworx) versus utilizing cloud provider managed CSI drivers (e.g., AWS EBS CSI or Azure Disk CSI), specifically addressing storage latency, operational complexity, storage replication overhead across worker nodes, and absolute multi-cloud manifest portability.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **emptyDir vs PV**: `emptyDir` is an ephemeral scratch directory bound to the Pod's lifecycle on a specific node; it gets permanently deleted when the Pod is removed or evicted. A Persistent Volume (PV) is an external, decoupled physical storage asset that survives Pod restarts and evictions, maintaining data durability.
+* **Persistent Volume Claim (PVC)**: A PVC is a request made by an application developer for a specific amount of persistent storage with specific access modes (like ReadWriteOnce). It binds to a matching Persistent Volume (PV).
+* **StatefulSet**: A Kubernetes controller specifically designed for stateful applications (like databases). It guarantees stable, predictable network identities (e.g., `db-0`, `db-1`) and dedicated, persistent disk attachments per Pod using `volumeClaimTemplates`.
+
+### Intermediate
+* **RWO vs RWX**: `ReadWriteOnce` (RWO) means the volume can be mounted as read-write by only a single worker node at a time (e.g., AWS EBS block storage). `ReadWriteMany` (RWX) allows the volume to be mounted read-write by multiple nodes simultaneously (e.g., AWS EFS network file systems).
+* **volumeClaimTemplates**: Instead of all Pods sharing a single PVC (which causes locking issues), a StatefulSet uses `volumeClaimTemplates` to dynamically stamp out a brand new, dedicated PVC (and physical PV) for every individual Pod it creates, ensuring each replica gets isolated persistent storage.
+
+### Advanced
+* **CSI sidecars and VolumeSnapshots**: CSI plugins run as distinct daemon sets and sidecars rather than being compiled into core Kubernetes code (out-of-tree). The `external-provisioner` watches for PVCs and calls the cloud API to create physical disks; the `external-attacher` attaches the disk to a specific node instance; the `csi-node-driver` mounts it into the Pod. `VolumeSnapshot` allows triggering a block-level snapshot on the physical cloud provider storage (like an EBS snapshot) directly via Kubernetes API calls without manually interacting with the AWS console.
+
+### Scenario-Based Discussions
+* **In-Cluster Storage (Ceph) vs Managed CSI (EBS)**: Running distributed storage in-cluster (Rook/Ceph) provides absolute multi-cloud portability (the exact same manifests work on AWS, Azure, or bare metal) and avoids vendor lock-in. However, it introduces immense operational complexity to manage the storage plane, consumes massive worker node CPU/RAM for storage replication (lowering compute efficiency), and requires deep expertise to recover from split-brain scenarios. Managed CSI drivers offload all physical disk management, replication, and disaster recovery to the cloud provider, offering superior stability and lower operational overhead at the cost of cloud lock-in.
+
+</details>
+
 ---
 
 # Further Reading

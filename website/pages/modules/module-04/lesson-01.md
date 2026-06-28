@@ -353,6 +353,26 @@ TCP is a connection-oriented protocol that ensures guaranteed delivery, ordering
 
 * Discuss the architectural trade-offs of architecting a high-performance microservice communication mesh using HTTP/REST over TCP (Layer 7) versus migrating to gRPC over HTTP/2 or raw UDP sockets in a rapidly scaling enterprise environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **OSI 7-Layer Model**: A conceptual framework dividing network communication into 7 layers: Physical, Data Link, Network, Transport, Session, Presentation, and Application, acting as the universal grammar of the internet.
+* **Network socket in Linux**: An elite virtual endpoint defined by an IP Address and a Port Number (e.g., `192.168.1.50:80`). The kernel assigns it a File Descriptor to listen for traffic.
+* **`ss -atn` command**: Displays all active TCP sockets, numeric ports, and exact connection state details (like `LISTEN` or `ESTAB`), revealing the mechanics of Layer 4.
+
+### Intermediate
+* **TCP 3-Way Handshake**: A strict connection establishment process (`SYN ──►`, `◄── SYN-ACK`, `ACK ──►`) before sending data, ensuring highly reliable, guaranteed delivery.
+* **`Connection timed out` vs `Connection refused`**: "Timed out" means the `SYN` packet received zero response (blocked by firewall or dropped router), indicating Layer 1-4 failure. "Refused" means the packet arrived, but the remote OS bounced back an `RST` because no software daemon was actively listening on that port (Layer 7).
+
+### Advanced
+* **TCP queues & SYN Flood attack**: The kernel places an incoming `SYN` in the SYN queue, responds with `SYN-ACK`, and waits for `ACK`. Upon receiving `ACK`, it moves the connection to the ACCEPT queue for the application. A SYN Flood sends massive `SYN` requests without `ACK`s, filling the SYN queue in RAM and blocking legitimate traffic.
+
+### Scenario-Based Discussions
+* **HTTP/REST vs gRPC/UDP**: HTTP/REST (Layer 7) offers simplicity and intelligent application-layer routing at the cost of high CPU and parsing overhead. Migrating to gRPC over HTTP/2 provides binary serialization efficiency, while raw UDP eliminates handshake latency and redelivery overhead entirely, ideal for latency-sensitive microservices where speed outweighs guaranteed packet delivery.
+
+</details>
+
 ---
 
 # Further Reading

@@ -284,6 +284,26 @@ Open-source software means the underlying source code is freely available for an
 
 * Discuss the trade-offs of relying on open-source community support versus paying for an enterprise Linux support contract (e.g., Red Hat Enterprise Linux) in a highly regulated banking environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Open-source meaning**: It means the underlying source code (blueprint) is freely available to the public to inspect, modify, and distribute without paying licensing fees.
+* **Check server uptime**: Use the `uptime` command in the terminal.
+* **Why cloud relies on Linux**: Linux offers massive scalability with zero per-instance licensing fees, exceptional stability without forced reboots, and a modular architecture perfect for containerization.
+
+### Intermediate
+* **Load average numbers**: They represent the average system load (CPU demand) over the last 1, 5, and 15 minutes, helping identify if a server is currently overwhelmed or historically overloaded.
+* **Open-source security**: With hundreds of thousands of engineers from around the globe constantly reviewing the source code, vulnerabilities are rapidly detected and patched transparently.
+
+### Advanced
+* **Zero-reboot impact on SREs**: SREs can apply critical kernel security patches on-the-fly (e.g., using livepatch tools) without ever bringing the server down, ensuring 100% uptime and seamless service availability.
+
+### Scenario-Based Discussions
+* **Community vs Enterprise support**: Community support relies on forums and public documentation, which is free but offers no guaranteed response times. In a highly regulated banking environment, paying for enterprise support (like RHEL) is usually preferred because it guarantees SLA-backed response times, certified compliance, and dedicated engineering assistance during critical failures.
+
+</details>
+
 ---
 
 # Further Reading

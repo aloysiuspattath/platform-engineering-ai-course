@@ -392,6 +392,26 @@ A `502 Bad Gateway` means the reverse proxy could not successfully establish a c
 
 * Discuss the architectural trade-offs of architecting an enterprise microservice API Gateway using static Nginx reverse proxy server blocks versus migrating to a dynamic, xDS-driven Envoy Proxy mesh in a rapidly scaling Kubernetes environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **`4xx` vs `5xx` status codes**: A `4xx` status code means the client made a mistake (e.g., bad request, unauthorized, file not found). A `5xx` means the client sent a valid request, but the backend server encountered an internal failure (crashed, timed out).
+* **Reverse proxy**: A traffic-routing server (like Nginx) that sits at the edge of a network, intercepting client requests to shield backend application servers while providing load balancing and SSL termination.
+* **`sudo nginx -t`**: Validates the Nginx configuration file syntax and verifies it is safe to reload, preventing catastrophic production crashes caused by typos like missing semicolons.
+
+### Intermediate
+* **Round Robin vs Least Connections**: Round Robin distributes requests sequentially down a list of backend servers. Least Connections intelligently inspects active socket states and forwards the next request to the backend server with the fewest active TCP connections, which is ideal for variable, long-running AI inference requests.
+* **`X-Forwarded-For` header**: Because a reverse proxy intercepts and re-initiates the connection, backend applications only see the proxy's IP address. The `X-Forwarded-For` header injects the client's true original IP address so the backend can accurately perform logging, auditing, and rate-limiting.
+
+### Advanced
+* **Nginx `epoll` vs Apache process-per-connection**: Traditional servers like Apache historically spawn a heavy, dedicated OS process or thread for every single client connection, exhausting RAM under load. Nginx uses an asynchronous, non-blocking event loop leveraging the Linux kernel's `epoll` API. A single Nginx worker thread can manage tens of thousands of connections simultaneously by processing only active I/O events, drastically reducing memory overhead.
+
+### Scenario-Based Discussions
+* **Static Nginx vs Dynamic Envoy Mesh**: Static Nginx is battle-tested, highly performant, and simple for edge routing, but it requires a graceful process reload (`nginx -s reload`) to update backend IPs, causing friction in highly volatile container environments. A dynamic Envoy Proxy mesh natively integrates with Kubernetes via the xDS API, discovering new endpoints in milliseconds without ever reloading the proxy process, but introduces immense operational complexity and sidecar memory overhead.
+
+</details>
+
 ---
 
 # Further Reading

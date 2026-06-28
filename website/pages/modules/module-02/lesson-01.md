@@ -347,6 +347,27 @@ Standard user accounts (UID 1000+) are meant for interactive login with a home d
 
 * Discuss the security and operational trade-offs of managing local Linux user accounts via Ansible automation versus integrating servers with a centralized LDAP / Cloud IAM identity provider in a multi-cloud enterprise environment.
 
+
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **UID and UID 0**: UID stands for User Identifier, a unique numerical value assigned to each user on a Linux system. `UID 0` is permanently reserved for the `root` user, granting it absolute, unrestricted administrative privileges across the entire system.
+* **Sudo command**: `sudo` stands for "Superuser Do". It allows authorized users to execute commands with the security privileges of another user, almost always the superuser (root), without needing to share the actual root password.
+* **Adding user to secondary group**: You would use the `usermod` command with the append and groups flags: `sudo usermod -aG docker <username>`. The `-a` flag is critical because omitting it will remove the user from all other secondary groups not listed.
+
+### Intermediate
+* **/etc/passwd vs /etc/shadow**: `/etc/passwd` contains public user account information such as the username, UID, primary GID, home directory path, and default shell, and is readable by all users. `/etc/shadow` securely stores the actual password hashes and password aging policies, and it is strictly readable only by the root user to prevent credential theft.
+* **Why visudo**: `visudo` locks the `/etc/sudoers` file against simultaneous edits and rigorously syntax-checks the file before saving. A syntax error in `sudoers` can completely lock administrators out of gaining root access, causing a catastrophic system lockout.
+
+### Advanced
+* **PAM architecture for sudo**: When `sudo` is executed, it delegates authentication to PAM. PAM checks its configuration (`/etc/pam.d/sudo`), dynamically loads the required shared library modules (like `pam_unix.so`), prompts the user for credentials, and evaluates the response against the configured policy chain (auth, account, session, password) to determine if privilege elevation should be granted.
+
+### Scenario-Based Discussions
+* **Local vs Centralized user management**: Managing local users via Ansible ensures high availability and no network dependencies for authentication, making it resilient but administratively complex as the fleet scales. Centralized identity (LDAP/IAM) provides a single source of truth, automated offboarding, and seamless compliance auditing, but introduces a single point of failure and requires robust caching (like SSSD) to handle network partitions or IdP outages.
+
+</details>
+
 ---
 
 # Further Reading

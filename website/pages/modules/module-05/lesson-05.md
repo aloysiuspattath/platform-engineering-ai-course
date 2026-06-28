@@ -379,6 +379,26 @@ Explain the exact architectural difference between how Git stores a standard dir
 
 * Discuss the architectural trade-offs of managing shared enterprise Terraform modules using Git Submodules tied to specific commit hashes versus publishing versioned module artifacts to a central private Terraform Registry in a large-scale cloud environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Git hooks**: Local shell scripts located in `.git/hooks/` that the Git binary executes to intercept and optionally block actions like `git commit` or `git push`.
+* **`pre-commit install`**: A command from the `pre-commit` framework that dynamically configures your local `.git/hooks/pre-commit` file to automatically execute linter plugins defined in `.pre-commit-config.yaml` before every commit.
+* **Git submodule**: A special repository linkage (`.gitmodules`) that nests an external Git repository inside a subfolder, tracking it by bookmarking a specific, static external commit hash (Tree entry: `160000 commit`).
+
+### Intermediate
+* **`git clone` vs `git clone --recursive`**: A standard `git clone` downloads the master repository but leaves nested submodule directories completely empty. `git clone --recursive` automatically initializes and clones the files for all nested submodules into those directories.
+* **Local Hooks vs Cloud CI/CD**: Local hooks improve developer feedback speed but can be easily bypassed using `git commit --no-verify`. Cloud CI/CD validation enforces absolute governance, guaranteeing that unformatted or insecure code is forcefully blocked from entering the main branch even if developers skip local checks.
+
+### Advanced
+* **Submodule `.git/modules/` architecture**: To prevent data loss if a submodule directory is deleted, modern Git physically stores the submodule's internal database inside the master repository's `.git/modules/` directory. The `.git` item inside the submodule's working folder is not a directory, but a plain-text file acting as a pointer (`gitdir: ../.git/modules/submodule-name`), ensuring the submodule's commit objects remain safely backed up in the master repo.
+
+### Scenario-Based Discussions
+* **Submodules vs Terraform Registry**: Git Submodules tightly couple repositories without additional infrastructure, making them ideal for monorepos or heavily co-developed local modules, but synchronization (`git submodule update`) is notoriously confusing for teams. A Private Terraform Registry isolates modules into clean, immutable, semantic versioned artifacts (e.g., `v1.2.0`), providing vastly superior dependency management, module testing pipelines, and ease of use for consumers at the cost of requiring dedicated registry infrastructure.
+
+</details>
+
 ---
 
 # Further Reading

@@ -459,6 +459,26 @@ Explain the architectural role of `etcd` in the Kubernetes Control Plane, specif
 
 * Discuss the architectural trade-offs of establishing a Kubernetes platform strategy that relies on managing your own bare-metal Kubernetes Control Planes (spinning up your own `kube-apiserver` and `etcd` clusters via `kubeadm`) versus utilizing a fully managed public cloud Kubernetes service (e.g., Amazon EKS or Google GKE), specifically addressing financial costs, control plane operational overhead, and absolute disaster recovery SLAs.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Imperative vs declarative**: Imperative provides step-by-step instructions on how to reach a state (like `docker run`), while declarative specifies the desired end state (like `kubectl apply`), leaving Kubernetes to figure out how to achieve and maintain it automatically.
+* **Role of kube-apiserver**: It acts as the master communication hub for the cluster. It exposes the HTTP REST API, processes operations, and is the only component that communicates directly with `etcd`.
+* **kubelet vs kube-proxy**: `kubelet` is the node agent that manages pod lifecycles and reports node health to the control plane. `kube-proxy` manages network routing rules (like `iptables`) to direct incoming traffic to the correct containers.
+
+### Intermediate
+* **Declarative Reconciliation Loop**: It runs continuously: it Observes the actual state (reported by `kubelet`), Compares it against the desired state in `etcd`, and Reconciles by issuing commands to correct any drift (e.g., spinning up replacement pods).
+* **Pending state**: A Pod enters the `Pending` state when it is accepted by the API server but hasn't been scheduled to a node yet. Common reasons include insufficient CPU/memory resources on worker nodes or unsatisfied scheduling constraints (like missing GPUs).
+
+### Advanced
+* **Optimistic concurrency and PLEG**: `kube-apiserver` tracks objects via `metadata.resourceVersion`. When a controller attempts an update, it must provide this version; if `etcd` holds a newer version, the update is rejected to prevent race conditions. The Pod Lifecycle Event Generator (PLEG) is a `kubelet` module that constantly checks the container runtime state and generates events for the `kubelet` to sync pod statuses with the API server efficiently.
+
+### Scenario-Based Discussions
+* **Bare-metal vs Managed K8s**: Managing bare-metal clusters provides total customization and avoids vendor lock-in, but incurs massive operational overhead for managing `etcd` high availability, control plane scaling, and disaster recovery. Managed services (like EKS/GKE) shift control plane management and SLA guarantees to the cloud provider, significantly reducing operational burden, though they introduce direct service costs and ecosystem lock-in.
+
+</details>
+
 ---
 
 # Further Reading

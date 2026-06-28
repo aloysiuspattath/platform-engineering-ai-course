@@ -543,6 +543,26 @@ Explain why configuring `etcd` Encryption at Rest (`EncryptionConfiguration`) is
 
 * Discuss the architectural trade-offs of establishing an enterprise secret management strategy that relies on committing encrypted `kind: SealedSecret` manifests directly to Git versus deploying the External Secrets Operator (ESO) integrated with AWS Secrets Manager, specifically addressing disaster recovery private key management, cloud API financial costs ($0.40 per secret/month in AWS), and centralized security compliance auditing across fifty AWS accounts.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Kubernetes ConfigMap**: A Kubernetes object used to store non-sensitive configuration data (like URLs, feature flags, or config files) as key-value pairs, completely decoupled from the container image.
+* **Why Base64 is not secure**: Base64 is an encoding scheme, not an encryption algorithm. Anyone can instantly decode a Base64 string back into plain text using standard command-line tools (`base64 --decode`), making it completely insecure to store in Git repositories.
+* **Role of ESO**: The External Secrets Operator dynamically fetches sensitive credentials from external, highly secure cloud vaults (like AWS Secrets Manager or HashiCorp Vault) and generates standard Kubernetes Secrets directly in the cluster's memory, keeping plain-text secrets entirely out of your Git repository.
+
+### Intermediate
+* **envFrom vs volumeMounts**: `envFrom` injects all key-value pairs from a ConfigMap directly into the container as Linux environment variables (read once at startup). `volumeMounts` mounts the ConfigMap keys as physical, read-only files within the container's filesystem (excellent for larger config files like `nginx.conf`).
+* **Using subPath**: When you mount a volume to an existing directory path (like `/etc/nginx`), Kubernetes normally overrides and hides all existing files in that directory. Using `subPath` allows you to mount a single specific file from a ConfigMap into the directory without hiding or overwriting the other native files.
+
+### Advanced
+* **tmpfs mounts and EncryptionConfiguration**: When `kubelet` mounts a Secret to a Pod via a volume, it strictly uses an in-memory `tmpfs` (RAM disk) filesystem. The plain-text secret is never written to the physical worker node hard drive, leaving no trace if the node is compromised. For `EncryptionConfiguration` key rotation, you must deploy a new configuration file with the new key as the first provider (for writes) while keeping the old key (for reads), restart all `kube-apiserver` instances sequentially, and then run a script to rewrite all existing secrets in `etcd` so they are re-encrypted with the new key.
+
+### Scenario-Based Discussions
+* **SealedSecrets vs External Secrets Operator (ESO)**: SealedSecrets simplifies GitOps because everything (including encrypted secrets) lives in Git, avoiding external cloud vault costs. However, it requires intense operational care to back up the master decryption private key; if the cluster crashes and the key is lost, your Git repository is permanently locked. ESO integrated with AWS Secrets Manager provides centralized enterprise governance, automated rotation, and out-of-the-box compliance auditing across dozens of AWS accounts. It shifts the disaster recovery burden to the cloud provider, but incurs direct API costs (e.g., $0.40 per secret per month) and relies on external cloud availability.
+
+</details>
+
 ---
 
 # Further Reading

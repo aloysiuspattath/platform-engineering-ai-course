@@ -371,6 +371,26 @@ The User namespace isolates UIDs and GIDs. It provides elite security by allowin
 
 * Discuss the operational and security trade-offs of deploying Kubernetes pods with host namespace sharing enabled (`hostNetwork: true`, `hostPID: true`) versus enforcing strict namespace isolation in a multi-tenant enterprise cluster environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Kernel Namespace**: A kernel feature that wraps global system resources in an isolated virtual box, making a process believe it has its own dedicated instance of those resources.
+* **unshare**: A command-line utility used to run a program in a brand-new, isolated set of namespaces, effectively creating a container manually.
+* **Cgroups vs Namespaces**: Cgroups govern what a process can *use* (resource limits), while Namespaces govern what a process can *see* (environmental isolation).
+
+### Intermediate
+* **PID, Mount, Network**: PID isolates the process table (allowing a process to be PID 1). Mount isolates the filesystem mount points (giving a unique root directory). Network isolates interfaces, routing tables, and ports (preventing socket collisions).
+* **nsenter**: It allows administrators on the host node to directly inject diagnostic tools (like bash or netstat) into a locked-down container's namespaces to troubleshoot it.
+
+### Advanced
+* **clone() vs fork()**: `fork()` creates a standard child process sharing the parent's namespaces. `clone()` is a more advanced system call that accepts namespace flags (like `CLONE_NEWPID`). When passed, the kernel creates the child while simultaneously generating brand-new, isolated namespaces for it, making it the fundamental API of container runtimes.
+
+### Scenario-Based Discussions
+* **Host Sharing vs Isolation**: Enabling `hostNetwork: true` or `hostPID: true` bypasses isolation, providing direct access to node traffic and process tables—essential for cluster monitoring tools or CNI plugins. However, in multi-tenant environments, this breaks the container security boundary entirely. A compromised pod could easily inspect or kill host processes, making strict namespace isolation absolutely mandatory for standard application workloads.
+
+</details>
+
 ---
 
 # Further Reading

@@ -353,6 +353,26 @@ An absolute path starts from the root directory (`/`) and works anywhere in the 
 
 * Discuss the trade-offs of designing custom internal platform CLI tools with robust `--help` documentation versus maintaining external web-based wiki documentation for engineering teams.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **`pwd` meaning**: It stands for Print Working Directory. It outputs the absolute path of the folder you are currently standing in.
+* **List hidden files**: Use the `ls -a` command.
+* **Exit a manual page**: Press the `q` key on your keyboard to quit the pager and return to the prompt.
+
+### Intermediate
+* **`..` and `.` symbols**: `..` represents the parent directory (one level up), while `.` represents the current working directory.
+* **Risks of relative paths**: Relative paths depend on the script's execution location. If an automated script is run from a different directory than expected, relative paths will point to the wrong locations and crash the automation. Absolute paths guarantee exact execution regardless of the starting context.
+
+### Advanced
+* **Linux Virtual Filesystem (VFS)**: VFS sits as an abstraction layer between the kernel and specific file system implementations (like ext4, xfs, or network mounts). It translates standardized system calls (like `open`, `read`, `write`) into the specific physical instructions required by the underlying disk, allowing them all to mount into one seamless tree under the `/` root.
+
+### Scenario-Based Discussions
+* **CLI `--help` vs Web wikis**: Building robust `--help` into the CLI puts the documentation exactly where the engineer is working, ensuring it stays perfectly version-synced with the tool itself and works entirely offline. Web wikis are easier for non-technical users to search and can include multimedia, but they frequently suffer from "documentation drift," becoming outdated as the CLI tool evolves independently.
+
+</details>
+
 ---
 
 # Further Reading

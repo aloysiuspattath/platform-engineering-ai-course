@@ -352,6 +352,26 @@ Public IP addresses are globally unique and routable across the public internet.
 
 * Discuss the architectural trade-offs of architecting an enterprise multi-region cloud network using isolated, non-overlapping VPC CIDR blocks versus implementing advanced overlay encapsulation networks (e.g., VXLAN / Geneve) in a large-scale Kubernetes environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **IPv4 vs IPv6**: IPv4 uses 32-bit dotted-decimal numbers (~4.3B addresses), while IPv6 uses 128-bit hexadecimal strings, practically solving global IP exhaustion.
+* **`/24` CIDR notation**: It locks the first 24 bits for the network, leaving 8 bits for hosts, providing 256 total IP addresses (254 usable).
+* **`ip route show` display**: Displays the active kernel routing table, including local subnet routes and the master default gateway (`0.0.0.0/0`) used to reach external networks.
+
+### Intermediate
+* **`Network is unreachable` vs `Destination Host Unreachable`**: "Network is unreachable" means the kernel found no matching route (no default gateway) and instantly aborted the packet. "Destination Host Unreachable" means a route exists, but the ARP request on the local network received no response (the target host is offline or physically disconnected).
+* **Why private IPs require NAT**: Private IP ranges (RFC 1918) are strictly non-routable on the public internet. Internet routers will drop them. NAT (Network Address Translation) translates the private IP to a public, globally routable IP at the network edge.
+
+### Advanced
+* **FIB & IP forwarding**: The kernel uses the Forwarding Information Base (FIB) in RAM for lightning-fast routing lookups. Enabling `ip_forward=1` allows the Linux kernel to act as a router, accepting packets destined for other IPs and forwarding them to another interface, which is the fundamental mechanism allowing container networks (Docker/Kubernetes CNI) to communicate with the outside world.
+
+### Scenario-Based Discussions
+* **VPC CIDR vs Overlay Networks**: Isolated VPC CIDR blocks are highly secure and highly performant (native routing) but strictly limited by cloud IP exhaustion and rigid subnet boundaries. Overlay networks (VXLAN/Geneve) abstract the physical network, enabling virtually infinite, portable internal IPs and seamless multi-region/multi-cloud pod communication, at the cost of packet encapsulation overhead and complex MTU size tuning.
+
+</details>
+
 ---
 
 # Further Reading

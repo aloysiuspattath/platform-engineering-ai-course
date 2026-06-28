@@ -570,6 +570,26 @@ Explain why the modern Gateway API (`Gateway` and `HTTPRoute`) is architecturall
 
 * Discuss the architectural trade-offs of establishing a multi-cluster communication strategy that relies on exposing individual microservices across clusters using public Ingress controllers over the public internet versus deploying a dedicated Kubernetes Service Mesh (e.g., Istio or Cilium Cluster Mesh) utilizing mutually encrypted mTLS tunnels, specifically addressing network latency, zero-trust security governance, and operational control plane complexity.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Kubernetes Service**: An abstraction that provides a stable virtual IP address (`ClusterIP`) and DNS name for a set of ephemeral Pods, ensuring reliable network communication even when underlying Pods crash or restart.
+* **ClusterIP vs NodePort vs LoadBalancer**: `ClusterIP` is strictly for internal cluster communication. `NodePort` exposes the Service on a static physical port (30000-32767) across all worker nodes. `LoadBalancer` automatically provisions a physical external cloud load balancer (like AWS ALB) to route public web traffic into the cluster.
+* **Role of CoreDNS**: It is the cluster's internal DNS server that automatically generates and resolves Fully Qualified Domain Names (FQDNs) for Kubernetes Services, allowing Pods to discover each other by name (e.g., `my-service.namespace.svc.cluster.local`) rather than tracking IPs.
+
+### Intermediate
+* **EndpointSlices and kube-proxy**: When a Service is created with a label selector, the Endpoint Controller watches for matching Pods and records their IPs in an `EndpointSlice`. `kube-proxy` (running on each node) reads this slice and programs the host's networking rules (`iptables` or IPVS) to forward traffic destined for the Service IP directly to the physical Pod IPs.
+* **port vs targetPort**: `port` is the virtual port exposed by the Service itself, while `targetPort` is the actual physical port that the application process inside the container is actively listening on.
+
+### Advanced
+* **IPVS vs iptables & externalTrafficPolicy**: `iptables` processes rules sequentially (O(n)), which causes severe latency when resolving routes in massive clusters with thousands of Services. `IPVS` uses highly optimized hash tables (O(1)), providing vastly superior performance and scalability. For load balancers, `externalTrafficPolicy: Local` forces the node to only route traffic to Pods on that specific node rather than bouncing it across the cluster via SNAT, thereby preserving the original client's source IP address (at the cost of potentially uneven traffic distribution).
+
+### Scenario-Based Discussions
+* **Ingress over Internet vs Service Mesh (mTLS)**: Exposing microservices via public Ingress is simpler to set up and avoids managing a complex mesh control plane, but it forces internal traffic out to the public internet, increasing latency, bandwidth costs, and attack surface. Deploying a Service Mesh (Istio/Cilium) establishes mutually encrypted mTLS tunnels (Zero-Trust) for direct, low-latency, highly secure cross-cluster communication. However, a Service Mesh introduces immense operational complexity, requiring deep expertise to manage mesh control planes, debug complex proxy sidecars (or eBPF rules), and handle cross-cluster certificate authorities.
+
+</details>
+
 ---
 
 # Further Reading

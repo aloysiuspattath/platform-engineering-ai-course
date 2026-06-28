@@ -359,6 +359,26 @@ A File Name is simply a human-readable string stored in a directory mapping tabl
 
 * Discuss the operational trade-offs of mounting persistent storage volumes directly into cloud containers using network filesystems (e.g., AWS EFS / NFS) versus provisioning dedicated block storage devices (e.g., AWS EBS / ext4) in a production Kubernetes environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Everything is a file**: A core Linux philosophy where hardware devices, directories, text files, and network sockets are all accessed and managed through identical standard file interfaces and system calls.
+* **FD 0, 1, and 2**: 0 is standard input (`stdin`), 1 is standard output (`stdout`), and 2 is standard error (`stderr`).
+* **lsof**: "List Open Files" – it displays which processes are actively holding file descriptors open for files, directories, or network sockets.
+
+### Intermediate
+* **df -h vs df -i**: `df -h` shows disk space usage by physical capacity (gigabytes), while `df -i` shows Inode usage (the number of files/metadata entries available). A disk can run out of inodes even if it has free space.
+* **Deleting Active Logs**: Deleting the file name removes it from the directory mapping, but if a daemon has an open file descriptor pointing to its inode, the kernel retains the physical data blocks until the process closes the FD or is restarted.
+
+### Advanced
+* **VFS Caches**: During a `sys_open` call, the kernel parses the file path. To avoid slow disk lookups for every directory level, VFS uses the `dentry` cache (directory entries) to map path components to inode numbers, and the `inode` cache to store file metadata in fast RAM. This makes subsequent path resolutions almost instantaneous.
+
+### Scenario-Based Discussions
+* **Network vs Block Storage**: Network filesystems (NFS/EFS) allow ReadWriteMany, meaning multiple pods across different nodes can mount and share the same files simultaneously, but suffer higher latency and complex locking. Dedicated block storage (EBS/ext4) is ReadWriteOnce, restricted to a single node, but offers vastly superior I/O performance and stability, making it essential for databases.
+
+</details>
+
 ---
 
 # Further Reading

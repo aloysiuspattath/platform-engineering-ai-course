@@ -570,6 +570,26 @@ Explain why Karpenter (group-less node provisioning) is architecturally superior
 
 * Discuss the architectural trade-offs of establishing an enterprise scaling strategy that relies on combining standard HPA with AWS Managed Node Groups versus deploying KEDA event-driven scaling paired with Karpenter group-less Spot provisioning, specifically addressing scaling latency during sudden viral traffic surges, cloud compute financial waste during idle night hours, and operational complexity of managing external metric adapters.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Horizontal Pod Autoscaler (HPA)**: A Kubernetes controller that automatically scales the number of Pod replicas in a Deployment based on observed CPU/RAM utilization or custom metrics.
+* **HPA vs VPA**: HPA scales horizontally by adding or removing Pod replicas (best for stateless web apps). Vertical Pod Autoscaler (VPA) scales vertically by increasing or decreasing the physical CPU/RAM resource requests of existing Pods (best for legacy monolithic applications that can't be clustered).
+* **KEDA**: Kubernetes Event-Driven Autoscaling (KEDA) allows scaling based on external event triggers (like AWS SQS queue depth or Kafka topics). It's incredibly useful because it can scale Deployments completely down to zero when there is no work to do, saving massive amounts of money.
+
+### Intermediate
+* **TARGETS: `<unknown>/80%`**: HPA displays this when it cannot calculate the utilization percentage. This almost always happens because either the Metrics Server daemon is not running/crashing, or the Pods in the target Deployment are missing explicit CPU/RAM `resources.requests` in their manifest (HPA cannot divide by zero/unknown).
+* **Karpenter vs CA**: The legacy Cluster Autoscaler relies on rigid, static Auto-Scaling Groups (ASGs) and takes 3-5 minutes to spin up nodes. Karpenter is a group-less provisioner that bypasses ASGs entirely. It dynamically evaluates Pending Pods, selects the absolute optimal EC2 instance type via cloud APIs, and provisions the physical server in under 60 seconds.
+
+### Advanced
+* **KEDA external metrics and Karpenter disruption budgets**: KEDA registers itself as an API Service serving the `external.metrics.k8s.io` API. It continuously polls external systems (SQS/Kafka) and translates those queues into metrics that the standard HPA controller natively understands, extending HPA without altering core Kubernetes code. Karpenter disruption budgets (`disruption.budgets`) dictate strict rules on how and when Karpenter is allowed to terminate/consolidate nodes (e.g., blocking evictions during peak hours or limiting the maximum number of nodes deleted concurrently) to prevent dangerous cluster-wide disruptions.
+
+### Scenario-Based Discussions
+* **Standard HPA/CA vs KEDA/Karpenter**: Standard HPA with Managed Node Groups is simple, rock-solid, and requires minimal operational overhead, but it scales reactively (only after CPU spikes) and CA node spin-ups take 3-5 minutes, which can cause dropped requests during massive viral spikes. It also rarely achieves true zero-waste because standard node groups don't consolidate aggressively. KEDA + Karpenter is the ultimate modern setup: KEDA scales proactively based on queue depth (even scaling to zero at night), while Karpenter provisions optimal Spot instances in under 60 seconds and actively consolidates underutilized servers. This delivers lightning-fast scaling and massive FinOps savings, but introduces significant operational complexity to maintain the KEDA operator, custom metric RBAC, and Karpenter IAM provisioning roles.
+
+</details>
+
 ---
 
 # Further Reading

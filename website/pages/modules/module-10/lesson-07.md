@@ -508,6 +508,26 @@ Explain why `Exit Code 137` represents an `OOMKilled` event, specifically addres
 
 * Discuss the architectural trade-offs of establishing an enterprise debugging strategy that relies on granting application developers direct SSH access to physical worker nodes to inspect `journalctl` versus mandating 100% RBAC-governed Ephemeral Container injection (`kubectl debug`) paired with automated centralized log aggregation (FluentBit to OpenSearch), specifically addressing compliance auditing (SOC 2), zero-trust host security, and developer mean-time-to-resolution (MTTR).
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **CrashLoopBackOff**: A state where a container repeatedly starts, crashes (e.g., due to a fatal application error or a failed Liveness probe), and is restarted by `kubelet` with an increasing back-off delay to prevent infinite restart loops from overwhelming the system.
+* **ImagePullBackOff**: A state where `kubelet` fails to pull the specified container image (because the tag doesn't exist, the registry is unreachable, or authentication failed) and repeatedly retries with an increasing back-off delay.
+* **kubectl logs --previous**: When a container crashes and restarts, `kubectl logs` defaults to showing the logs of the *new*, current container. Appending `--previous` forces the command to retrieve the stdout/stderr logs of the dead container that just crashed, which is essential for reading fatal stack traces.
+
+### Intermediate
+* **Exit Code 1 vs Exit Code 137**: `Exit Code 1` indicates an application-level fatal error (the process crashed because of an unhandled exception or bad config). `Exit Code 137` specifically means the container was OOMKilled (Out of Memory) because it exceeded its declared `limits.memory` boundary, prompting the Linux kernel to execute a `kill -9` (`128 + 9 = 137`).
+* **kubectl exec on distroless images**: Distroless images contain only the compiled application binary and its direct dependencies. They intentionally omit package managers, curl, and shells (like `/bin/sh` or `/bin/bash`) for security. Because `kubectl exec` relies on running a shell binary inside the container, it fails instantly if that binary does not exist.
+
+### Advanced
+* **CRI, cgroups, and PLEG timeouts**: `kubelet` communicates with `containerd` via the CRI socket to create Pods. To enforce `resources.limits`, `kubelet` instructs the runtime to create Linux cgroups (e.g., `/sys/fs/cgroup/memory`), which physically constrain the memory the processes can allocate. The Pod Lifecycle Event Generator (PLEG) is a `kubelet` module that constantly polls the CRI to update Pod statuses. If the CNI network plugin exhausts available IP addresses, Pod creation hangs, the CRI socket may become unresponsive, and PLEG loops time out, causing `kubelet` to mark the entire node as `NotReady`.
+
+### Scenario-Based Discussions
+* **SSH to Nodes vs Ephemeral Containers + Log Aggregation**: Granting SSH access to physical worker nodes provides developers immediate, raw debugging power (`journalctl`, `crictl`), but fundamentally breaks Zero-Trust security and violates SOC 2 compliance because developers gain root-level access to the host OS and other tenants' containers. Mandating `kubectl debug` with centralized log aggregation (FluentBit/OpenSearch) completely eliminates the need for SSH. Developers can safely debug Distroless containers within their isolated namespace, and all system logs are searchable centrally. While it requires significant initial platform engineering effort to build the logging pipeline, it vastly improves MTTR through centralized searchability and guarantees absolute security and auditability.
+
+</details>
+
 ---
 
 # Further Reading

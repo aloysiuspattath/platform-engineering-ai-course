@@ -477,6 +477,26 @@ Explain the exact architectural difference between what an SBOM (Syft) does vers
 
 * Discuss the architectural trade-offs of enforcing a strict SLSA Level 4 Hermetic build requirement across an enterprise engineering organization (requiring all dependencies to be pre-pulled, vendored, and air-gapped during compilation) versus allowing standard SLSA Level 2 online CI/CD builds, specifically addressing developer onboarding friction, dependency update velocity, and absolute build immutability.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is a Software Supply Chain attack?**: An attack where a malicious actor compromises upstream dependencies, open-source libraries, or build tools, secretly injecting a backdoor that gets compiled and deployed by downstream organizations.
+* **What is an SBOM?**: A Software Bill of Materials. It's a machine-readable inventory manifest detailing every open-source library, version, and cryptographic hash compiled inside an artifact.
+* **What does `cosign sign` do?**: It cryptographically signs a container image and pushes the signature to an OCI registry, verifying the image's authenticity and integrity.
+
+### Intermediate
+* **Explain the difference between SPDX and CycloneDX SBOM specifications.**: SPDX is backed by the Linux Foundation and focuses heavily on open-source licensing compliance and legacy software. CycloneDX is backed by OWASP and is heavily optimized for DevSecOps and vulnerability identification.
+* **How does Sigstore Cosign achieve "keyless" signing?**: Instead of managing permanent private keys, Cosign leverages OpenID Connect (OIDC) identities (like GitHub Actions tokens) to dynamically request short-lived, ephemeral signing certificates from a certificate authority (Fulcio).
+
+### Advanced
+* **Explain how OCI registries store Cosign signatures...**: OCI registries natively store Cosign signatures and attached SBOMs as distinct, linked manifests using OCI references (e.g., tagging signatures as `sha256-[digest].sig`). Admission controllers (like Kyverno) can rapidly query the registry's API for these small `.sig` manifests to cryptographically verify claims without needing to pull or unpack the multi-gigabyte container filesystem layer blobs.
+
+### Scenario-Based Discussions
+* **Discuss the architectural trade-offs of enforcing a strict SLSA Level 4 Hermetic build...**: SLSA Level 4 Hermetic builds guarantee absolute immutability and zero upstream poisoning during compilation by completely air-gapping the build environment. However, this creates massive developer friction, as every single dependency must be manually vetted and vendored locally. SLSA Level 2 is significantly faster for developer onboarding and dependency velocity but leaves the pipeline vulnerable to live DNS spoofing or real-time repository compromise during `npm install`.
+
+</details>
+
 ---
 
 # Further Reading

@@ -315,6 +315,26 @@ The Debian/Ubuntu family uses `apt` (Advanced Package Tool), while the RHEL fami
 
 * Discuss the architectural trade-offs of standardizing an entire engineering organization on a single Linux distribution versus allowing autonomous microservice teams to choose their own distros.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is a Linux distribution**: A complete operating system package that bundles the universal Linux kernel with specific package managers, user tools, and system libraries.
+* **Check running distribution**: View the contents of the OS release file by running `cat /etc/os-release`.
+* **Ubuntu/Debian package manager**: They use `apt` (Advanced Package Tool).
+
+### Intermediate
+* **LTS vs rolling releases**: LTS releases freeze package versions and only push security patches for years, providing maximum stability. Rolling releases push cutting-edge experimental features constantly, carrying a high risk of breaking production.
+* **Why Alpine is smaller**: Alpine strips away heavy GNU utilities and uses an ultra-minimalist C-library (musl) and toolkit (BusyBox), designed specifically for running a single lightweight containerized process.
+
+### Advanced
+* **C-library choice (glibc vs musl)**: Most commercial applications and AI tools are pre-compiled natively for `glibc` (used by Ubuntu/RHEL). Running them on Alpine (`musl libc`) can cause hidden performance penalties, unexpected runtime crashes, or require complex manual recompilation from source.
+
+### Scenario-Based Discussions
+* **Standardizing vs Autonomous distros**: Standardizing on one distro (e.g., Ubuntu LTS) drastically simplifies security patching, automated CI/CD pipelines, and reduces cognitive load across the company. Allowing autonomous choices maximizes flexibility for individual teams but often creates a chaotic "Wild West" of fragmented tools, unpredictable bugs, and duplicated maintenance efforts.
+
+</details>
+
 ---
 
 # Further Reading

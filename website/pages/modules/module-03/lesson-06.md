@@ -374,6 +374,26 @@ Cgroups v1 maintains multiple independent hierarchy trees for different resource
 
 * Discuss the operational trade-offs of configuring strict CPU limits (`limits.cpu`) on Kubernetes containers (which can cause severe CFS throttling latency) versus configuring only CPU requests (`requests.cpu`) and allowing containers to burst across shared node CPU cores in an enterprise environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **cgroup**: A Control Group is a Linux kernel feature that meters, isolates, and limits resource usage (CPU, memory, disk I/O) for a collection of processes.
+* **cgroup pseudo-filesystem**: It is located at `/sys/fs/cgroup`.
+* **memory.max breach**: If a process exceeds its memory limit, the kernel triggers a localized Cgroup OOM Killer, instantly dropping a `SIGKILL` on processes within that cgroup without crashing the host.
+
+### Intermediate
+* **cgroup.procs vs memory.events**: `cgroup.procs` contains the PIDs of all processes currently assigned to the cgroup, while `memory.events` logs metrics and counters for memory pressure and OOM kill events.
+* **CFS Quota/Period**: The CPU is divided into time windows (Periods). The Quota dictates how much time a cgroup can run within that period. If the limit is reached early, the process is forcefully paused (throttled) until the next period begins.
+
+### Advanced
+* **PSI (Pressure Stall Information)**: PSI tracks exact metrics on how long tasks are delayed due to resource contention (CPU, memory, I/O). User-space daemons (like `systemd-oomd`) monitor `memory.pressure` to detect imminent starvation and gracefully terminate specific tasks before the kernel is forced to enact a brutal OOM kill.
+
+### Scenario-Based Discussions
+* **Strict Limits vs CPU Requests**: Setting strict `limits.cpu` ensures predictable performance and prevents "noisy neighbors", but can artificially throttle latency-sensitive apps even when the node has idle cores available. Setting only `requests.cpu` allows bursting and better overall node resource utilization, but risks heavy contention and CPU starvation if multiple apps spike simultaneously.
+
+</details>
+
 ---
 
 # Further Reading

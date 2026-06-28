@@ -195,6 +195,8 @@ Outputs: Standards-compliant lesson markdown.
 
 # Interview Preparation
 
+<!-- IMPORTANT: You MUST generate concise, highly accurate answers for EVERY question listed in this section and place them inside the hidden <details> block below. -->
+
 ## Beginner Questions
 
 * <!-- Question -->
@@ -210,6 +212,23 @@ Outputs: Standards-compliant lesson markdown.
 ## Scenario-Based Discussions
 
 * <!-- Scenario -->
+
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **<!-- Question snippet -->:** <!-- Concise answer -->
+
+### Intermediate
+* **<!-- Question snippet -->:** <!-- Concise answer -->
+
+### Advanced
+* **<!-- Question snippet -->:** <!-- Concise answer -->
+
+### Scenario-Based Discussions
+* **<!-- Scenario snippet -->:** <!-- Concise architectural answer -->
+
+</details>
 
 ---
 

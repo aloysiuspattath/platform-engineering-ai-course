@@ -339,6 +339,26 @@ Ring 0 (Kernel Space) has absolute, unrestricted access to physical hardware and
 
 * Discuss the performance trade-offs of heavily utilizing `strace` on high-traffic production daemons versus implementing modern eBPF (Extended Berkeley Packet Filter) tracing tools in an enterprise observability platform.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **User Space vs Kernel Space**: User Space is a restricted memory area where standard applications run without direct hardware access. Kernel Space is the privileged area where the core OS runs with unrestricted hardware access.
+* **System Call**: A formal request by a User Space application for the kernel to perform a hardware or privileged operation (e.g., writing to a file).
+* **strace command**: It intercepts and prints all system calls executed by a process, allowing you to trace exactly how the process interacts with the kernel.
+
+### Intermediate
+* **CPU Context Switch**: The process where the CPU saves the state of a Ring 3 application, elevates privileges to Ring 0, executes the kernel code, and then restores the application state to return to Ring 3.
+* **top CPU metrics**: `us` is User Space time, `sy` is Kernel/System time, `id` is Idle time, and `wa` is I/O Wait time (waiting for disk).
+
+### Advanced
+* **Ring 3 to Ring 0 Transition**: The `syscall` instruction causes a hardware trap, suspending the application. The CPU saves user registers (like instruction pointer and stack pointer), switches to kernel mode (Ring 0), reads the syscall number from a specific register (e.g., `rax`), and looks up the corresponding function pointer in the `sys_call_table` to execute it.
+
+### Scenario-Based Discussions
+* **strace vs eBPF**: `strace` heavily relies on `ptrace`, which pauses the target process for every system call context switch, causing massive performance degradation in high-traffic daemons. Modern eBPF tools run highly efficient sandboxed programs directly within the kernel, aggregating metrics without context-switching overhead, making them vastly superior for production observability.
+
+</details>
+
 ---
 
 # Further Reading

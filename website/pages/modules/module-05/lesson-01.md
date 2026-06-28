@@ -358,6 +358,26 @@ Explain the exact architectural difference between a Blob object and a Tree obje
 
 * Discuss the architectural trade-offs of managing an enterprise platform engineering infrastructure codebase using a single massive Monorepo containing all Terraform modules and application microservices versus splitting the architecture into dozens of isolated Multi-Repos.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is the `.git` directory?**: The hidden folder at the root of a Git repository containing the content-addressable database (`.git/objects`), references (`.git/refs`), and the `HEAD` pointer.
+* **What is a Git Blob?**: A Binary Large Object stored in `.git/objects` representing the raw binary or plain-text contents of a file without any metadata (no filename or permissions).
+* **What does `git cat-file -p` do?**: It pretty-prints the uncompressed, raw plain-text content of a Git object (blob, tree, or commit) by decompressing the zlib wrapper.
+
+### Intermediate
+* **Commit, Tree, and Blob Relationship**: A Commit object represents a snapshot in time and points to a single master Root Tree object. The Root Tree maps directory structures and points to sub-trees or Blob objects, which hold the actual raw file data.
+* **Detached HEAD State**: Occurs when `.git/HEAD` points directly to a commit hash rather than a branch reference. Recover by creating a new branch from that commit (`git checkout -b new-branch`), which reattaches `HEAD` to a branch pointer.
+
+### Advanced
+* **Packfiles and Delta Compression**: During `git gc`, Git condenses loose objects into highly compressed `.pack` files to save space, and generates `.idx` files for fast lookups. It uses delta compression by storing only the exact differences (deltas) between similar versions of files, efficiently packing historical modifications rather than duplicating the full blob each time.
+
+### Scenario-Based Discussions
+* **Monorepo vs. Multi-Repo**: A Monorepo (single repository for all code) ensures atomic cross-service commits, unified CI/CD, and absolute visibility but suffers from massive `.git/objects` bloat, requiring advanced sparse checkouts. Multi-Repos (one repo per service) keep databases small and clones fast, but create immense complexity when sharing common libraries or orchestrating atomic infrastructure deployments.
+
+</details>
+
 ---
 
 # Further Reading

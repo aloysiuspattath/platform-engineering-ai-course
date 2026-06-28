@@ -551,6 +551,26 @@ Explain the architectural difference between a Stateful Security Group and a Sta
 
 * Discuss the architectural trade-offs of establishing a multi-account cloud network strategy that relies on deploying isolated, standalone VPCs with dedicated NAT Gateways in every account versus establishing a centralized AWS Transit Gateway (TGW) network topology utilizing a shared Inspection/Egress VPC, specifically addressing cloud financial costs, network routing complexity, and centralized security firewall governance.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[What is a VPC]**: A Virtual Private Cloud (VPC) is a logically isolated virtual network carved out of a public cloud provider's infrastructure. It provides full control over IP addresses, subnets, routing tables, and network gateways, acting as a secure private data center in the cloud.
+* **[Public vs Private Subnet]**: A Public Subnet has a default route (`0.0.0.0/0`) pointing to an Internet Gateway (IGW), allowing direct internet access. A Private Subnet lacks a direct route to an IGW and relies on a NAT Gateway in a public subnet for outbound-only internet connectivity, keeping its instances hidden from the public internet.
+* **[Purpose of NAT Gateway]**: A NAT (Network Address Translation) Gateway is placed in a public subnet to allow resources in private subnets to initiate outbound connections to the internet (e.g., for downloading patches) while forcefully blocking any unsolicited inbound connections.
+
+### Intermediate
+* **[Route Table Evaluation]**: Route tables use the most specific matching CIDR block. A `local` route (e.g., `10.0.0.0/16`) directs internal VPC traffic. The default route `0.0.0.0/0` handles any packet not matching a more specific route, sending it to a gateway like an IGW or NAT Gateway.
+* **[Database in Public Subnet]**: Deploying a database in a Public Subnet exposes it to the public internet by assigning it a public IP address. Even a temporary misconfiguration of its Security Group could allow instant access for botnets to brute-force credentials, steal data, or deploy ransomware.
+
+### Advanced
+* **[Nitro Cards and Transitive Peering]**: AWS Nitro offloads VPC networking and Security Group evaluations to dedicated hardware components (Nitro Cards). This frees up 100% of the guest EC2 hypervisor CPU for workloads, avoiding noisy neighbor networking impact. Regarding routing, AWS VPC Peering is non-transitive by design; if A peers with B, and B peers with C, VPC A cannot route to VPC C through B. Dedicated peering or a Transit Gateway is required for full connectivity.
+
+### Scenario-Based Discussions
+* **[Isolated VPCs vs. Shared Transit Gateway]**: Deploying isolated VPCs with dedicated NAT Gateways in each account is simple but leads to high, redundant NAT hourly costs and decentralized security. A Transit Gateway (TGW) centralizes routing through a shared Inspection/Egress VPC. This drastically lowers total NAT Gateway costs, simplifies cross-account routing, and enables strict, unified governance (like a centralized network firewall cluster) at the cost of slight architectural complexity and TGW processing fees.
+
+</details>
+
 ---
 
 # Further Reading

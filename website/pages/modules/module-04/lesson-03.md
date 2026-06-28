@@ -376,6 +376,26 @@ An `A` record maps a domain name directly to an IPv4 address. A `CNAME` (Canonic
 
 * Discuss the operational trade-offs of implementing a centralized enterprise DNS architecture using internal bind servers versus deploying decentralized, cloud-native service discovery engines (e.g., Kubernetes CoreDNS / HashiCorp Consul) in a hybrid cloud environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **DNS**: The decentralized hierarchical naming system that translates human-readable domain names (like google.com) into machine-routable IP addresses.
+* **`/etc/hosts`**: A local plain-text override file that the kernel checks before making external DNS queries. It is highly useful for local testing and internal overrides.
+* **`dig` command**: A CLI utility for deep DNS query inspection, allowing engineers to view response headers, TTLs, and execute hop-by-hop delegation traces.
+
+### Intermediate
+* **Authoritative nameserver vs Recursive resolver**: An Authoritative nameserver holds the actual source-of-truth DNS records for a domain. A Recursive resolver (like `8.8.8.8`) simply searches the DNS tree and asks the authoritative servers on your behalf, caching the result.
+* **TTL (Time-To-Live)**: Specifies exactly how long downstream resolvers or local caches are allowed to hold onto a DNS record before re-querying. High TTLs during migrations cause old IP addresses to linger in global caches, resulting in split traffic.
+
+### Advanced
+* **UDP vs TCP Port 53 fallback**: DNS primarily uses lightning-fast UDP on Port 53. However, if a DNS response exceeds the legacy 512-byte limit of a UDP datagram (common with large TXT records or DNSSEC), the server sets the Truncated (TC) flag. The client resolver must then instantly reconnect over TCP Port 53 to securely receive the full payload. Modern EDNS0 extensions increase this UDP payload limit to 4096 bytes to reduce TCP fallback.
+
+### Scenario-Based Discussions
+* **Centralized bind vs CoreDNS/Consul**: Centralized internal BIND servers offer strict, single-pane-of-glass governance for enterprise domains but suffer from manual configuration bottlenecks and slow replication. Decentralized cloud-native engines (CoreDNS/Consul) provide dynamic, automated service discovery designed for ephemeral containers, automatically updating DNS records as pods scale or crash, at the cost of managing distributed state and split-brain resolution architectures across hybrid clouds.
+
+</details>
+
 ---
 
 # Further Reading

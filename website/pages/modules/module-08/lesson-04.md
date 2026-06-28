@@ -516,6 +516,26 @@ Explain why executing `terraform plan -out=tfplan` followed by `terraform apply 
 
 * Discuss the architectural trade-offs of establishing an enterprise GitOps automation strategy that relies on self-hosted Atlantis running inside a Kubernetes cluster versus adopting fully managed HCP Terraform (Terraform Cloud), specifically addressing infrastructure maintenance overhead, secret management boundaries (OIDC vs static cloud credentials), and compliance auditing capabilities.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **terraform import**: It links a pre-existing cloud resource (created manually or outside of Terraform) into the Terraform state file so that Terraform can manage it moving forward.
+* **Local laptop security vulnerability**: Running `terraform apply` locally requires developers to hold highly privileged AWS root/API keys on their laptops, increasing theft risk. It bypasses peer code review, leaves no centralized audit logs, and can fail midway if the developer loses internet connectivity.
+* **Atlantis**: Atlantis is an open-source GitOps automation engine that intercepts GitHub webhooks for Terraform pull requests, runs `terraform plan`, posts the diff as a PR comment, and allows peers to approve and run `atlantis apply` securely within the cluster.
+
+### Intermediate
+* **moved blocks**: When you rename a resource in your HCL code, Terraform interprets it as a deletion of the old name and a creation of the new one. A declarative `moved` block tells Terraform to simply rename the resource wrapper within the state file, resulting in a plan with `0 to add, 0 to destroy`, leaving the physical hardware perfectly untouched.
+* **import vs moved**: An `import` block brings an entirely unmanaged, external cloud resource into the Terraform state for the first time. A `moved` block renames or restructures an already-managed resource within the state file.
+
+### Advanced
+* **Atlantis monorepo locking and pre-workflow hooks**: In a monorepo, Atlantis uses an `atlantis.yaml` file to define independent workspace directories. When a PR modifies a specific directory, Atlantis exclusively locks only that directory's state to prevent concurrent PR collisions, leaving other micro-states unlocked. Through custom workflow hooks defined in the server-side configuration, Platform Engineers can inject commands like `tflint` and `tfsec` to run *before* `terraform plan`. If these security or linting gates fail, Atlantis blocks the plan and fails the PR check.
+
+### Scenario-Based Discussions
+* **Atlantis vs HCP Terraform (Terraform Cloud)**: Self-hosted Atlantis requires your team to manage the underlying Kubernetes cluster, networking, and upgrades (high maintenance overhead), but ensures that all secrets (like OIDC dynamic roles) and state files never leave your corporate boundary, providing superior security and compliance isolation. Fully managed HCP Terraform removes all maintenance overhead and provides excellent RBAC and Sentinel policy enforcement out of the box, but incurs monthly enterprise licensing costs and requires trusting a third-party SaaS vendor with your state data and cloud credentials.
+
+</details>
+
 ---
 
 # Further Reading

@@ -331,6 +331,26 @@ The Terminal Emulator is the graphical window that displays text and captures ke
 
 * Discuss the productivity and security implications of heavily customizing shell prompts with third-party plugins in an enterprise Platform Engineering organization.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **`$` vs `#` symbol**: `$` indicates a standard user with limited privileges, preventing accidental system damage. `#` indicates the root superuser with absolute, unrestricted administrative control over the entire system.
+* **Tab completion**: When you type the first few letters of a command or file and press Tab, the shell searches for matches and automatically fills in the rest of the name, preventing typos.
+* **Cancel endless loop**: Press `Ctrl + C` to send an interrupt signal and kill the stuck command.
+
+### Intermediate
+* **$SHELL environment variable**: It stores the absolute path to the currently active shell program (e.g., `/bin/bash`). Engineers check it to verify which shell's syntax and features are available in their environment.
+* **Origin of TTY**: It stands for TeleTYpewriter, referencing the physical electro-mechanical typewriters used to interface with early mainframe computers before graphical monitors existed.
+
+### Advanced
+* **Bash command parsing**: Bash reads the input, breaks it into tokens separated by whitespace, expands variables and aliases, resolves file globs (like `*`), and then forks a new process, executing the command using the `execve` system call with the parsed arguments array.
+
+### Scenario-Based Discussions
+* **Customizing shell prompts**: Custom prompts (e.g., Oh My Zsh, Starship) greatly boost productivity and safety by surfacing critical context like the active Kubernetes cluster or AWS account, preventing accidental deployments to production. However, unvetted third-party plugins can introduce security vulnerabilities, malicious code, or cause severe terminal lag if poorly written.
+
+</details>
+
 ---
 
 # Further Reading

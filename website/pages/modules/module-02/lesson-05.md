@@ -374,6 +374,27 @@ By default, the Linux kernel restricts users from viewing process information be
 
 * Discuss the operational and security trade-offs of allowing ICMP echo requests (`ping`) across enterprise internal cloud subnets versus blocking ICMP entirely via cloud security groups in an enterprise environment.
 
+
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **ip addr show**: It displays all network interfaces on the system along with their current IP addresses (both IPv4 and IPv6), MAC addresses, and link status.
+* **ping looping forever**: Unlike Windows, the Linux `ping` command loops infinitely to provide continuous network monitoring. You can limit it by using the `-c` (count) flag, for example, `ping -c 4 example.com` to send exactly 4 packets.
+* **curl command**: `curl` (Client URL) is a command-line tool used to transfer data to or from a network server using various protocols (HTTP, HTTPS, FTP, etc.). It is heavily used for interacting with REST APIs and downloading files.
+
+### Intermediate
+* **curl vs curl -I**: `curl http://example.com` performs a standard HTTP GET request, downloading and printing the entire HTML body of the webpage. `curl -I` performs an HTTP HEAD request, fetching only the HTTP response headers (like status codes and content type) without downloading the actual payload.
+* **ss -tulpn flags**: `-t` shows TCP sockets, `-u` shows UDP sockets, `-l` shows only listening sockets (servers waiting for connections), `-p` shows the process ID and name holding the socket (requires root), and `-n` forces numeric output for IPs and ports instead of attempting slow DNS resolution.
+
+### Advanced
+* **Socket file descriptors and SO_REUSEADDR**: In Linux, a network socket is treated as a file descriptor. When a daemon is restarted, its previous socket might remain in a `TIME_WAIT` state in the TCP stack. If the daemon tries to bind to the same port, the kernel throws an `Address already in use` error. Setting `SO_REUSEADDR` allows the daemon to forcefully reclaim and bind to that port even if a previous connection is lingering in `TIME_WAIT`.
+
+### Scenario-Based Discussions
+* **Allowing vs Blocking ICMP**: Allowing ICMP internally vastly simplifies network troubleshooting, allowing engineers to quickly verify routing, latency, and subnet connectivity. However, it can expose internal topology to lateral movement or reconnaissance. Blocking ICMP completely maximizes stealth and hardens the attack surface but heavily degrades operational observability, forcing teams to use cumbersome application-layer tests to debug basic routing issues.
+
+</details>
+
 ---
 
 # Further Reading

@@ -361,6 +361,26 @@ Promiscuous Mode forces a network interface card (NIC) to pass all traffic it re
 
 * Discuss the operational trade-offs of implementing a permanent, network-wide packet capture and intrusion detection architecture (e.g., Zeek / Suricata) across an enterprise cloud environment versus relying exclusively on application-layer OpenTelemetry tracing and eBPF flow logs in a large-scale Kubernetes mesh.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **`tcpdump`**: A legendary CLI packet analyzer used to intercept, inspect, and record raw network packets traveling across a physical or virtual network interface.
+* **`-nn` flag**: Prevents `tcpdump` from performing reverse DNS lookups on IP addresses and port names. Mandatory in production because performing thousands of DNS lookups during high-speed capture will cause a massive DNS storm, freeze the terminal, and crash the server.
+* **`.pcap` file**: A standard Packet Capture binary file format used to save raw wire packets for offline, deep-dive analysis in tools like Wireshark.
+
+### Intermediate
+* **`SYN` timeout vs `SYN/RST`**: A `SYN` with absolutely zero response means the packet was silently dropped on the wire (Layer 3 routing issue or Layer 4 firewall block). A `SYN` followed instantly by a `RST` (Reset) means the packet successfully reached the destination kernel, but the OS rejected it because no software daemon was actively listening on that specific port (Layer 7 issue).
+* **BPF syntax**: A highly optimized filtering language used to selectively capture packets. Example: `host 8.8.8.8 and port 443 and not port 22` captures only HTTPS traffic to/from Google while safely ignoring SSH management traffic to prevent terminal feedback loops.
+
+### Advanced
+* **cBPF/eBPF in Ring 0**: Instead of copying every single raw packet from the network card (kernel space) into the `tcpdump` application (user space) for filtering—which would cause catastrophic CPU starvation under load—the kernel compiles the BPF filter into a highly optimized virtual machine inside Ring 0. The kernel safely evaluates the filter directly in kernel memory, instantly dropping non-matching packets before they ever cross the expensive user-space boundary.
+
+### Scenario-Based Discussions
+* **Zeek/Suricata vs eBPF Flow Logs / OTel**: Permanent full-packet capture (Zeek/Suricata) provides absolute cryptographic truth and deep forensic payload capability for security audits, but requires massive dedicated storage arrays and complex TAP routing that is nearly impossible to maintain inside dynamic Kubernetes overlays. OpenTelemetry and eBPF flow logs natively integrate with cloud-native architectures, providing lightning-fast, lightweight observability with minimal storage overhead, though they lack the raw binary payload forensics required for extreme incident response.
+
+</details>
+
 ---
 
 # Further Reading

@@ -422,6 +422,25 @@ Explain why a Distroless base image (`gcr.io/distroless/static`) is architectura
 
 * Discuss the operational trade-offs of enforcing a strict Distroless base image requirement across an enterprise engineering organization versus allowing standard Alpine or Debian Slim base images, specifically addressing how Site Reliability Engineers perform live production debugging when `/bin/sh` is completely absent.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[Docker layer]**: A Docker layer is an immutable, read-only filesystem modification resulting from a single instruction in a `Dockerfile` (like `RUN`, `COPY`, or `FROM`). Layers stack on top of each other to form the final container image.
+* **[`.dockerignore` purpose]**: It prevents unnecessary files and directories (like `node_modules`, `.git`, or local virtual environments) from being sent to the Docker daemon build context, significantly speeding up build times and reducing image bloat.
+* **[Multi-Stage build]**: A method where a `Dockerfile` has multiple `FROM` instructions, allowing you to use a heavy base image to compile code (Stage 1), and then copy only the finalized lightweight binaries into a small, clean production base image (Stage 2).
+
+### Intermediate
+* **[Docker Layer Caching & ordering rule]**: Docker caches the result of each `Dockerfile` instruction. If a layer changes (like a modified source file in `COPY`), that layer and *every subsequent layer* is invalidated. The golden rule is to order instructions from least-frequently changed (base images, dependency manifests) to most-frequently changed (source code) to maximize cache hits.
+* **[Running as non-root user]**: By default, containers run as `root` (UID 0). If a vulnerability allows a container breakout, the attacker could gain root access to the underlying host. Creating and using an unprivileged user (e.g., `USER 10001`) drastically limits the blast radius of an exploit.
+
+### Advanced
+* **[OverlayFS and CoW performance]**: OverlayFS combines multiple read-only layers (`lowerdir`) and a single writable temporary layer (`upperdir`) into a unified view (`merged`). When a container modifies an existing file from a lower layer, the entire file is duplicated into the `upperdir` before modification (Copy-on-Write). Modifying massive files (like large databases or logs) directly inside the container incurs a heavy disk I/O performance penalty, which is why volumes should be used for data that changes frequently.
+
+### Scenario-Based Discussions
+* **[Distroless vs. Alpine/Debian Slim]**: Distroless provides maximum security by omitting package managers, shells, and system utilities—massively reducing the attack surface. The trade-off is observability: since `/bin/sh` does not exist, SREs cannot simply `docker exec` into a container to run `ps`, `netstat`, or `cat`. Debugging requires external observability tools (metrics, centralized logging, distributed tracing) or using ephemeral debug containers attached to the pod's namespace.
+
+</details>
 ---
 
 # Further Reading

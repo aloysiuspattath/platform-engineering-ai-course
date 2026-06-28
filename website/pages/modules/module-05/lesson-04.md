@@ -394,6 +394,26 @@ Explain the exact architectural purpose of the Common Ancestor (Merge Base) duri
 
 * Discuss the operational trade-offs of establishing an engineering team etiquette that mandates daily asynchronous rebasing (`git pull --rebase`) versus allowing weekly batch merges, specifically addressing how each strategy impacts developer productivity and PR review cycle times.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Merge conflict**: Occurs when two divergent branches modify the exact same lines of code in different ways (or one edits while the other deletes). Git pauses the merge because it cannot safely guess which version is correct.
+* **Conflict Markers (`<<<<<<<`, `>>>>>>>`)**: `<<<<<<< HEAD` marks the beginning of your active branch's code (Ours), `=======` divides the colliding code blocks, and `>>>>>>> [branch]` marks the end of the incoming branch's code (Theirs).
+* **`git merge --abort`**: An emergency safety hatch that instantly cancels a paused, messy merge, cleans up conflict markers from the files, and returns your working directory to its pristine state.
+
+### Intermediate
+* **3-Way Merge mechanics**: Git finds the Common Ancestor (Merge Base) commit where the branches split. It compares both the local branch and incoming branch against this base. If both modified the same line away from the base, a conflict is thrown; otherwise, Git cleanly integrates the changes.
+* **Danger with lock files**: Manually editing massive, auto-generated JSON state or lock files (like `package-lock.json` or `terraform.tfstate`) is highly prone to syntax errors. A broken bracket will permanently corrupt the dependency tree or cloud deployment state. Instead, regenerate them using their respective CLI package managers.
+
+### Advanced
+* **`MERGE_HEAD` and the Git Index Stages**: During a conflict, Git records the incoming commit in `.git/MERGE_HEAD`. It updates the binary `.git/index` to hold three separate blob pointers for the conflicting file using stage slots: Stage 1 (Common Ancestor), Stage 2 (Ours/HEAD), and Stage 3 (Theirs/MERGE_HEAD). `git add` resolves the conflict by collapsing these stages down into a standard Stage 0 entry, permitting the final commit.
+
+### Scenario-Based Discussions
+* **Daily Rebasing vs. Weekly Batch Merges**: Mandating daily asynchronous rebasing (`git pull --rebase main`) keeps feature branches tightly synchronized with trunk. Conflicts are resolved in tiny, easily manageable increments, maximizing productivity and leading to rapid, painless PR reviews. Weekly batch merges create massive divergence, triggering catastrophic "merge hell" that blocks deployments, exhausts reviewers, and drastically inflates PR cycle times.
+
+</details>
+
 ---
 
 # Further Reading

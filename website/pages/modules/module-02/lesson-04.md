@@ -372,6 +372,27 @@ Using `restart` forcefully kills the process and starts it again, dropping all a
 
 * Discuss the architectural trade-offs of managing background microservices directly on virtual machines using Systemd unit files versus packaging them into containers managed by a Kubernetes kubelet daemon in an enterprise environment.
 
+
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Linux daemon**: A daemon is a background process that runs continuously without a controlling terminal, waiting to handle periodic requests, perform system tasks, or provide services (e.g., web servers, SSH).
+* **systemctl enable**: `systemctl enable` configures a systemd service to start automatically upon system boot by creating symbolic links for the unit file in the appropriate target directories.
+* **Viewing live web server logs**: You would use the `journalctl` command with the follow flag and the unit name: `journalctl -u [servicename] -f` (e.g., `journalctl -u nginx -f`).
+
+### Intermediate
+* **systemctl restart vs reload**: `systemctl restart` completely stops the service and starts it again, causing a brief period of downtime and dropping active connections. `systemctl reload` sends a signal (usually `SIGHUP`) instructing the daemon to re-read its configuration files without terminating the main process, maintaining uptime and active connections.
+* **After=network.target**: It ensures that systemd waits until the system's networking stack has been initialized and is available before attempting to start this specific service, preventing startup failures for daemons that bind to network ports.
+
+### Advanced
+* **systemd and cgroups**: When `systemd` starts a service, it places the main process into a dedicated cgroup. Any child processes forked by the daemon automatically inherit and reside in the same cgroup. When `systemctl stop` is issued, `systemd` sends termination signals to the entire cgroup, guaranteeing that all descendant processes are reliably killed, preventing "escaped" orphans from consuming resources in the background.
+
+### Scenario-Based Discussions
+* **Systemd vs Kubernetes for microservices**: Managing microservices directly with Systemd on VMs offers simplicity, lower latency, and deep OS integration, but suffers from "works on my machine" dependency conflicts, difficult scaling, and slow immutable deployments. Kubernetes containers provide strict isolation, immutable identical artifacts, and auto-scaling, but introduce massive platform complexity, networking overhead, and a steep learning curve.
+
+</details>
+
 ---
 
 # Further Reading

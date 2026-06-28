@@ -426,6 +426,25 @@ Explain the exact architectural difference between what a Linux Kernel Namespace
 
 * Discuss the architectural trade-offs of migrating an enterprise engineering organization's core monolithic applications from a highly governed VMware Hardware Hypervisor platform to a bare-metal Docker container runtime environment, specifically addressing security boundary differences (`Hypervisor Isolation vs Kernel Namespace Sharing`).
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[Difference between container and VM]**: A VM runs a full guest OS with virtualized hardware via a hypervisor, which is heavy and slow to start. A container shares the host OS kernel and uses namespaces/cgroups for isolation, making it extremely lightweight and fast.
+* **[`docker ps` usage]**: It lists the currently running containers on the Docker host, displaying details like container ID, image, status, and port bindings.
+* **[`docker exec -it` usage]**: It executes a new process (in this case, an interactive bash shell) inside an already running container, attaching your terminal to the container's isolated namespaces.
+
+### Intermediate
+* **[Interaction of dockerd, containerd, and runc]**: The Docker daemon (`dockerd`) receives the API request and passes it to `containerd` to manage the container lifecycle. `containerd` then invokes `runc`, which directly interfaces with the host Linux kernel to set up namespaces and cgroups before starting the actual container process.
+* **[No SSH daemon in containers]**: Containers are not full VMs; they are isolated application processes. You should not run multiple distinct services (like an SSH daemon and your app) in one container. Instead, use `docker exec` to access the container securely through the Docker engine without adding the bloat and security risks of an SSH server.
+
+### Advanced
+* **[Namespaces and `runc` interaction]**: Docker uses the `pid` namespace so the container process acts as PID 1 within its own isolated process tree, while still having a real PID on the host. It uses the `mnt` namespace to mount a container-specific root filesystem. During initialization, `runc` mounts a new `/proc` inside this `mnt` namespace so tools like `ps` only see the container's processes, effectively hiding the host process tree.
+
+### Scenario-Based Discussions
+* **[Migrating from VM to Docker container environment]**: Migrating to Docker eliminates massive OS overhead, improving resource utilization and boot times (milliseconds vs minutes). However, the trade-off is security: VMs provide strict hardware-level isolation, whereas containers share a single host kernel. A kernel vulnerability (Container Breakout) could compromise the entire host. To mitigate this, containers must run as non-root users, implement strict cgroup limits, and use minimal images.
+
+</details>
 ---
 
 # Further Reading

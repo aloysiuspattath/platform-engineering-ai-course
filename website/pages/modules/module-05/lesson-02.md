@@ -360,6 +360,26 @@ Explain the exact architectural difference between `git fetch` and `git pull` re
 
 * Discuss the operational trade-offs of migrating an enterprise engineering organization from a highly governed GitFlow branching model to Trunk-Based Development, specifically addressing how to manage unfinished code features using Feature Flags in a production environment.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **`git fetch` vs `git pull`**: `git fetch` safely downloads remote commit metadata and updates read-only remote tracking branches (like `origin/main`) without modifying your local working directory. `git pull` first fetches and then instantly merges those remote changes into your active local branch.
+* **Trunk-Based Development**: A high-velocity branching model where developers merge small, frequent updates into a single main branch (the Trunk) using short-lived feature branches, ensuring the codebase is always production-ready.
+* **`git push -u origin [branch]`**: Publishes a local branch to the remote repository and establishes a permanent upstream tracking relationship (`-u` / `--set-upstream`) so future pushes/pulls automatically target that remote branch.
+
+### Intermediate
+* **GitFlow vs. Trunk-Based Development**: GitFlow uses multiple long-lived branches (main, develop, release) providing high structure for scheduled legacy releases but causing merge hell. Trunk-Based Development uses a single permanent branch (`main`) with short-lived feature branches, maximizing CI/CD deployment velocity and preventing branch divergence.
+* **Danger of long-lived feature branches**: The longer a branch diverges from `main`, the higher the mathematical certainty of massive, complex merge conflicts when eventually merging. It creates "merge hell" and delays integration.
+
+### Advanced
+* **Remote tracking and `FETCH_HEAD`**: Git updates read-only bookmarks in `.git/refs/remotes/origin/` whenever it communicates with a remote. During a `git pull`, Git temporarily records what was just fetched in `.git/FETCH_HEAD`. It then performs a 3-way merge between the local branch (`HEAD`), `FETCH_HEAD` (incoming remote commits), and their common ancestor commit to safely integrate changes.
+
+### Scenario-Based Discussions
+* **Migrating GitFlow to Trunk-Based Development**: The migration drastically increases deployment speed and reduces merge conflicts but requires high engineering maturity. Because code merges continuously, incomplete features must be wrapped in Feature Flags (software toggles). This allows the code to exist dormant in the `main` trunk and be deployed to production safely without exposing the incomplete functionality to live users.
+
+</details>
+
 ---
 
 # Further Reading

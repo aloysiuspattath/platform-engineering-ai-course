@@ -573,6 +573,26 @@ Explain the operational difference between a Liveness Probe and a Readiness Prob
 
 * Discuss the architectural trade-offs of establishing a deployment strategy that relies exclusively on standard Kubernetes Rolling Updates (`strategy.type: RollingUpdate`) versus adopting an advanced Blue/Green deployment strategy utilizing separate, isolated Deployments and dynamic Service endpoint switching, specifically addressing cloud resource consumption (doubling active Pod counts), rollback latency, and handling breaking database schema migrations.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Kubernetes Deployment**: A master declarative manager for your applications that dictates the desired state (e.g., replica count, container image) and automatically manages the lifecycle, scaling, and rolling updates of Pods via ReplicaSets.
+* **Deployment vs. DaemonSet**: A Deployment manages a specific number of Pod replicas scheduled arbitrarily across the cluster. A DaemonSet completely bypasses normal scheduling to guarantee exactly one Pod runs on every single worker node in the cluster.
+* **kubectl rollout undo**: A command that instantly rolls back a Deployment to a previous stable ReplicaSet revision (saved in `etcd`), automatically scaling down the broken pods and scaling up the healthy ones.
+
+### Intermediate
+* **maxSurge and maxUnavailable**: `maxSurge` sets the maximum number of extra Pods that can be created above the desired replica count during an update. `maxUnavailable` sets the maximum number of Pods that can be offline below the desired count. Together, they enforce strict mathematical guardrails to guarantee zero downtime during a Rolling Update.
+* **Liveness vs. Readiness probe**: A Liveness probe checks if a container is running properly (e.g., not deadlocked); if it fails, `kubelet` forcefully restarts the container. A Readiness probe checks if a container is ready to accept traffic; if it fails, the Pod's IP is unlinked from network endpoints (no traffic routed), but the container is *not* killed.
+
+### Advanced
+* **Pod template hash and Label selectors**: The Deployment controller calculates a hash (`pod-template-hash`) based on the Pod template (`spec.template`) and adds it as a label to the ReplicaSet and its Pods to uniquely identify and map them. Modifying a Deployment's label selector (`spec.selector`) after creation is heavily restricted/prohibited because it breaks the mapping to existing ReplicaSets and Pods, creating orphaned resources or catastrophic overlap with other Deployments.
+
+### Scenario-Based Discussions
+* **Rolling Updates vs. Blue/Green Deployments**: Rolling Updates consume minimal extra cloud resources (governed by `maxSurge`), but rollbacks can take time (re-spinning older image Pods) and rolling deployments make breaking database schema changes difficult because two versions of the app run concurrently. Blue/Green deployments provision an entirely isolated duplicate environment (doubling cloud resource consumption temporarily). However, Blue/Green enables instant rollbacks by simply toggling a Service endpoint switch back to the old environment, and provides a completely safe, untainted boundary to execute and test breaking database schema migrations before live user traffic cuts over.
+
+</details>
+
 ---
 
 # Further Reading

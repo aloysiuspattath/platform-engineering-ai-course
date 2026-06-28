@@ -437,6 +437,26 @@ Explain why enabling S3 Object Versioning on your remote Terraform state S3 buck
 
 * Discuss the architectural trade-offs of establishing an enterprise state management strategy that utilizes a single monolithic state file for an entire AWS account versus decomposing the infrastructure into dozens of micro-state files (`vpc/terraform.tfstate`, `rds/terraform.tfstate`, `eks/terraform.tfstate`), specifically addressing blast radius containment, apply velocity, and inter-state dependency sharing (`terraform_remote_state`).
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **terraform.tfstate**: The `terraform.tfstate` file is the master JSON database that maps declarative HCL resource declarations to physical cloud provider IDs.
+* **Why not commit to Git**: The state file stores all cloud resource attributes in plain-text JSON, including secrets like database master passwords and access keys. Committing it to Git leaks enterprise secrets.
+* **terraform state list**: It prints a clean table of all resource wrappers currently tracked in the state database.
+
+### Intermediate
+* **S3 backend with DynamoDB locking**: The S3 bucket securely stores the state file, while DynamoDB creates a distributed lock record. When one engineer runs `terraform apply`, Terraform acquires a lock in DynamoDB, preventing any concurrent executions from modifying the S3 state file until the first operation completes.
+* **terraform destroy vs state rm**: `terraform destroy` physically deletes the cloud infrastructure and updates the state. `terraform state rm` removes the resource from Terraform's state file (unlinks it) but leaves the physical hardware running untouched.
+
+### Advanced
+* **lineage and serial numbers**: The `lineage` string uniquely identifies a specific state file history, and the `serial` number increments with every state modification. When running `terraform state push`, Terraform compares these values against the remote backend to reject pushes where the `serial` is lower than the remote state, preventing older, stale state files from accidentally overwriting newer ones. `terraform state pull` retrieves the remote state and outputs it in JSON format to standard output.
+
+### Scenario-Based Discussions
+* **Monolithic vs Micro-state files**: A monolithic state file provides easy resource referencing but creates a massive blast radius (one mistake can destroy the whole account) and results in very slow apply times due to massive API queries. Decomposing into micro-states (like `vpc`, `rds`) drastically reduces apply time and isolates blast radii. The trade-off is increased complexity in sharing data between states, requiring `terraform_remote_state` data sources or parameter store lookups to pass information (like a VPC ID) to dependent modules.
+
+</details>
+
 ---
 
 # Further Reading

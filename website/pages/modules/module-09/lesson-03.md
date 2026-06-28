@@ -549,6 +549,26 @@ Explain why utilizing S3 Multipart Uploads is essential when transferring massiv
 
 * Discuss the architectural trade-offs of establishing a global media distribution strategy that relies on serving files directly from a centralized multi-AZ Amazon S3 bucket versus deploying Amazon CloudFront (CDN) with Origin Access Control (OAC), specifically addressing data egress financial costs, edge caching invalidation latency, and global user download speeds.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[EBS vs S3]**: EBS (Elastic Block Store) is block storage that attaches to a single EC2 instance in a single AZ, functioning like a physical hard drive with a traditional filesystem. S3 (Simple Storage Service) is an infinitely scalable object store with a flat namespace, accessed via HTTP REST APIs, and automatically replicated across multiple AZs.
+* **[Availability Zone (AZ)]**: An AZ is one or more discrete physical data centers within a region. They have independent, redundant power grids, networking, and cooling to ensure a failure in one AZ (e.g., a power outage) does not affect others.
+* **[Application Load Balancer (ALB)]**: An ALB sits in front of backend servers to distribute incoming HTTP/HTTPS web traffic. It constantly checks the health of backend servers and automatically routes traffic away from failed or unhealthy instances.
+
+### Intermediate
+* **[ALB Health Checks]**: An ALB periodically sends an HTTP GET request to a configured endpoint (e.g., `/healthz`). If it receives a successful HTTP 200 OK response within the timeout threshold, the server is marked healthy. If the server times out or returns an error (e.g., 500 or 404), the ALB marks it unhealthy and stops sending user traffic to it.
+* **[S3 Lifecycle Policies]**: S3 Lifecycle Policies automate the transition of objects to cheaper storage tiers (like S3 Infrequent Access or S3 Glacier) as they age. They can also automatically delete expired files. This drastically reduces long-term storage costs without manual intervention.
+
+### Advanced
+* **[S3 Consistency and ALB Host Header Routing]**: Amazon S3 provides strong read-after-write consistency by utilizing distributed consensus protocols across its internal storage nodes; a write is not acknowledged until it is durably committed to a quorum of nodes, ensuring subsequent reads immediately return the latest data. For the ALB, it operates at Layer 7 and inspects the HTTP request payload. When using host header routing rules, the ALB evaluates the `Host` header (e.g., `api.myapp.com` vs `web.myapp.com`) against its configured listener rules to intelligently forward the request to the correct specific backend Target Group.
+
+### Scenario-Based Discussions
+* **[Direct S3 vs CloudFront (CDN) + OAC]**: Serving media directly from an S3 bucket is simple but incurs massive AWS data egress costs and results in high latency for global users far from the bucket's region. Deploying CloudFront with OAC caches the content at edge locations worldwide, drastically reducing global download speeds and heavily slashing AWS data transfer egress costs. The trade-off is added architectural complexity and edge caching invalidation latency; when a file is updated, you may need to explicitly invalidate the cache (which takes time and incurs minor costs) before all global users see the new version.
+
+</details>
+
 ---
 
 # Further Reading

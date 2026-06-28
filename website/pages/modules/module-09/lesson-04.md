@@ -530,6 +530,26 @@ Explain why integrating Infracost (`infracost diff`) directly into GitHub Pull R
 
 * Discuss the architectural trade-offs of establishing an enterprise compute strategy that relies exclusively on purchasing 3-year All-Upfront Compute Savings Plans versus architecting a highly dynamic, fault-tolerant platform utilizing 100% EC2 Spot Instances across multiple instance family types (e.g., `c5.large`, `c5a.large`, `c6g.large`), specifically addressing engineering refactoring overhead, capital lock-up, and absolute platform availability during regional Spot capacity shortages.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[CapEx vs. OpEx]**: CapEx (Capital Expenditure) involves spending fixed money upfront to buy physical hardware. OpEx (Operational Expenditure) is a pay-as-you-go utility model where you are billed for exactly what you use, usually by the hour or second, shifting risk from hardware ownership to usage management.
+* **[EC2 Spot Instance]**: A Spot Instance uses spare AWS compute capacity available at up to a 90% discount compared to On-Demand pricing. The catch is that AWS can reclaim the instance with a 2-minute warning if they need the capacity back.
+* **[Data Egress]**: Data Egress refers to network traffic leaving the AWS cloud to the public internet or moving between different AWS Regions. It is expensive because cloud providers charge a premium per gigabyte (e.g., $0.09/GB) for outbound data transfer, which can quickly add up for data-heavy workloads.
+
+### Intermediate
+* **[Orphaned EBS Cleanup]**: When an EC2 instance is terminated, its attached EBS volumes might be left behind in an "available" state, still incurring full monthly storage costs. To find them, use `aws ec2 describe-volumes --filters "Name=status,Values=available"`. These unattached volumes can then be audited and deleted via `aws ec2 delete-volume`.
+* **[FORECASTED Budget Guardrails]**: `FORECASTED` alerts use predictive analytics on your daily spending trajectory. Instead of waiting until you have already exceeded your budget (an `ACTUAL` alert), a forecasted alert will trigger early in the month if the current run rate indicates you *will* exceed the budget, giving you time to fix misconfigurations before the bill arrives.
+
+### Advanced
+* **[Blended vs Unblended Costs and Chargebacks]**: Unblended costs represent the exact rate charged for a resource's usage on that specific day. Blended costs average the discounted rates (like RIs or Savings Plans) across all accounts in an AWS Organization's consolidated billing family. For an IDP, enforcing mandatory Cost Allocation Tags (e.g., `CostCenter=123`) allows FinOps teams to aggregate unblended resource costs by tenant or department using AWS Cost Explorer, generating a precise "chargeback" invoice for internal teams based on their exact consumption.
+
+### Scenario-Based Discussions
+* **[3-Year Savings Plans vs 100% Spot Architecture]**: A 3-Year All-Upfront Savings Plan provides a massive, guaranteed discount (up to 72%) with zero risk of instance reclamation, making it perfect for legacy or stateful apps without needing architectural changes; however, it locks up massive capital and reduces agility. Conversely, a 100% Spot architecture yields extreme savings (up to 90%) with zero capital lock-up, but requires intense engineering overhead to make the platform fully stateless, checkpoint-driven, and capable of diversifying across multiple instance families (e.g., graviton, AMD, Intel) to maintain availability when AWS runs out of spare capacity in a specific pool.
+
+</details>
+
 ---
 
 # Further Reading

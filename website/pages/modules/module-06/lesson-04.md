@@ -441,6 +441,25 @@ Explain the exact architectural difference between where Docker stores data for 
 
 * Discuss the architectural trade-offs of managing persistent database storage for a highly available enterprise microservice application using local Docker Named Volumes versus migrating the database entirely to a fully managed cloud database service (e.g., AWS RDS / Google Cloud SQL), specifically addressing backups, failover, and storage scaling.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **[Docker named volume]**: A storage mechanism fully managed by the Docker daemon (typically stored in `/var/lib/docker/volumes/`). It persists data securely outside the container's ephemeral scratchpad and survives container deletions flawlessly.
+* **[`bridge` vs `host` networks]**: `bridge` creates an isolated virtual network namespace for the container and requires port bindings to communicate with the outside world. `host` completely disables network isolation, attaching the container directly to the physical host's networking stack for maximum performance, but risking port collisions.
+* **[`docker volume prune`]**: It scans the Docker engine and permanently deletes all named volumes that are not currently attached to any existing container, freeing up disk space.
+
+### Intermediate
+* **[`iptables` routing]**: When a container uses a `bridge` network and publishes a port (`-p 8080:80`), Docker dynamically injects Network Address Translation (NAT) prerouting rules into the host's `iptables`. When external traffic hits host port 8080, `iptables` intercepts it and forwards it across the virtual `docker0` bridge directly to the container's isolated internal IP on port 80.
+* **[`--mount` vs `-v`]**: The `-v` flag merges multiple complex configurations (source, target, read-only status) into a single, confusing colon-separated string. `--mount` uses explicit key-value pairs (e.g., `type=volume,source=myvol,target=/data,readonly`), making infrastructure-as-code scripts far more readable, strict, and predictable.
+
+### Advanced
+* **[CNM and `veth` pairs]**: The Container Network Model (CNM) defines three components: the Sandbox (the isolated network namespace), the Endpoint (the network interface inside the Sandbox), and the Network (the virtual switch/bridge). Docker connects the Sandbox to the Network using a `veth` (virtual ethernet) pair—a virtual wire. One end of the wire sits inside the container's namespace as `eth0`, and the other end sits in the host's root namespace attached to the `docker0` bridge, allowing packet transmission between the isolated environments.
+
+### Scenario-Based Discussions
+* **[Local Named Volumes vs Cloud Managed DBs]**: Using local Docker Named Volumes is cheap and excellent for single-server development. However, achieving high availability across multiple nodes is extremely difficult, as local volumes don't easily failover or replicate. Migrating to a fully managed cloud database (AWS RDS) offloads the complex operational overhead of automated backups, multi-AZ replication, failover routing, and storage auto-scaling to the cloud provider, making it the superior architectural choice for critical enterprise production workloads.
+
+</details>
 ---
 
 # Further Reading

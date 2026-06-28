@@ -489,6 +489,26 @@ Explain why decomposing a Terraform Module into `main.tf`, `variables.tf`, and `
 
 * Discuss the architectural trade-offs of establishing an enterprise module strategy that relies on building massive multi-resource "Mega-Modules" (e.g., a single module creating an entire application environment) versus building highly focused atomic "Micro-Modules" (e.g., dedicated VPC, RDS, and EKS modules), specifically addressing code maintenance overhead, testing complexity, and developer adoption friction.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **Terraform Module**: A Terraform Module is a dedicated directory of HCL configuration files. It solves the problem of massive code duplication by encapsulating standard infrastructure patterns into composable, reusable blocks (following the DRY principle).
+* **variables.tf vs outputs.tf**: `variables.tf` declares the dynamic input parameters the module accepts (like function arguments), while `outputs.tf` declares the return values the module exposes to the calling parent (like function return values).
+* **terraform-docs**: It is an automated tool that parses `variables.tf` and `outputs.tf` to generate pristine markdown documentation (like attribute tables) directly from the HCL code.
+
+### Intermediate
+* **Pin remote Git module**: Use the `source` argument inside a `module` block and append a `?ref=` query parameter matching an immutable release tag (e.g., `source = "git::https://github.com/org/repo.git?ref=v1.0.0"`).
+* **validation blocks**: They ensure that invalid or insecure parameters (like non-compliant naming conventions or overly expensive instance types) are forcefully rejected during `terraform plan`, stopping bad configurations before execution.
+
+### Advanced
+* **Module scoping and explicit providers**: Terraform scopes child module resources in the state file by prefixing them with the module path (e.g., `module.<module_name>.<resource_type>.<resource_name>`). When passing explicit providers, a parent module passes a custom provider alias via the `providers` map in the `module` block (`providers = { aws = aws.alt }`). The child module then uses this mapping to interact with the alternative provider configuration (such as deploying to a different AWS region) without hardcoding the provider inside the module itself.
+
+### Scenario-Based Discussions
+* **Mega-Modules vs Micro-Modules**: Mega-Modules simplify the initial deployment by abstracting an entire app environment, but they create massive maintenance overhead, slow apply times, and rigid feature flags (e.g., toggling RDS off if a team doesn't need it). They are hard to test and adopt. Atomic Micro-Modules do exactly one thing well (e.g., a dedicated VPC or EKS module). They provide massive flexibility, easier testing (via Terratest), clean blast radius isolation, and higher adoption since teams compose them like Lego bricks to build their specific architecture.
+
+</details>
+
 ---
 
 # Further Reading

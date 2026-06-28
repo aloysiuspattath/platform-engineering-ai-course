@@ -402,6 +402,26 @@ Explain the exact architectural difference between an `HTTP 401 Unauthorized` er
 
 * Discuss the operational trade-offs of enforcing strict least privilege access controls across an enterprise development team (e.g., requiring formal ticketing approval for every IAM policy change) versus allowing broad developer autonomy, specifically addressing developer velocity and production security posture.
 
+<details>
+<summary><b>View Answers</b></summary>
+
+### Beginner
+* **What is the Principle of Least Privilege?**: The practice of granting a user, process, or system only the bare minimum permissions required to perform its specific function, minimizing potential blast radius if compromised.
+* **What do the letters in STRIDE stand for?**: Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege.
+* **What is the difference between Authentication and Authorization?**: Authentication verifies identity (*who* you are), while Authorization verifies permissions (*what* you are allowed to do once authenticated).
+
+### Intermediate
+* **Explain why `chmod 777` is a catastrophic security vulnerability in production environments.**: It grants read, write, and execute access to every user on the system. Any compromised process or unprivileged user can modify, replace, or delete critical files.
+* **Why should you never use the `--privileged` flag when running Docker containers?**: It disables kernel namespaces and cgroups, granting the container raw root access to the host's hardware. If compromised, the attacker has complete administrative control over the host node.
+
+### Advanced
+* **Explain how Linux kernel capabilities allow Platform Engineers to decompose monolithic root privileges...**: Capabilities divide the all-powerful root user (UID 0) into fine-grained permissions (e.g., `CAP_NET_BIND_SERVICE`). `runc` automatically drops dangerous capabilities during container startup, establishing a least-privilege boundary without needing a full root user.
+
+### Scenario-Based Discussions
+* **Discuss the operational trade-offs of enforcing strict least privilege access controls...**: Strict least privilege ensures maximum blast radius containment but can cripple developer velocity if gated by manual ticketing. Balancing this requires automated infrastructure-as-code linting and self-service IAM roles scoped to exact namespaces, maintaining high security posture while enabling developer autonomy.
+
+</details>
+
 ---
 
 # Further Reading
