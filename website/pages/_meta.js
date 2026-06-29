@@ -1,8 +1,14 @@
 export default {
-
-  modules: "Curriculum Modules",
-  labs: "Hands-On Labs",
-  projects: "Capstone Projects",
-  quizzes: "Assessments",
-  cheatsheets: "Cheat Sheets"
+  index: {
+    title: "Home",
+    theme: {
+      layout: "full"
+    }
+  },
+  courses: "Course Catalog",
+  "learning-paths": "Learning Paths",
+  "-- Courses --": {
+    type: "separator",
+    title: "Courses"
+  }
 }

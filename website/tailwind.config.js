@@ -8,13 +8,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#0f172a',     /* Slate 900 */
-        accent: '#3b82f6',      /* Blue 500 */
-        warning: '#f59e0b',     /* Amber 500 */
-        danger: '#ef4444',      /* Red 500 */
-        darkbg: '#0f172a',      /* Slate 900 */
-        darkcard: '#1e293b',    /* Slate 800 */
-        darkborder: '#334155',  /* Slate 700 */
+        primary: '#a855f7',     /* neon-primary (Vibrant Purple) */
+        accent: '#4facfe',      /* neon-purple (Cyan/Blue) */
+        warning: '#f093fb',     /* neon-pink */
+        danger: '#ef4444',      /* Standard red for errors */
+        darkbg: '#0b0c10',      /* Techfliq background */
+        darkcard: '#111217',    /* Techfliq card bg */
+        darkborder: '#1f2129',  /* Techfliq border */
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],

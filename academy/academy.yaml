@@ -1,0 +1,80 @@
+academy:
+  name: TechFliq Learn
+  description: Open-source engineering education platform.
+  version: "2.0.0"
+  branding:
+    logo: /logo.png
+    theme:
+      primary_color: "#2563EB"
+      dark_mode: true
+  website:
+    url: "https://learn.techfliq.com"
+  social:
+    github: "https://github.com/platform-engineering-course"
+    linkedin: "https://linkedin.com/company/techfliq"
+    youtube: "https://youtube.com/@techfliq"
+  default_language: en
+  navigation:
+    - label: "Course Catalog"
+      href: "/courses"
+    - label: "Learning Paths"
+      href: "/learning-paths"
+    - label: "Docs"
+      href: "/docs"
+  search:
+    enabled: true
+    provider: "nextra"
+  footer:
+    copyright: "© 2026 TechFliq. All rights reserved."
+  courses:
+    - id: platform-engineering
+      path: "/courses/platform-engineering"
+  learning_paths:
+    - id: platform-engineer
+      title: "Platform Engineer"
+      description: "Master modern infrastructure, CI/CD, and internal developer platforms."
+      path:
+        - linux
+        - networking
+        - git
+        - docker
+        - kubernetes
+        - terraform
+        - observability
+        - gitops
+        - platform-engineering
+        - ai-infrastructure
+    - id: cloud-engineer
+      title: "Cloud Engineer"
+      description: "Learn to build and scale cloud architectures."
+      path:
+        - linux
+        - networking
+        - aws
+        - terraform
+        - kubernetes
+    - id: backend-engineer
+      title: "Backend Engineer"
+      description: "Develop robust, scalable backend systems."
+      path:
+        - git
+        - docker
+        - kubernetes
+        - ci-cd
+        - platform-engineering
+    - id: ai-engineer
+      title: "AI Engineer"
+      description: "Deploy and serve large language models at scale."
+      path:
+        - python
+        - docker
+        - kubernetes
+        - ai-infrastructure
+        - mlops
+  certifications:
+    - id: techfliq-certified-platform-engineer
+      title: "TechFliq Certified Platform Engineer"
+      requirements:
+        - platform-engineer
+  languages:
+    - en

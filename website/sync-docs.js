@@ -2,15 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
+const coursesDir = path.join(rootDir, 'courses');
 const websitePagesDir = path.join(__dirname, 'pages');
-
-const directoriesToSync = [
-  { src: path.join(rootDir, 'output', 'approved'), dest: path.join(websitePagesDir, 'modules') },
-  { src: path.join(rootDir, 'labs'), dest: path.join(websitePagesDir, 'labs') },
-  { src: path.join(rootDir, 'projects'), dest: path.join(websitePagesDir, 'projects') },
-  { src: path.join(rootDir, 'quizzes'), dest: path.join(websitePagesDir, 'quizzes') },
-  { src: path.join(rootDir, 'cheatsheets'), dest: path.join(websitePagesDir, 'cheatsheets') }
-];
+const websiteCoursesDir = path.join(websitePagesDir, 'courses');
 
 function copyDirectorySync(src, dest) {
   if (!fs.existsSync(src)) return;
@@ -36,9 +30,34 @@ function copyDirectorySync(src, dest) {
   }
 }
 
-console.log('Starting documentation sync...');
-directoriesToSync.forEach(({ src, dest }) => {
-  console.log(`Syncing ${src} to ${dest}...`);
-  copyDirectorySync(src, dest);
-});
+console.log('Starting documentation sync for TechFliq Learn...');
+
+if (fs.existsSync(coursesDir)) {
+  const courses = fs.readdirSync(coursesDir, { withFileTypes: true });
+  for (let course of courses) {
+    if (course.isDirectory()) {
+      console.log(`Syncing course: ${course.name}...`);
+      const courseSrcDir = path.join(coursesDir, course.name);
+      const courseDestDir = path.join(websiteCoursesDir, course.name);
+      
+      const contentDirs = ['modules', 'labs', 'projects', 'quizzes', 'cheatsheets'];
+      for (const dir of contentDirs) {
+        const srcPath = path.join(courseSrcDir, dir);
+        const destPath = path.join(courseDestDir, dir);
+        if (fs.existsSync(srcPath)) {
+          copyDirectorySync(srcPath, destPath);
+        }
+      }
+
+      // Copy root-level files like _meta.js or index.mdx
+      const rootFiles = fs.readdirSync(courseSrcDir, { withFileTypes: true });
+      for (const file of rootFiles) {
+        if (!file.isDirectory() && (file.name.endsWith('.js') || file.name.endsWith('.mdx') || file.name.endsWith('.json'))) {
+          fs.copyFileSync(path.join(courseSrcDir, file.name), path.join(courseDestDir, file.name));
+        }
+      }
+    }
+  }
+}
+
 console.log('Documentation sync complete.');

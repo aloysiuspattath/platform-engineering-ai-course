@@ -7,4 +7,33 @@ const withNextra = nextra({
 
 export default withNextra({
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/modules/:path*',
+        destination: '/courses/platform-engineering/modules/:path*',
+        permanent: true,
+      },
+      {
+        source: '/labs/:path*',
+        destination: '/courses/platform-engineering/labs/:path*',
+        permanent: true,
+      },
+      {
+        source: '/projects/:path*',
+        destination: '/courses/platform-engineering/projects/:path*',
+        permanent: true,
+      },
+      {
+        source: '/quizzes/:path*',
+        destination: '/courses/platform-engineering/quizzes/:path*',
+        permanent: true,
+      },
+      {
+        source: '/cheatsheets/:path*',
+        destination: '/courses/platform-engineering/cheatsheets/:path*',
+        permanent: true,
+      }
+    ]
+  }
 })

@@ -1,0 +1,40 @@
+id: platform-engineering
+slug: platform-engineering
+title: "Platform Engineering & AI Infrastructure"
+description: "Master modern infrastructure, CI/CD, internal developer platforms, and AI serving at scale."
+difficulty: Advanced
+duration: "10 Weeks"
+estimated_hours: 120
+version: "1.0.0"
+status: published
+author:
+  name: "TechFliq AI Platform"
+  url: "https://techfliq.com"
+technologies:
+  - Docker
+  - Kubernetes
+  - Terraform
+  - GitHub Actions
+  - ArgoCD
+  - Prometheus
+  - Grafana
+  - vLLM
+  - Ollama
+learning_objectives:
+  - "Design and build an Internal Developer Platform (IDP)."
+  - "Deploy scalable AI workloads on Kubernetes."
+  - "Master GitOps with ArgoCD and Terraform."
+  - "Implement high-throughput caching and load balancing."
+prerequisites:
+  - docker
+  - kubernetes
+  - linux
+capstone: "Build a production-grade AI serving platform."
+certifications:
+  - techfliq-certified-platform-engineer
+tags:
+  - Platform Engineering
+  - DevOps
+  - SRE
+  - AI
+  - Kubernetes
