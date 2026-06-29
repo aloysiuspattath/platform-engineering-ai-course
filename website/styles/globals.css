@@ -7,6 +7,7 @@
   --nextra-primary-hue: 210deg;
   --nextra-primary-saturation: 100%;
   --nextra-primary-lightness: 50%;
+  --nextra-sidebar-width: 320px;
 }
 
 .dark {
@@ -74,6 +75,13 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 8px !important;
   transition: all 0.15s ease-in-out !important;
   padding-left: 12px !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Reduce Nested Indentation Clutter */
+.nextra-sidebar-container ul ul {
+  padding-left: 0.5rem !important;
 }
 
 /* Hover state */
@@ -89,12 +97,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Active Page Highlight */
-.nextra-sidebar-container li.active > a {
+.nextra-sidebar-container li.active > a,
+.nextra-sidebar-container li.active > button,
+.nextra-sidebar-container li > button[aria-expanded="true"] {
   background-color: rgba(0, 0, 0, 0.08) !important;
   font-weight: 600 !important;
   color: #000 !important;
 }
-.dark .nextra-sidebar-container li.active > a {
+.dark .nextra-sidebar-container li.active > a,
+.dark .nextra-sidebar-container li.active > button,
+.dark .nextra-sidebar-container li > button[aria-expanded="true"] {
   background-color: rgba(255, 255, 255, 0.12) !important;
   color: #fff !important;
 }
