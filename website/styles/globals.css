@@ -108,3 +108,30 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(156, 163, 175, 0.5);
   border-radius: 10px;
 }
+
+/* ==============================================
+   Layout Structural Fixes (Full Width Sidebar)
+   ============================================== */
+
+/* Ensure the overall Nextra container spans the full viewport to push sidebar left */
+main,
+div[dir="ltr"] > div {
+  max-width: 100% !important;
+}
+
+/* Override the default max-width constraint which causes the sidebar to float inwards */
+.max-w-\[90rem\] {
+  max-width: 100% !important;
+}
+
+/* Increase sidebar width to stop text from wrapping awkwardly on submenus */
+.nextra-sidebar-container {
+  width: 320px !important;
+}
+
+/* Ensure the main content area adjusts its margin to accommodate the wider sidebar */
+@media (min-width: 768px) {
+  article {
+    padding-left: 2rem;
+  }
+}
