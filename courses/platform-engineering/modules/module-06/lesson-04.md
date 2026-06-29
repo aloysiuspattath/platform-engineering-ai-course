@@ -114,9 +114,9 @@ When attaching storage to a container, Docker supports two CLI flags:
 
 ```mermaid
 flowchart TD
-    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef container fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef hardware fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef container fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef hardware fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
 
     subgraph HostNetwork [Host Kernel Networking]
         WIRE["Physical Interface: eth0"]

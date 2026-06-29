@@ -75,9 +75,9 @@ Because logging directly into the `root` account is incredibly dangerous (one ty
 
 ```mermaid
 flowchart TD
-    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
-    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000000;
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px,color:#000000;
 
     subgraph Identities [User Identities]
         ROOT["root (UID 0)"]:::userSpace

@@ -106,9 +106,9 @@ How do you enforce that a Kubernetes cluster refuses to run an unsigned containe
 
 ```mermaid
 flowchart TD
-    classDef ciPhase fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef cluster fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef action fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef ciPhase fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef cluster fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef action fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
 
     subgraph SecureSupplyChain [Secure Supply Chain (CI/CD)]
         BUILD["docker build"]

@@ -109,9 +109,9 @@ True Platform Engineering mastery requires practicing professional team etiquett
 
 ```mermaid
 flowchart TD
-    classDef commit fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
-    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
+    classDef commit fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000;
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px,color:#000000;
 
     subgraph Graph [Divergent Commits]
         BASE["Merge Base Commit"]:::commit --> HEAD["Local HEAD"]:::commit

@@ -64,11 +64,11 @@ To eliminate **Siloed Engineering Gridlock**, **Disjointed GitOps Pipelines**, *
 
 ```mermaid
 flowchart TD
-    classDef idp fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef platform fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef tenant fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef chaos fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
-    classDef infra fill:#ffebee,stroke:#c62828,stroke-width:2px;
+    classDef idp fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef platform fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef tenant fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef chaos fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
+    classDef infra fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000000;
 
     subgraph Layer4_IDP [Layer 4: Internal Developer Platform]
         PORTAL["Backstage Self-Service Portal"]

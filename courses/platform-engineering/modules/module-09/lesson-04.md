@@ -114,9 +114,9 @@ How do you prevent developers from merging expensive Terraform configurations in
 
 ```mermaid
 flowchart TD
-    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef pipeline fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef cloud fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef pipeline fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef cloud fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
 
     subgraph DeveloperFinOps [Developer Workspace]
         HCL["main.tf (Spot Instances & Budgets)"]

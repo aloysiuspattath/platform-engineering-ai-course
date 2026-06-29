@@ -103,9 +103,9 @@ When you create a brand-new script file (e.g., `backup.sh`), Linux creates it as
 
 ```mermaid
 flowchart TD
-    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
-    classDef file fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000000;
+    classDef file fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000;
 
     subgraph Filesystem [Script File]
         FILE["backup.sh (rwxr-xr-x)"]:::file

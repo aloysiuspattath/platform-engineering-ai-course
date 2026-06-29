@@ -109,9 +109,9 @@ Because the state file is the master database of your cloud platform, losing it 
 
 ```mermaid
 flowchart TD
-    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef backend fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef backend fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
 
     subgraph DevWorkspace [Developer Environments]
         DEV1["Developer A (terraform apply)"]

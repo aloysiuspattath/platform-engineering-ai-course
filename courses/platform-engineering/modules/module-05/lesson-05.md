@@ -100,9 +100,9 @@ True automation mastery requires combining your entire Module 05 knowledge into 
 
 ```mermaid
 flowchart TD
-    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef remoteEnv fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
-    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef remoteEnv fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000000;
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px,color:#000000;
 
     subgraph Local [Local Developer Workflow]
         COMMIT["git commit"]:::userSpace

@@ -85,9 +85,9 @@ By default, when you run `apt install nginx`, Linux pauses and asks `Do you want
 
 ```mermaid
 flowchart TD
-    classDef remote fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef userSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
-    classDef file fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+    classDef remote fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef userSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000000;
+    classDef file fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000;
 
     subgraph RemoteRepos [Remote Package Mirrors]
         REPO["Ubuntu Repositories (HTTP)"]:::remote

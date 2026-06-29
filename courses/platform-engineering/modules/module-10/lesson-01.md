@@ -124,9 +124,9 @@ In Kubernetes, you never deploy a naked Docker container directly! You deploy a 
 
 ```mermaid
 flowchart TD
-    classDef control fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef worker fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef container fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef control fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef worker fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef container fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
 
     subgraph ControlPlane [Kubernetes Control Plane]
         API["kube-apiserver"]

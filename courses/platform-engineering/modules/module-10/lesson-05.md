@@ -120,10 +120,10 @@ If Base64 Kubernetes Secret manifests are unencrypted, how do you store your Kub
 
 ```mermaid
 flowchart TD
-    classDef git fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef cloud fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef k8s fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef secure fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef git fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef cloud fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef k8s fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef secure fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
 
     subgraph GitOpsRepository [GitOps Repository]
         CM["ConfigMap (Clear text settings)"]

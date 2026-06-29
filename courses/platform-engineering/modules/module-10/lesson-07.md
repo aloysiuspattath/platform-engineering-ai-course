@@ -121,10 +121,10 @@ When debugging a cluster-wide orchestration collapse involving thousands of Pods
 
 ```mermaid
 flowchart TD
-    classDef control fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef worker fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef pod fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef user fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef control fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef worker fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef pod fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef user fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
 
     subgraph ControlPlane [Kubernetes Control Plane]
         API["kube-apiserver (Event Hub)"]

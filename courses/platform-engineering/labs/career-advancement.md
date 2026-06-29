@@ -64,11 +64,11 @@ To eliminate **Tactical Communication Silos**, **Unverified Resume Fluff**, **De
 
 ```mermaid
 flowchart TD
-    classDef scope fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef portfolio fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef culture fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef design fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
-    classDef forecast fill:#ffebee,stroke:#c62828,stroke-width:2px;
+    classDef scope fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef portfolio fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef culture fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef design fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
+    classDef forecast fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000000;
 
     subgraph CareerScope [Layer 1: Master Career Scope]
         LADDER["Career Ladder Rubric"]

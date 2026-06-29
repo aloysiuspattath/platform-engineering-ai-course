@@ -126,10 +126,10 @@ Standard Deployments are completely inadequate for stateful database clusters (e
 
 ```mermaid
 flowchart TD
-    classDef controller fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef compute fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef hardware fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef controller fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef compute fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef hardware fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
 
     subgraph K8sCluster [Kubernetes Cluster]
         STS["StatefulSet (mongodb)"]

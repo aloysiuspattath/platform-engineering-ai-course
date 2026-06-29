@@ -95,8 +95,8 @@ To navigate this massive graph of objects, Git relies on two master mechanisms:
 
 ```mermaid
 flowchart TD
-    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
-    classDef object fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px,color:#000000;
+    classDef object fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
 
     subgraph Refs [Git References]
         HEAD["HEAD (.git/HEAD)"]:::file -->|ref: refs/heads/main| MAIN["main branch (.git/refs/heads/main)"]:::file

@@ -108,11 +108,11 @@ To protect your servers from unauthorized network packets, Platform Engineers en
 
 ```mermaid
 flowchart TD
-    classDef external fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef vpc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef public fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef private fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
-    classDef gateway fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+    classDef external fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef vpc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef public fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef private fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
+    classDef gateway fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000000;
 
     subgraph Internet [Public Internet]
         CLIENT["Client Web Browser (0.0.0.0/0)"]

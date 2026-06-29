@@ -117,9 +117,9 @@ True Platform Engineers enforce Least Privilege across every single layer of the
 
 ```mermaid
 flowchart TD
-    classDef analysis fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef gate fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef enforcement fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef analysis fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef gate fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef enforcement fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
 
     subgraph DesignPhase [Design Phase (Threat Modeling)]
         ARCH["Cloud Architecture Diagram"]

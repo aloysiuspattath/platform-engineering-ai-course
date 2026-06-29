@@ -98,8 +98,8 @@ To verify that your rebasing operations successfully maintained a clean, linear 
 
 ```mermaid
 flowchart TD
-    classDef commit fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+    classDef commit fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000;
 
     subgraph Feature [Original Feature Branch]
         BASE["Base Commit (7a8b)"]:::commit --> C1["add vpc (1a2b)"]:::commit

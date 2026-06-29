@@ -118,9 +118,9 @@ How does an external CI/CD runner (like GitHub Actions) assume an AWS IAM Role w
 
 ```mermaid
 flowchart TD
-    classDef pipeline fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef provider fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef pipeline fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef provider fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
 
     subgraph GithubEnv [GitHub Actions Environment]
         JOB["Workflow Job (Deploy)"]

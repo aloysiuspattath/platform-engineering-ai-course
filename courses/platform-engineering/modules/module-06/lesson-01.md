@@ -112,9 +112,9 @@ To verify that containers are just standard Linux processes wrapped in namespace
 
 ```mermaid
 flowchart TD
-    classDef userSpace fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef container fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef userSpace fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef container fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
 
     subgraph HostUserSpace [Host Operating System - User Space]
         CLI["Docker CLI"]

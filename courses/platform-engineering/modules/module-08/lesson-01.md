@@ -119,10 +119,10 @@ Before committing HCL code to GitHub, true Platform Engineers enforce automated 
 
 ```mermaid
 flowchart TD
-    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef gate fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef gate fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
 
     subgraph DeveloperWorkspace [Developer IaC Workspace]
         HCL["main.tf"]

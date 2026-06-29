@@ -106,9 +106,9 @@ A **Pull Request** (or Merge Request) is not a native Git CLI concept; it is an 
 
 ```mermaid
 flowchart TD
-    classDef localEnv fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef remoteEnv fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
-    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+    classDef localEnv fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef remoteEnv fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000000;
+    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000;
 
     subgraph Local [Local Repository (User Space)]
         MAIN_L["Local main"]:::localEnv -->|Branch| FEAT["Local feature"]:::localEnv

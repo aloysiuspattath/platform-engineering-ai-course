@@ -117,10 +117,10 @@ Legacy `Ingress` resources suffer from a massive limitation: they combine infras
 
 ```mermaid
 flowchart TD
-    classDef external fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef ingress fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef service fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef pod fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef external fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef ingress fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef service fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef pod fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000;
 
     subgraph Internet [Public Internet]
         CLIENT["Client Web Browser"]

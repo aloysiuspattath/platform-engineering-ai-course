@@ -90,8 +90,8 @@ Linux Kernel ──┼──► RHEL ─────┬──► Fedora (Cutting
 
 ```mermaid
 flowchart LR
-    classDef distro fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef component fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef distro fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef component fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000000;
 
     subgraph Ubuntu [Ubuntu / Debian]
         APT[apt]:::component

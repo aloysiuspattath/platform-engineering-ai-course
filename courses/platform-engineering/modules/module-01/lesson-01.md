@@ -76,9 +76,9 @@ Linux is a "Unix-like" operating system. Unix was created in the late 1960s at B
 
 ```mermaid
 flowchart TD
-    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
-    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000000;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000;
 
     subgraph UserSpace [User Space / Applications]
         App1[Web Browser]:::userSpace

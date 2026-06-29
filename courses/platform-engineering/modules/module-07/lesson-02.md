@@ -108,9 +108,9 @@ True security mastery requires verifying **Image Provenance** (proving exactly w
 
 ```mermaid
 flowchart TD
-    classDef ciPhase fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef scanner fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef gatekeeper fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef ciPhase fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef scanner fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef gatekeeper fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
 
     subgraph CIEnvironment [CI/CD Build Environment]
         DF["Dockerfile"]

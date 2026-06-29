@@ -75,9 +75,9 @@ In the professional Platform Engineering world, you rarely run heavy enterprise 
 
 ```mermaid
 flowchart TD
-    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
-    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
-    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000000;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000000;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000000;
 
     subgraph LocalSetup [Local WSL2 Setup]
         WIN[Windows Host OS]:::hardware --> WSL[Hyper-V Hypervisor]:::kernelSpace

@@ -136,9 +136,9 @@ How does Kubernetes know whether your container is healthy enough to receive inc
 
 ```mermaid
 flowchart TD
-    classDef deploy fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef rs fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef pod fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef deploy fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef rs fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef pod fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
 
     subgraph K8sCluster [Kubernetes Production Cluster]
         DEP["Deployment: payment-api"]

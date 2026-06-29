@@ -118,9 +118,9 @@ How do developers know what input variables your module accepts or what outputs 
 
 ```mermaid
 flowchart TD
-    classDef repo fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef doc fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef env fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef repo fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef doc fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef env fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
 
     subgraph ModuleRepo [Shared Enterprise Module (e.g. AWS VPC)]
         MOD_VARS["variables.tf (Validation)"]

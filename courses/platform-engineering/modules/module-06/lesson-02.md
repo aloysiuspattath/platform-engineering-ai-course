@@ -104,9 +104,9 @@ By default, Docker executes container processes as the `root` user (`UID 0`). Be
 
 ```mermaid
 flowchart TD
-    classDef buildStage fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef prodStage fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef artifact fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef buildStage fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef prodStage fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
+    classDef artifact fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
 
     subgraph Stage1 [Builder Stage (Discarded)]
         B_FROM["FROM golang:1.21 AS builder"]

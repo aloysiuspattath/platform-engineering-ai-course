@@ -111,9 +111,9 @@ How does an application read secrets from Vault without writing massive custom A
 
 ```mermaid
 flowchart TD
-    classDef storage fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef engine fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef runtime fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef storage fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000000;
+    classDef engine fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000000;
+    classDef runtime fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000000;
 
     subgraph GitOps [GitOps Secret Management (SOPS)]
         PLAIN["Plain-Text Secret"]
