@@ -119,6 +119,37 @@ div[dir="ltr"] > div {
   max-width: 100% !important;
 }
 
+/* Add horizontal padding so content doesn't hug the screen edges */
+main {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  main {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+/* Fix negative margin typography clipping */
+p, span {
+  margin-left: 0 !important;
+}
+
+/* Fix sr-only horizontal overflow */
+.sr-only, ._sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border-width: 0 !important;
+}
+
 /* Override the default max-width constraint which causes the sidebar to float inwards */
 .max-w-\[90rem\] {
   max-width: 100% !important;
