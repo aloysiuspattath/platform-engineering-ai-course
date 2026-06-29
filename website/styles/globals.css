@@ -3,16 +3,17 @@
 @tailwind utilities;
 
 :root {
-  /* Vibrant Purple (#a855f7) in HSL is 271, 91%, 65% */
-  --nextra-primary-hue: 271deg;
-  --nextra-primary-saturation: 91%;
-  --nextra-primary-lightness: 65%;
+  /* Stark Slate (slate-900) matching roadmap.sh clean aesthetic */
+  --nextra-primary-hue: 222deg;
+  --nextra-primary-saturation: 47%;
+  --nextra-primary-lightness: 11%;
 }
 
 .dark {
-  --nextra-primary-hue: 271deg;
-  --nextra-primary-saturation: 91%;
-  --nextra-primary-lightness: 65%;
+  /* White/Light Gray for dark mode primary */
+  --nextra-primary-hue: 210deg;
+  --nextra-primary-saturation: 40%;
+  --nextra-primary-lightness: 98%;
 }
 
 html,
