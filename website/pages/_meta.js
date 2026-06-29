@@ -2,7 +2,7 @@ export default {
   index: {
     title: "Welcome",
     theme: {
-      layout: "full"
+      layout: "raw"
     }
   },
   modules: "Curriculum Modules",
