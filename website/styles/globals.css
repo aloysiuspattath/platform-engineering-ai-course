@@ -133,14 +133,14 @@ div[dir="ltr"] > div {
 
 /* Add horizontal padding so content doesn't hug the screen edges */
 main {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 @media (min-width: 768px) {
   main {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
+    padding-left: 0;
+    padding-right: 0;
   }
 }
 
