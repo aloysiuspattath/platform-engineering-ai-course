@@ -124,8 +124,9 @@ div[dir="ltr"] > div {
   max-width: 100% !important;
 }
 
-/* Increase sidebar width to stop text from wrapping awkwardly on submenus */
-.nextra-sidebar-container {
+/* Increase sidebar width to stop text from wrapping awkwardly on submenus, but ONLY when expanded (w-64) so the collapse button still works */
+.nextra-sidebar-container.w-64,
+.nextra-sidebar-container.md\:w-64 {
   width: 320px !important;
 }
 
