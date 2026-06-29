@@ -86,19 +86,31 @@ To ensure a service launches automatically whenever the physical server powers o
 
 ```mermaid
 flowchart TD
-    subgraph BootSequence [System Boot Sequence]
-        KERNEL[Linux Kernel Execution] --> SYSTEMD["systemd (PID 1 / Master Init)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef file fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Management [User Space Admin]
+        SYSCTL["systemctl (CLI Utility)"]:::userSpace
+        JOURNCTL["journalctl (CLI Utility)"]:::userSpace
     end
 
-    subgraph ServiceManagement [systemctl Gateway]
-        SYSTEMD -->|systemctl start| SRV_ACTIVE["Active Daemon: nginx.service"]
-        SYSTEMD -->|systemctl enable| SRV_BOOT["Automated Boot Symlinks"]
+    subgraph SystemdCore [systemd Init System]
+        SYSTEMD["systemd Daemon (PID 1)"]:::userSpace
+        JOURNALD["systemd-journald Daemon"]:::userSpace
     end
 
-    subgraph CentralLogging [journalctl Logging]
-        SRV_ACTIVE -->|stdout / stderr| JOURNAL["Centralized Systemd Journal"]
-        JOURNAL -->|journalctl -u nginx| SCREEN[Terminal Screen]
+    subgraph Configs [Configuration on Disk]
+        UNIT["Unit File (nginx.service)"]:::file
+        SYMLINK["Boot Symlink (multi-user.target.wants)"]:::file
     end
+
+    SYSCTL -.->|IPC Comm| SYSTEMD
+    SYSTEMD -.->|Reads| UNIT
+    SYSCTL -->|Creates/Removes| SYMLINK
+    SYSTEMD -->|Manages Lifecycle| DAEMON["nginx Daemon"]:::userSpace
+    DAEMON -->|stdout/stderr| JOURNALD
+    JOURNALD -.-> JOURNCTL
 ```
 
 ---

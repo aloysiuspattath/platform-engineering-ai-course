@@ -99,26 +99,41 @@ To ensure your `compose.yaml` file can be safely committed to GitHub without exp
 
 ```mermaid
 flowchart TD
-    subgraph DeclarativeManifest [Version-Controlled Manifests]
-        YAML["compose.yaml (Top-level: services, networks, volumes)"] --> ENV[".env File (Gitignored Secrets: DB_PASSWORD)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef container fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+
+    subgraph ConfigSpace [Declarative Configuration]
+        YAML["compose.yaml"]
+        ENV[".env File (Secrets)"]
+        CLI["Docker Compose CLI"]
+        
+        YAML --> CLI
+        ENV --> CLI
     end
 
-    subgraph ComposeEngine [Docker Compose Orchestration Engine]
-        YAML -->|docker compose up -d| UP["Calculates Desired State vs Active Engine"]
-        ENV --> UP
-        UP -->|1. Creates Virtual Network| NET["Custom Bridge Network: aiapp_default"]
-        UP -->|2. Creates Volume| VOL["Persistent Volume: aiapp_pgdata"]
+    subgraph DockerHost [Docker Engine Host]
+        NET["Virtual Bridge Network: aiapp_default"]
+        VOL["Persistent Volume: aiapp_pgdata"]
+        
+        CLI -->|docker compose up -d| NET
+        CLI -->|Creates| VOL
     end
 
-    subgraph RunningTopology [Active Microservice Topology]
-        NET --> DB["Service: database (postgres:15)"]
-        VOL -->|Mounts /var/lib/postgresql/data| DB
-        DB -->|Healthcheck: pg_isready| HC["Condition: service_healthy"]
-        NET --> API["Service: api (python-fastapi:latest)"]
-        HC -->|Passes| API
-        API -->|Service Discovery| DNS["Internal DNS: http://database:5432"]
-        DNS --> DB
+    subgraph ContainerSpace [Running Topology]
+        DB["database (postgres:15)"]
+        API["api (python-fastapi)"]
+        
+        NET <==> DB
+        NET <==> API
+        VOL ====>|Mounts /var/lib/postgresql/data| DB
+        
+        API -.->|Internal DNS: http://database:5432| DB
     end
+
+    class YAML,ENV,CLI,NET userSpace;
+    class DB,API container;
+    class VOL storage;
 ```
 
 ---

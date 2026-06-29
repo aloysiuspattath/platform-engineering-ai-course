@@ -115,10 +115,53 @@ Legacy `Ingress` resources suffer from a massive limitation: they combine infras
   * `Gateway`: Managed exclusively by **Platform Engineers**! Defines physical gateway infrastructure, TLS certificates, and port binding (`https: 443`).
   * `HTTPRoute`: Managed independently by **Application Developers**! Defines dynamic HTTP path matching, header routing, and canary traffic splitting (`weight: 90/10`), attaching cleanly to the master `Gateway`!
 
-```text
-[ Platform Engineer: kind: Gateway ] (Manages TLS Certificates & Ports: 443)
-        │
-        └──► [ Application Developer: kind: HTTPRoute ] (Manages Dynamic Paths: /v1 -> Service A)
+```mermaid
+flowchart TD
+    classDef external fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef ingress fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef service fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef pod fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    subgraph Internet [Public Internet]
+        CLIENT["Client Web Browser"]
+    end
+
+    subgraph ExternalCloud [Public Cloud Boundary]
+        CLB["External Cloud Load Balancer"]
+    end
+
+    subgraph K8sCluster [Kubernetes Cluster Boundary]
+        INGRESS["Ingress Controller / Gateway API"]
+        
+        subgraph InternalNetwork [Cluster Virtual Network]
+            SVC_API["Service: payment-api"]
+            SVC_WEB["Service: web-frontend"]
+            
+            EP_API["EndpointSlice (Pod IP list)"]
+            EP_WEB["EndpointSlice (Pod IP list)"]
+            
+            SVC_API -.-> EP_API
+            SVC_WEB -.-> EP_WEB
+        end
+        
+        subgraph Pods [Worker Node Workloads]
+            POD_API["Pod: payment-api"]
+            POD_WEB["Pod: web-frontend"]
+            
+            EP_API -.->|Routes to| POD_API
+            EP_WEB -.->|Routes to| POD_WEB
+        end
+    end
+    
+    CLIENT --> CLB
+    CLB --> INGRESS
+    INGRESS -->|Path /api| SVC_API
+    INGRESS -->|Path /| SVC_WEB
+
+    class CLIENT external;
+    class CLB,INGRESS ingress;
+    class SVC_API,SVC_WEB,EP_API,EP_WEB service;
+    class POD_API,POD_WEB pod;
 ```
 
 ---

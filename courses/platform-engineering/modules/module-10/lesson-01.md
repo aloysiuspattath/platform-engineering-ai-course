@@ -124,42 +124,36 @@ In Kubernetes, you never deploy a naked Docker container directly! You deploy a 
 
 ```mermaid
 flowchart TD
-    subgraph ControlPlane [Kubernetes Control Plane (Master Brain)]
-        API["kube-apiserver (Master HTTP REST Hub: 6443)"]
-        ETCD["etcd (Distributed Key-Value Memory Bank)"]
-        CTRL["kube-controller-manager (Reconciliation Engine)"]
-        SCHED["kube-scheduler (Placement GPS)"]
+    classDef control fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef worker fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef container fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+
+    subgraph ControlPlane [Kubernetes Control Plane]
+        API["kube-apiserver"]
+        ETCD["etcd (Key-Value Store)"]
+        CTRL["kube-controller-manager"]
+        SCHED["kube-scheduler"]
         
-        API <--> ETCD
-        API <--> CTRL
-        API <--> SCHED
+        API <==> ETCD
+        API <==> CTRL
+        API <==> SCHED
     end
 
-    subgraph WorkerNode1 [Worker Node 1: 10.0.10.15]
-        KLET1["kubelet (Node Captain)"]
-        KPRX1["kube-proxy (Traffic Cop: iptables)"]
-        CRI1["Container Runtime: containerd"]
-        POD1["Running Pod A (Payment Microservice)"]
+    subgraph WorkerNode1 [Worker Node 1]
+        KLET1["kubelet"]
+        KPRX1["kube-proxy"]
+        CRI1["Container Runtime (containerd)"]
+        POD1["Running Pod A"]
         
-        KLET1 -->|Commands| CRI1
-        CRI1 -->|Runs| POD1
-        KPRX1 -->|Routes Packets| POD1
+        API <==>|Network Comms| KLET1
+        API <==>|Network Comms| KPRX1
+        KLET1 -->|gRPC| CRI1
+        CRI1 -->|Manages| POD1
     end
 
-    subgraph WorkerNode2 [Worker Node 2: 10.0.10.16]
-        KLET2["kubelet (Node Captain)"]
-        KPRX2["kube-proxy (Traffic Cop: iptables)"]
-        CRI2["Container Runtime: containerd"]
-        POD2["Running Pod B (Payment Microservice)"]
-        
-        KLET2 -->|Commands| CRI2
-        CRI2 -->|Runs| POD2
-        KPRX2 -->|Routes Packets| POD2
-    end
-
-    CLIENT["Engineer / CI/CD (kubectl apply)"] -->|HTTPS POST| API
-    API <-->|Heartbeats / Specs| KLET1
-    API <-->|Heartbeats / Specs| KLET2
+    class API,ETCD,CTRL,SCHED control;
+    class KLET1,KPRX1,CRI1 worker;
+    class POD1 container;
 ```
 
 ---

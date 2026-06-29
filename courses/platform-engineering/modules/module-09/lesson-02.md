@@ -118,23 +118,41 @@ How does an external CI/CD runner (like GitHub Actions) assume an AWS IAM Role w
 
 ```mermaid
 flowchart TD
-    subgraph GitHubEngine [GitHub Actions CI/CD Runner]
-        JOB["Workflow Job: Deploy to AWS"] -->|1. Requests OIDC Token| OIDC_PROV["GitHub OIDC Identity Provider"]
-        OIDC_PROV -->|Returns Signed JWT| JWT["OIDC JWT (sub: repo:my-org/my-app:ref:refs/heads/main)"]
+    classDef pipeline fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef provider fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph GithubEnv [GitHub Actions Environment]
+        JOB["Workflow Job (Deploy)"]
+        JOB -->|1. Request Token| OIDC_PROV["GitHub OIDC Provider"]
+        OIDC_PROV -->|JWT Signed| JWT["OIDC JWT"]
     end
 
-    subgraph AWSCloud [AWS Security Token Service - STS]
-        JWT -->|2. sts:AssumeRoleWithWebIdentity| STS["AWS STS API Endpoint"]
-        STS -->|Validates Trust Policy Claims| TRUST["IAM Role Trust Policy (Condition: StringEquals sub)"]
-        TRUST -->|Validation Passed| CRED["Issues Ephemeral ASIA... Tokens (Valid 1h)"]
+    subgraph AWSIAM [AWS Identity & Access Management]
+        STS["AWS STS Endpoint"]
+        TRUST["Role Trust Policy (Condition Check)"]
+        CRED["Temporary ASIA... Credentials"]
+        
+        JWT -->|2. sts:AssumeRoleWithWebIdentity| STS
+        STS --> TRUST
+        TRUST -->|Valid| CRED
     end
 
-    subgraph EvaluationEngine [AWS IAM Policy Evaluation]
-        CRED -->|3. API Request: s3:PutObject| EVAL["AWS IAM Evaluation Engine"]
-        EVAL -->|Check SCPs| SCP["Organizations SCP (Explicit Deny? No)"]
-        SCP -->|Check IAM Policy| POLICY["IAM JSON Policy (Effect: Allow, Action: s3:PutObject)"]
-        POLICY -->|Action Allowed| EXEC["API Call Executed Cleanly!"]
+    subgraph AWSEval [AWS Policy Evaluation Engine]
+        API["API Request (s3:PutObject)"]
+        SCP["Organizations SCP"]
+        POLICY["IAM JSON Policy"]
+        EXEC["Action Executed"]
+        
+        CRED -->|3. Signed API Call| API
+        API --> SCP
+        SCP -->|Allow| POLICY
+        POLICY -->|Allow| EXEC
     end
+
+    class JOB,JWT pipeline;
+    class OIDC_PROV,STS,TRUST,CRED provider;
+    class API,SCP,POLICY,EXEC engine;
 ```
 
 ---

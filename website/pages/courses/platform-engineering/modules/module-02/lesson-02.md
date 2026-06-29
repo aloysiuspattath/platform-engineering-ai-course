@@ -104,29 +104,25 @@ If you create a file as `root` but want to hand ownership over to a standard dev
 
 ```mermaid
 flowchart TD
-    subgraph TargetEntity [Target Entities]
-        U[User / Owner: u]
-        G[Group: g]
-        O[Others: o]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Utilities [User Space Tools]
+        CHMOD["chmod (Change Permissions)"]:::userSpace
+        CHOWN["chown (Change Ownership)"]:::userSpace
     end
 
-    subgraph PermValues [Permission Values]
-        R[Read: r = 4]
-        W[Write: w = 2]
-        X[Execute: x = 1]
+    subgraph VFS [Kernel / Filesystem]
+        INODE["File Inode Metadata"]:::kernelSpace
+        OWNER["Owner UID / Group GID"]:::kernelSpace
+        PERMS["Permissions (rwx r-x r-x)"]:::kernelSpace
+        INODE --- OWNER
+        INODE --- PERMS
     end
 
-    subgraph CommandTools [Administrative Utilities]
-        CHMOD[chmod 755 / chmod u+x]
-        CHOWN[chown user:group]
-    end
-
-    U --> R & W & X
-    G --> R & X
-    O --> R
-
-    CHMOD -->|Modifies Access| TargetEntity
-    CHOWN -->|Transfers Ownership| TargetEntity
+    CHMOD -->|Syscall: chmod()| PERMS
+    CHOWN -->|Syscall: chown()| OWNER
 ```
 
 ---

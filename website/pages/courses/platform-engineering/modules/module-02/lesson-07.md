@@ -103,16 +103,32 @@ When you create a brand-new script file (e.g., `backup.sh`), Linux creates it as
 
 ```mermaid
 flowchart TD
-    subgraph ScriptCreation [Script Architecture]
-        SHEBANG["#!/bin/bash (Shebang Interpreter)"] --> VARS["BACKUP_DIR='/tmp/backup' (Variables)"]
-        VARS --> COND["if [ -d $BACKUP_DIR ]; then... (Conditionals)"]
-        COND --> LOOP["for FILE in 'app1' 'app2'; do... (Loops)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef file fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Filesystem [Script File]
+        FILE["backup.sh (rwxr-xr-x)"]:::file
+        SHEBANG["#!/bin/bash"]:::file
+        FILE --- SHEBANG
     end
 
-    subgraph ExecutionEngine [Linux Execution Mechanics]
-        SCRIPT[backup.sh] -->|chmod +x| EXEC["./backup.sh (Execve System Call)"]
-        EXEC --> EXIT["Exit Code ($?): 0 (Success) / 1 (Failure)"]
+    subgraph UserSpace [User Space Execution]
+        BASH["/bin/bash (Interpreter)"]:::userSpace
+        VAR["Variables"]:::userSpace
+        COND["Conditionals"]:::userSpace
+        LOOP["Loops"]:::userSpace
+        EXIT["Exit Code ($?)"]:::userSpace
     end
+
+    subgraph KernelSpace [Kernel Execution]
+        EXECVE["sys_execve() System Call"]:::kernelSpace
+    end
+
+    FILE -.->|Executed via ./backup.sh| EXECVE
+    EXECVE -->|Reads Shebang| SHEBANG
+    EXECVE -->|Spawns| BASH
+    BASH -->|Parses| VAR --> COND --> LOOP --> EXIT
 ```
 
 ---

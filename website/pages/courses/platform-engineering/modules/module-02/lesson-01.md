@@ -75,15 +75,24 @@ Because logging directly into the `root` account is incredibly dangerous (one ty
 
 ```mermaid
 flowchart TD
-    subgraph MultiUserModel [Linux Multi-User Architecture]
-        ROOT["root (UID 0) / Master Administrator"] --> SYS["System / Service Accounts (UID 1 - 999)"]
-        ROOT --> USERS["Standard Human Users (UID 1000+)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
+
+    subgraph Identities [User Identities]
+        ROOT["root (UID 0)"]:::userSpace
+        SYS["Service Accounts (UID 1-999)"]:::userSpace
+        USER["Standard Users (UID 1000+)"]:::userSpace
     end
 
-    subgraph ElevationMechanism [Sudo Security Gateway]
-        USERS -->|Executes: sudo command| SUDO["/etc/sudoers Policy Verification"]
-        SUDO -->|Authorized| EXEC["Temporary Root Execution"]
+    subgraph SecurityGateway [Privilege Escalation]
+        SUDO_BIN["sudo binary (setuid)"]:::kernelSpace
+        SUDOERS["/etc/sudoers policy"]:::file
     end
+
+    USER -->|Invokes| SUDO_BIN
+    SUDO_BIN -.->|Checks| SUDOERS
+    SUDO_BIN -->|Executes as| ROOT
 ```
 
 ---

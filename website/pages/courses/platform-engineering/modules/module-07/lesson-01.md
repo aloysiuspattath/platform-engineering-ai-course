@@ -117,24 +117,41 @@ True Platform Engineers enforce Least Privilege across every single layer of the
 
 ```mermaid
 flowchart TD
-    subgraph ThreatModeling [STRIDE Threat Modeling Inspection]
-        ARCH["Proposed Cloud Architecture Diagram"] --> STRIDE["Evaluate STRIDE (Spoofing, Tampering, Elevation...)"]
+    classDef analysis fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef gate fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef enforcement fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph DesignPhase [Design Phase (Threat Modeling)]
+        ARCH["Cloud Architecture Diagram"]
+        STRIDE["Evaluate STRIDE (Spoofing, Tampering, etc.)"]
+        ARCH --> STRIDE
     end
 
-    subgraph SecurityGates [Master Security Enforcement]
-        STRIDE --> AUTHN["1. Authentication Gate (Who are you? -> mTLS / Tokens)"]
-        AUTHN --> AUTHZ["2. Authorization Gate (What can you do? -> RBAC / PoLP)"]
+    subgraph SecurityGates [Security Enforcement Architecture]
+        AUTHN["1. Authentication (mTLS / OIDC)"]
+        AUTHZ["2. Authorization (RBAC / Policies)"]
+        STRIDE -.-> AUTHN
+        AUTHN --> AUTHZ
     end
 
-    subgraph PoLPLayers [Least Privilege Across Stack]
-        AUTHZ --> LINUX["Linux OS: chmod 600 /etc/secrets (No 777!)"]
-        AUTHZ --> DOCKER["Container: USER 10001 (No --privileged!)"]
-        AUTHZ --> CLOUD["Cloud IAM: Allow s3:GetObject on specific bucket (No s3:*!)"]
+    subgraph ExecutionStack [Platform Execution Stack (Least Privilege)]
+        CLOUD["Cloud IAM (e.g. s3:GetObject)"]
+        LINUX["Host OS (chmod 600)"]
+        DOCKER["Container Engine (USER 10001, No --privileged)"]
+        
+        AUTHZ --> CLOUD
+        AUTHZ --> LINUX
+        AUTHZ --> DOCKER
     end
 
-    subgraph BlastRadius [Blast Radius Containment]
-        DOCKER -->|If Compromised| CONTAIN["Breach permanently trapped in isolated namespace!"]
+    subgraph IsolationLayer [Isolation Layer]
+        CONTAIN["Breach Contained within Namespace Boundary"]
+        DOCKER -.->|Compromise Attempt| CONTAIN
     end
+
+    class ARCH,STRIDE analysis;
+    class AUTHN,AUTHZ gate;
+    class CLOUD,LINUX,DOCKER enforcement;
 ```
 
 ---

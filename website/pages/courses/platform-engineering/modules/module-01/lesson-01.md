@@ -76,27 +76,36 @@ Linux is a "Unix-like" operating system. Unix was created in the late 1960s at B
 
 ```mermaid
 flowchart TD
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
     subgraph UserSpace [User Space / Applications]
-        App1[Web Browser]
-        App2[Terminal CLI]
-        App3[Python Script]
+        App1[Web Browser]:::userSpace
+        App2[Terminal CLI]:::userSpace
+        App3[Python Script]:::userSpace
     end
 
     subgraph KernelSpace [Linux Kernel]
-        K_Sched[CPU Scheduler]
-        K_Mem[Memory Manager]
-        K_VFS[Filesystem / I/O]
+        SysCall[System Call Interface]:::kernelSpace
+        K_Sched[CPU Scheduler]:::kernelSpace
+        K_Mem[Memory Manager]:::kernelSpace
+        K_VFS[Filesystem / I/O]:::kernelSpace
+        
+        SysCall --> K_Sched
+        SysCall --> K_Mem
+        SysCall --> K_VFS
     end
 
     subgraph Hardware [Physical Hardware]
-        HW_CPU[CPU / Processors]
-        HW_RAM[RAM / Memory]
-        HW_DISK[NVMe / Disks]
+        HW_CPU[CPU / Processors]:::hardware
+        HW_RAM[RAM / Memory]:::hardware
+        HW_DISK[NVMe / Disks]:::hardware
     end
 
-    App1 --> K_Sched
-    App2 --> K_Mem
-    App3 --> K_VFS
+    App1 --> SysCall
+    App2 --> SysCall
+    App3 --> SysCall
 
     K_Sched --> HW_CPU
     K_Mem --> HW_RAM

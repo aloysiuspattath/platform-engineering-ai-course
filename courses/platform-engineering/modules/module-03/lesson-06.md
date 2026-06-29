@@ -88,17 +88,34 @@ How does Kubernetes limit a container to exactly `1 Gigabyte` of RAM (`limits.me
 
 ```mermaid
 flowchart TD
-    subgraph SysCgroupFS [Cgroups v2 Unified Hierarchy: /sys/fs/cgroup/]
-        ROOT["/sys/fs/cgroup/ (Root Slice: system.slice)"] --> CG_APP["/sys/fs/cgroup/my_container/"]
-        CG_APP --> PROCS["cgroup.procs (PIDs: 1050, 1051)"]
-        CG_APP --> CPU["cpu.max (50000 100000 / 50% CPU Limit)"]
-        CG_APP --> MEM["memory.max (524288000 / 500MB Limit)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef file fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph VFS [Cgroup Virtual Filesystem]
+        CG_APP["/sys/fs/cgroup/my_container/"]:::file
+        PROCS["cgroup.procs (PIDs)"]:::file
+        CPU["cpu.max (Quota)"]:::file
+        MEM["memory.max (Limit)"]:::file
+        
+        CG_APP --- PROCS & CPU & MEM
     end
 
-    subgraph KernelEnforcement [Linux Kernel Scheduler & MMU]
-        CPU -->|Breaches Quota| THROTTLE["Kernel CFS Scheduler: CPU Throttling (Pauses PID)"]
-        MEM -->|Breaches Limit| CG_OOM["Localized Cgroup OOM Killer: kill -9 PID 1050"]
+    subgraph Process [Trapped Application]
+        APP["Containerized Process (PID 1050)"]:::userSpace
     end
+
+    subgraph Kernel [Kernel Enforcers]
+        CFS["CFS Scheduler"]:::kernelSpace
+        OOM["Localized OOM Killer"]:::kernelSpace
+    end
+
+    APP -.->|PID registered in| PROCS
+    CPU -.->|Configures| CFS
+    MEM -.->|Configures| OOM
+    
+    CFS -->|Throttles| APP
+    OOM -->|SIGKILL| APP
 ```
 
 ---

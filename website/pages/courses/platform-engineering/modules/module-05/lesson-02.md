@@ -106,24 +106,31 @@ A **Pull Request** (or Merge Request) is not a native Git CLI concept; it is an 
 
 ```mermaid
 flowchart TD
-    subgraph LocalLaptop [Engineer Local Repository]
-        MAIN_L["Local Branch: main"] -->|git checkout -b feature| FEAT["Local Branch: feature"]
-        FEAT -->|git push -u origin feature| REMOTE_FEAT
+    classDef localEnv fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef remoteEnv fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Local [Local Repository (User Space)]
+        MAIN_L["Local main"]:::localEnv -->|Branch| FEAT["Local feature"]:::localEnv
     end
 
-    subgraph GitHubServer [GitHub / GitLab Remote Server]
-        REMOTE_FEAT["Remote Branch: feature"] -->|Open Pull Request| PR["Pull Request (PR) Quality Gate"]
-        PR -->|1. Automated CI/CD Tests| TESTS["CI/CD Pipeline (Unit Tests / Terraform Lint)"]
-        PR -->|2. Peer Code Review| REVIEW["Senior Engineer Approval"]
-        TESTS -->|Pass| MERGE["Merge into Trunk (main)"]
-        REVIEW -->|Approve| MERGE
-        MERGE -->|Automated GitOps| DEPLOY["Production Cloud Deployment"]
+    subgraph Remote [Remote Platform (GitHub)]
+        REMOTE_FEAT["Remote feature"]:::remoteEnv
+        PR["Pull Request"]:::remoteEnv
+        CI["CI/CD Checks"]:::remoteEnv
+        MAIN_R["Remote main (Trunk)"]:::remoteEnv
     end
 
-    subgraph SyncWorkflow [Syncing Local Laptop]
-        MERGE -->|git fetch origin| FETCH["Updates origin/main pointer locally"]
-        MAIN_L -->|git pull origin main| MERGE_LOCAL["Merges origin/main into local main"]
+    subgraph Sync [Sync Operations]
+        PUSH["git push"]:::action
+        PULL["git pull"]:::action
     end
+
+    FEAT --> PUSH --> REMOTE_FEAT
+    REMOTE_FEAT -->|Create| PR
+    PR -->|Triggers| CI
+    CI -->|Approves| MAIN_R
+    MAIN_R --> PULL --> MAIN_L
 ```
 
 ---

@@ -82,18 +82,19 @@ cat /var/log/syslog | grep "error"
 
 ```mermaid
 flowchart LR
-    subgraph InputLayer [Command 1: cat]
-        FILE[Massive Log File] --> CAT[cat /var/log/syslog]
-    end
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
 
-    subgraph PipeLayer [The Unix Pipe: | ]
-        CAT -->|10,000 Lines of Text| PIPE["| (Pipe)"]
+    FILE[Log File on Disk]:::hardware -->|Read via VFS| CAT["cat (Process 1)"]:::userSpace
+    
+    subgraph KernelIPC [Kernel Space: IPC]
+        PIPE[In-Memory Pipe Buffer]:::kernelSpace
     end
-
-    subgraph FilterLayer [Command 2: grep]
-        PIPE --> GREP[grep 'error']
-        GREP -->|5 Matching Lines| SCREEN[Terminal Screen]
-    end
+    
+    CAT -->|Writes stdout| PIPE
+    PIPE -->|Reads stdin| GREP["grep 'error' (Process 2)"]:::userSpace
+    GREP -->|Writes stdout| SCREEN[Terminal Display]:::hardware
 ```
 
 ---

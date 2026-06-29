@@ -106,22 +106,42 @@ How do you enforce that a Kubernetes cluster refuses to run an unsigned containe
 
 ```mermaid
 flowchart TD
-    subgraph BuildPipeline [CI/CD Build Pipeline (SLSA Level 3)]
-        CODE["Git Pull Request (Merged)"] --> BUILD["docker build -t myapp:v1 ."]
-        BUILD --> SYFT["syft myapp:v1 -o cyclonedx-json > sbom.json"]
-        SYFT --> COSIGN["cosign sign --keyless myapp:v1 (Signs Image + SBOM)"]
-        COSIGN --> PUSH["docker push myapp:v1 (Pushed to OCI Registry)"]
+    classDef ciPhase fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef cluster fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef action fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+
+    subgraph SecureSupplyChain [Secure Supply Chain (CI/CD)]
+        BUILD["docker build"]
+        SYFT["syft (Generate SBOM)"]
+        COSIGN["cosign sign (Sign Image & SBOM)"]
+        REGISTRY["OCI Container Registry"]
+        
+        BUILD --> SYFT
+        SYFT --> COSIGN
+        COSIGN -->|Push signed artifacts| REGISTRY
     end
 
-    subgraph ClusterAdmission [Kubernetes Admission Controller]
-        DEPLOY["kubectl apply -f deployment.yml"] --> KYVERNO["Kyverno Admission Webhook"]
-        KYVERNO -->|cosign verify myapp:v1| VERIFY["Validates OIDC Signature & Provenance"]
+    subgraph AdmissionControl [Kubernetes Admission Controller]
+        DEPLOY["kubectl apply"]
+        KYVERNO["Kyverno Admission Webhook"]
+        VERIFY["cosign verify (Validate Signature)"]
+        
+        DEPLOY --> KYVERNO
+        KYVERNO -.->|Fetch artifact & signature| REGISTRY
+        KYVERNO --> VERIFY
     end
 
-    subgraph ProductionExecution [Production Cluster State]
-        VERIFY -->|Signature Valid| ALLOW["Deployment Approved: Pod Starts Cleanly!"]
-        VERIFY -->|Signature Forged / Missing| BLOCK["Admission Rejected: Deployment Forcefully Blocked!"]
+    subgraph Enforcement [Runtime Enforcement]
+        ALLOW["Signature Valid -> Pod Deployed"]
+        BLOCK["Signature Invalid -> Deployment Blocked"]
+        
+        VERIFY --> ALLOW
+        VERIFY --> BLOCK
     end
+
+    class BUILD,SYFT,COSIGN,REGISTRY ciPhase;
+    class DEPLOY,KYVERNO,VERIFY cluster;
+    class ALLOW,BLOCK action;
 ```
 
 ---

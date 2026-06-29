@@ -136,6 +136,43 @@ How does Kubernetes know whether your container is healthy enough to receive inc
 
 ```mermaid
 flowchart TD
+    classDef deploy fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef rs fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef pod fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph K8sCluster [Kubernetes Production Cluster]
+        DEP["Deployment: payment-api"]
+        
+        subgraph OldRS [ReplicaSet: v1 (Scaling Down)]
+            POD_V1["Pod: v1-abc (Terminating)"]
+        end
+
+        subgraph NewRS [ReplicaSet: v2 (Scaling Up)]
+            POD_V2_1["Pod: v2-xyz (Running)"]
+            POD_V2_2["Pod: v2-def (Running)"]
+            POD_V2_3["Pod: v2-ghi (Pending)"]
+        end
+
+        DEP -->|Manages Revisions| OldRS
+        DEP -->|Manages Revisions| NewRS
+        
+        OldRS -.-> POD_V1
+        NewRS -.-> POD_V2_1
+        NewRS -.-> POD_V2_2
+        NewRS -.-> POD_V2_3
+    end
+    
+    class DEP deploy;
+    class OldRS,NewRS rs;
+    class POD_V1,POD_V2_1,POD_V2_2,POD_V2_3 pod;
+```
+
+---
+
+# Architecture
+
+```mermaid
+flowchart TD
     subgraph K8sCluster [Kubernetes Production Cluster]
         DEP["Deployment: payment-api (replicas: 3, strategy: RollingUpdate)"]
         

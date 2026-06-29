@@ -121,30 +121,46 @@ When debugging a cluster-wide orchestration collapse involving thousands of Pods
 
 ```mermaid
 flowchart TD
-    subgraph K8sCluster [Kubernetes Production Cluster]
-        API["kube-apiserver (Master Event Hub)"]
-        
-        subgraph WorkerNode [Worker Node 1: 10.0.10.15 (STATUS: NotReady)]
-            KLET["kubelet Daemon (systemd process)"]
-            CRI["Container Runtime: containerd (Crashed Socket!)"]
-            
-            POD1["Pod: auth-api-abc (STATUS: OOMKilled - Exit 137)"]
-            POD2["Pod: web-app-xyz (STATUS: CrashLoopBackOff - Distroless)"]
-            
-            KLET -->|Reports| API
-            KLET -->|Commands| CRI
-            CRI -->|Runs| POD1
-            CRI -->|Runs| POD2
-        end
+    classDef control fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef worker fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef pod fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef user fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    subgraph ControlPlane [Kubernetes Control Plane]
+        API["kube-apiserver (Event Hub)"]
     end
 
-    subgraph DiagnosticEngine [Platform Engineer Diagnostic Engine]
-        EVT["1. kubectl get events --sort-by=.metadata.creationTimestamp"] -->|Spots Event Storm| API
-        DESC["2. kubectl describe pod auth-api-abc"] -->|Spots OOMKilled| POD1
-        LOGS["3. kubectl logs web-app-xyz --previous"] -->|Inspects Fatal Exit 1| POD2
-        DBG["4. kubectl debug web-app-xyz -it --image=busybox"] -->|Injects Ephemeral Shell| POD2
-        SSH["5. SSH to Node && journalctl -u kubelet"] -->|Inspects Daemon Logs| KLET
+    subgraph WorkerNode [Worker Node (NotReady)]
+        KLET["kubelet (Node Agent)"]
+        CRI["Container Runtime (containerd)"]
+        
+        POD1["Pod: auth-api (OOMKilled)"]
+        POD2["Pod: web-app (CrashLoopBackOff)"]
+        
+        KLET -->|Reports Status| API
+        KLET -.->|Executes| CRI
+        CRI -.->|Manages| POD1
+        CRI -.->|Manages| POD2
     end
+
+    subgraph EngineerDiag [Diagnostic CLI Tools]
+        EVT["kubectl get events"]
+        DESC["kubectl describe"]
+        LOGS["kubectl logs --previous"]
+        DBG["kubectl debug (Ephemeral Shell)"]
+        SSH["Node SSH (journalctl -u kubelet)"]
+        
+        EVT -->|Fetch Cluster Events| API
+        DESC -->|Query Pod Meta| API
+        LOGS -->|Fetch App Logs| API
+        DBG -->|Attach Shell| POD2
+        SSH -->|Inspect Host| KLET
+    end
+
+    class API control;
+    class KLET,CRI worker;
+    class POD1,POD2 pod;
+    class EVT,DESC,LOGS,DBG,SSH user;
 ```
 
 ---

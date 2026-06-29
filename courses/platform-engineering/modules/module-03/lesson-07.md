@@ -91,28 +91,36 @@ If a production Kubernetes container loses its networking or lacks debugging too
 
 ```mermaid
 flowchart TD
-    subgraph HostMachine [Physical Host Machine / Root Namespaces]
-        HOST_PID["Host Process Table (PID 1000, PID 1001)"] 
-        HOST_NET["Host Network Stack (eth0: 192.168.1.50 / Port 80)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef container fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph HostEnv [Host User Space]
+        HOST_BASH["Host Shell (PID 1000)"]:::userSpace
+        NSENTER["nsenter (Debugger)"]:::userSpace
     end
 
-    subgraph NamespaceIsolation [Kernel Namespace Barrier: unshare / clone]
-        subgraph ContainerBox [Isolated Container Environment]
-            NS_PID["PID Namespace (Virtual PID 1)"]
-            NS_NET["Network Namespace (Virtual eth0: 172.17.0.2 / Port 80)"]
-            NS_MNT["Mount Namespace (Isolated Root / )"]
-            NS_UTS["UTS Namespace (Hostname: ai-container-01)"]
+    subgraph KernelNS [Kernel Space / Namespaces]
+        CLONE["sys_unshare() / sys_clone()"]:::kernelSpace
+        SETNS["sys_setns()"]:::kernelSpace
+        
+        subgraph ContainerNS [Isolated Namespaces]
+            PID_NS["PID Namespace"]:::container
+            NET_NS["Network Namespace"]:::container
+            MNT_NS["Mount Namespace"]:::container
         end
     end
 
-    HOST_PID -->|unshare --pid| NS_PID
-    HOST_NET -->|unshare --net| NS_NET
-
-    subgraph DebuggingGateway [Host Debugging Gateway]
-        NSENTER["nsenter --target 1001 --net --pid (Injects Host Tool into Container)"]
+    subgraph ContainerSpace [Container User Space]
+        CONT_APP["Container App (Virtual PID 1)"]:::container
     end
 
-    NSENTER -->|Enters Namespaces| ContainerBox
+    HOST_BASH -->|Calls| CLONE
+    CLONE -->|Creates| PID_NS & NET_NS & MNT_NS
+    CLONE -->|Spawns| CONT_APP
+    
+    NSENTER -->|Calls| SETNS
+    SETNS -->|Attaches to| ContainerNS
 ```
 
 ---

@@ -109,25 +109,38 @@ Because the state file is the master database of your cloud platform, losing it 
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperWorkspace [Developer IaC Workspace]
-        HCL["main.tf (backend 's3' { bucket = 'my-state', dynamodb_table = 'my-locks' })"] --> INIT["terraform init (Configures Remote Backend)"]
-        INIT --> APPLY["terraform apply (Initiates Cloud Provisioning)"]
+    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef backend fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph DevWorkspace [Developer Environments]
+        DEV1["Developer A (terraform apply)"]
+        DEV2["Developer B (terraform apply)"]
     end
 
-    subgraph LockEngine [Distributed State Locking]
-        APPLY -->|1. Requests Lock| DDB["AWS DynamoDB Table: my-locks"]
-        DDB -->|Lock Acquired (Execution ID: 8a9b...)| LOCK["Lock Record Active"]
+    subgraph TerraformCore [Terraform Execution Engine]
+        APPLY1["Apply Process A"]
+        APPLY2["Apply Process B"]
+        DEV1 --> APPLY1
+        DEV2 --> APPLY2
     end
 
-    subgraph RemoteStorage [Secure Remote State Storage]
-        LOCK -->|2. Pulls & Modifies State| S3["AWS S3 Bucket: my-state (KMS Encrypted)"]
-        S3 -->|S3 Object Versioning| BACKUP["Immutable Backup Version Cached!"]
+    subgraph RemoteBackend [Remote State Backend]
+        DDB["DynamoDB (State Locking)"]
+        S3["S3 Bucket (State Storage)"]
+        BACKUP["S3 Object Versioning (Immutable Backups)"]
+        
+        APPLY1 -->|1. Acquires Lock| DDB
+        APPLY1 -->|2. Pulls/Pushes State| S3
+        S3 -.->|Automatically versions| BACKUP
+        
+        APPLY2 -->|1. Requests Lock| DDB
+        DDB -.->|Lock Denied| APPLY2
     end
 
-    subgraph ConcurrentGuard [Concurrent Execution Defense]
-        DEV2["Developer B: terraform apply"] -->|Checks Lock| DDB
-        DDB -->|Lock Active| ABORT["Exit Code 1: Error acquiring the state lock!"]
-    end
+    class DEV1,DEV2 dev;
+    class APPLY1,APPLY2 engine;
+    class DDB,S3,BACKUP backend;
 ```
 
 ---

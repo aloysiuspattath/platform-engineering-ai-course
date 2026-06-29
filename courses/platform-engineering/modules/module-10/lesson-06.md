@@ -121,34 +121,49 @@ If HPA or KEDA scales your Deployment from 3 Pods to 500 Pods, your existing phy
 
 ```mermaid
 flowchart TD
-    subgraph ExternalCloud [External Cloud Boundary]
-        SQS["AWS SQS Queue: video-render-jobs (Depth: 5,000)"]
-        EC2["AWS EC2 Cloud API (Spot Market Pricing Engine)"]
+    classDef cloud fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef metrics fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef scale fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef k8s fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    subgraph ExternalCloud [External Cloud APIs]
+        SQS["AWS SQS Queue"]
+        EC2["AWS EC2 Spot Market Engine"]
     end
 
-    subgraph K8sCluster [Kubernetes Production Cluster]
-        MS["Metrics Server (Aggregates kubelet CPU/RAM)"]
-        HPA["HorizontalPodAutoscaler: web-api (Target CPU: 80%)"]
-        KEDA["KEDA ScaledObject: video-worker (Trigger: SQS > 100)"]
-        KARP["Karpenter Node Provisioning Engine"]
+    subgraph ClusterAutoscaling [Kubernetes Dynamic Scalers]
+        MS["Metrics Server (CPU/RAM)"]
+        HPA["HorizontalPodAutoscaler (Target: CPU 80%)"]
+        KEDA["KEDA ScaledObject (Target: SQS > 100)"]
+        KARP["Karpenter Node Provisioner"]
         
-        DEP_WEB["Deployment: web-api (Current Replicas: 3 -> Scales to 10)"]
-        DEP_WRK["Deployment: video-worker (Current Replicas: 0 -> Scales to 50)"]
-        
-        subgraph WorkerNodes [Worker Node Physical Execution]
-            POD1["Pod: web-api-abc (CPU: 95%)"]
-            POD2["Pod: video-worker-xyz (Pending: No Free Nodes!)"]
-        end
-
-        MS -->|Report CPU 95%| HPA
-        HPA -->|Scale Up| DEP_WEB
-        SQS -->|Report Depth 5000| KEDA
-        KEDA -->|Scale Up from 0| DEP_WRK
-        
-        POD2 -->|Unfulfillable Specs| KARP
-        KARP -->|Direct API Call: r6g.4xlarge Spot| EC2
-        EC2 -->|Spins up Node in 45s!| WorkerNodes
+        MS -.->|Aggregates Stats| HPA
+        SQS -.->|Reads Queue Depth| KEDA
     end
+
+    subgraph ControlPlane [K8s Workloads]
+        DEP_WEB["Deployment: web-api"]
+        DEP_WRK["Deployment: video-worker"]
+        
+        HPA -->|Scales Replicas| DEP_WEB
+        KEDA -->|Scales Replicas| DEP_WRK
+    end
+    
+    subgraph WorkerNodes [Worker Node Resources]
+        POD1["Pod: web-api (Running, High CPU)"]
+        POD2["Pod: video-worker (Pending, No Nodes)"]
+        
+        DEP_WEB -.-> POD1
+        DEP_WRK -.-> POD2
+        
+        POD2 -.->|Detects Pending| KARP
+        KARP -->|Provisions via API| EC2
+    end
+
+    class SQS,EC2 cloud;
+    class MS,HPA,KEDA,KARP metrics;
+    class DEP_WEB,DEP_WRK scale;
+    class POD1,POD2 k8s;
 ```
 
 ---

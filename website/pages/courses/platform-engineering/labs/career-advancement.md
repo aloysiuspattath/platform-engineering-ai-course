@@ -64,39 +64,63 @@ To eliminate **Tactical Communication Silos**, **Unverified Resume Fluff**, **De
 
 ```mermaid
 flowchart TD
-    subgraph CareerScope [Layer 1: Master Career Scope (staff-ladder.md)]
-        LADDER["Career Ladder Rubric (scope: Enterprise Strategy)"]
-        IMPACT["Executive Impact Engine (track-impact.sh)"]
+    classDef scope fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef portfolio fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef culture fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef design fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef forecast fill:#ffebee,stroke:#c62828,stroke-width:2px;
+
+    subgraph CareerScope [Layer 1: Master Career Scope]
+        LADDER["Career Ladder Rubric"]
+        IMPACT["Executive Impact Engine"]
         LADDER --> IMPACT
     end
 
-    subgraph PortfolioEngine [Layer 2: Executive Portfolio (case-study-01.md)]
-        CASE["STAR-Architecture Case Studies (## 3. Architecture)"]
-        BUILD["Portfolio Compilation Engine (build-portfolio.sh)"]
-        IMPACT --> CASE --> BUILD
+    subgraph PortfolioEngine [Layer 2: Executive Portfolio]
+        CASE["STAR-Architecture Case Studies"]
+        BUILD["Portfolio Compilation Engine"]
+        IMPACT --> CASE
+        CASE --> BUILD
     end
 
-    subgraph DeveloperCulture [Layer 3: Enterprise Transformation (evangelism-roadmap.md)]
-        ROAD["Evangelism Roadmap (phase_name: Early Adopters)"]
-        GOLD["Platform Golden Path (tier: golden-path)"]
-        TRACK["Adoption Tracking Engine (track-adoption.sh)"]
-        BUILD --> ROAD & GOLD --> TRACK
+    subgraph DeveloperCulture [Layer 3: Enterprise Transformation]
+        ROAD["Evangelism Roadmap"]
+        GOLD["Platform Golden Path"]
+        TRACK["Adoption Tracking Engine"]
+        BUILD --> ROAD
+        BUILD --> GOLD
+        ROAD --> TRACK
+        GOLD --> TRACK
     end
 
-    subgraph SystemDesign [Layer 4: Whiteboard Frameworks (system-design-blueprint.drawio)]
-        DRAW["System Design Blueprint (Multi-Region Active-Active)"]
-        NOTES["Interview Notes (## Tier 4: Trade-Off Analysis)"]
-        VAL["Interview Validation Engine (validate-system-design.sh)"]
-        TRACK --> DRAW & NOTES --> VAL
+    subgraph SystemDesign [Layer 4: Whiteboard Frameworks]
+        DRAW["System Design Blueprint"]
+        NOTES["Interview Notes"]
+        VAL["Interview Validation Engine"]
+        TRACK --> DRAW
+        TRACK --> NOTES
+        DRAW --> VAL
+        NOTES --> VAL
     end
 
-    subgraph TechForecasting [Layer 5: Continuous Learning (emerging-ai-infra.md)]
-        INFRA["Emerging AI Infrastructure Roadmap (Three-Tier Horizon)"]
-        BENCH["Hardware Benchmark (tech_status: Verified + 150 tokens/sec/watt)"]
-        EVAL["Technology Evaluation Engine (eval-emerging-tech.sh)"]
-        VAL --> INFRA & BENCH --> EVAL
-        EVAL --> PASS["PRINCIPAL ARCHITECT PROMOTION APPROVED! ($450K COMP)"]
+    subgraph TechForecasting [Layer 5: Continuous Learning]
+        INFRA["Emerging AI Infrastructure Roadmap"]
+        BENCH["Hardware Benchmark"]
+        EVAL["Technology Evaluation Engine"]
+        PASS["PRINCIPAL ARCHITECT PROMOTION APPROVED!"]
+        
+        VAL --> INFRA
+        VAL --> BENCH
+        INFRA --> EVAL
+        BENCH --> EVAL
+        EVAL ====> PASS
     end
+
+    class LADDER,IMPACT scope;
+    class CASE,BUILD portfolio;
+    class ROAD,GOLD,TRACK culture;
+    class DRAW,NOTES,VAL design;
+    class INFRA,BENCH,EVAL,PASS forecast;
 ```
 
 ## Architecture Decryption

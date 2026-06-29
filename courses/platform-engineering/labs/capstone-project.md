@@ -64,43 +64,53 @@ To eliminate **Siloed Engineering Gridlock**, **Disjointed GitOps Pipelines**, *
 
 ```mermaid
 flowchart TD
-    subgraph Layer4_IDP [Layer 4: Internal Developer Platform (Backstage / ArgoCD)]
-        PORTAL["Backstage Self-Service Portal (500 Devs)"]
-        GITOPS["ArgoCD Master GitOps Engine (selfHeal: true)"]
+    classDef idp fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef platform fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef tenant fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef chaos fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef infra fill:#ffebee,stroke:#c62828,stroke-width:2px;
+
+    subgraph Layer4_IDP [Layer 4: Internal Developer Platform]
+        PORTAL["Backstage Self-Service Portal"]
+        GITOPS["ArgoCD Master GitOps Engine"]
         PORTAL -->|Scaffolds Workloads| GITOPS
     end
 
-    subgraph Layer2_Platform [Layer 2: Core Platform Services (K8s / Istio / Kyverno)]
-        GW["Istio Ingress Gateway (k6 Load: 10,000 req/sec)"]
-        KYV["Kyverno Policy Engine (validationFailureAction: Enforce)"]
+    subgraph Layer2_Platform [Layer 2: Core Platform Services]
+        GW["Istio Ingress Gateway"]
+        KYV["Kyverno Policy Engine"]
         GITOPS -->|Deploys Manifests| KYV
-        KYV -->|Validated Workloads| GW
+        KYV -.->|Enforces Policies| GW
     end
 
-    subgraph Layer3_Tenants [Layer 3: Multi-Tenant AI Workloads (Isolated Namespaces)]
+    subgraph Layer3_Tenants [Layer 3: Multi-Tenant AI Workloads]
         subgraph TenantTrading [Namespace: tenant-trading]
-            QTRAD["ResourceQuota (limits.gpu: 8)"]
-            NETRAD["NetworkPolicy (Default Deny)"]
-            PODTRAD["vLLM Pod (Toleration: nvidia.com/gpu)"]
-            QTRAD & NETRAD --> PODTRAD
+            QTRAD["ResourceQuota"]
+            NETRAD["NetworkPolicy"]
+            PODTRAD["vLLM AI Pod"]
+            QTRAD -.->|Limits| PODTRAD
+            NETRAD -.->|Secures| PODTRAD
         end
-        
-        GW -->|Traffic Route| PODTRAD
+        GW -->|Routes Traffic| PODTRAD
     end
 
-    subgraph Layer5_Chaos [Layer 5: LitmusChaos Resilience Verification]
-        CHAOS["LitmusChaos Controller (kind: ChaosEngine)"]
-        PROBE["httpProbe (url: http://vllm/v1/models)"]
-        CHAOS -->|Polls Availability| PROBE
-        CHAOS -->|Injects pod-delete| PODTRAD
+    subgraph Layer5_Chaos [Layer 5: Chaos Engineering]
+        CHAOS["LitmusChaos Controller"]
+        PROBE["httpProbe (Availability Check)"]
+        CHAOS -->|Polls| PROBE
+        CHAOS -->|Injects Faults| PODTRAD
     end
 
-    subgraph Layer1_Infra [Layer 1: Infrastructure as Code (Terraform GPU Nodes)]
-        GPU["Physical NVIDIA H100 GPU Node Pools (aws_eks_node_group)"]
-        PODTRAD -->|Consumes Max 8 GPUs| GPU
-        NVME["NVMe RAID 0 Array (/var/cache/models)"]
-        GPU -->|user_data| NVME
+    subgraph Layer1_Infra [Layer 1: Infrastructure as Code]
+        GPU["Physical GPU Node Pools (H100)"]
+        PODTRAD -.->|Consumes GPU| GPU
     end
+
+    class PORTAL,GITOPS idp;
+    class GW,KYV platform;
+    class QTRAD,NETRAD,PODTRAD tenant;
+    class CHAOS,PROBE chaos;
+    class GPU infra;
 ```
 
 ## Architecture Decryption

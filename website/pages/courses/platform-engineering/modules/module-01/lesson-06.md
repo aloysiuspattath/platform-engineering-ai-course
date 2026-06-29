@@ -88,22 +88,25 @@ A professional Platform Engineer does not memorize every command flag. Instead, 
 
 ```mermaid
 flowchart TD
-    subgraph RootFS [The Linux Filesystem Tree]
-        ROOT["/ (Root Directory)"] --> VAR["/var"]
-        ROOT --> HOME["/home"]
-        HOME --> USER["/home/aloysius ( ~ )"]
-        USER --> PROJ["/home/aloysius/projects"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+
+    subgraph ShellSession [Terminal Shell]
+        PWD["pwd"]:::userSpace
+        LS["ls -la"]:::userSpace
+        CD["cd .."]:::userSpace
     end
 
-    subgraph Navigation [Navigational Commands]
-        PWD["pwd (Where am I?)"]
-        LS["ls -la (What is here?)"]
-        CD["cd .. (Move up one folder)"]
+    subgraph VFS [Kernel Virtual Filesystem]
+        ROOT["/ (Root)"]:::kernelSpace --> VAR["/var"]:::kernelSpace
+        ROOT --> HOME["/home"]:::kernelSpace
+        HOME --> USER["/home/aloysius ( ~ )"]:::kernelSpace
+        USER --> PROJ["/home/aloysius/projects"]:::kernelSpace
     end
 
-    PWD -->|Identifies| USER
-    LS -->|Inspects| USER
-    CD -->|Moves to| HOME
+    PWD -.->|Reads CWD context| VFS
+    LS -.->|Reads directory entries| USER
+    CD -.->|Changes CWD to| HOME
 ```
 
 ---

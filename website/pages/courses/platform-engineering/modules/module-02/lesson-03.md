@@ -97,25 +97,27 @@ If you run a massive backup script in the terminal, it will lock up your prompt 
 
 ```mermaid
 flowchart TD
-    subgraph ProcessExecution [Active Process Execution]
-        PID1["PID 1 (systemd / Master Parent)"] --> P_APP["PID 1050 (Python Web App)"]
-        PID1 --> P_DB["PID 1100 (Postgres Database)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+
+    subgraph Utilities [User Space Tools]
+        PS["ps / top"]:::userSpace
+        KILL["kill (Send Signal)"]:::userSpace
     end
 
-    subgraph MonitoringTools [Inspection Utilities]
-        PS["ps aux | grep python (Static Snapshot)"]
-        TOP["top / htop (Real-Time Monitor)"]
+    subgraph Kernel [Linux Kernel]
+        PROC["/proc Virtual Filesystem"]:::kernelSpace
+        SIG_HANDLER["Signal Dispatcher"]:::kernelSpace
     end
 
-    subgraph TerminationSignals [Termination Mechanics]
-        SIGTERM["kill 1050 (SIGTERM / Polite Shutdown)"]
-        SIGKILL["kill -9 1050 (SIGKILL / Brutal Execution)"]
+    subgraph ProcessSpace [Active Processes]
+        PID1["PID 1 (systemd)"]:::userSpace --> P_APP["PID 1050 (Python App)"]:::userSpace
     end
 
-    PS -->|Captures Snapshot| P_APP
-    TOP -->|Monitors Live Usage| P_APP
-    SIGTERM -->|Requests Graceful Exit| P_APP
-    SIGKILL -->|Commands Instant Death| P_APP
+    PS -.->|Reads process data| PROC
+    PROC -.->|Tracks state| P_APP
+    KILL -->|Issues syscall: kill()| SIG_HANDLER
+    SIG_HANDLER -->|Delivers SIGTERM/SIGKILL| P_APP
 ```
 
 ---

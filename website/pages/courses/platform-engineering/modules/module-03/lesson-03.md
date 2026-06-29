@@ -89,24 +89,33 @@ What happens if both physical RAM and hard drive Swap space become 100% complete
 
 ```mermaid
 flowchart TD
-    subgraph VirtualLayer [Virtual Memory Illusion]
-        APP["Process Virtual Memory (VSZ: 2GB)"] -->|MMU Translation| PT["Kernel Page Tables (4KB Pages)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph UserSpace [Application Memory]
+        APP["Process Virtual Memory (VSZ)"]:::userSpace
     end
 
-    subgraph PhysicalLayer [Physical RAM & Caches]
-        PT -->|Active Pages| RAM["Physical RAM (RSS: 500MB)"]
-        PT -->|Buffer / Cache| CACHE["Filesystem Page Cache"]
+    subgraph KernelSpace [Kernel Memory Management]
+        PT["Page Tables"]:::kernelSpace
+        OOM["OOM Killer"]:::kernelSpace
     end
 
-    subgraph EmergencyDisk [Emergency Storage: Swap]
-        RAM -->|RAM Full: Swapping out| SWAP["Hard Drive Swap Space (Slow Disk)"]
+    subgraph Hardware [Physical Resources]
+        MMU["CPU MMU"]:::hardware
+        RAM["Physical RAM Chips (RSS)"]:::hardware
+        SWAP["Hard Drive Swap Space"]:::hardware
     end
 
-    subgraph KernelDefense [OOM Killer Mechanics]
-        RAM -->|100% Exhausted| OOM["Kernel OOM Killer Executioner"]
-        SWAP -->|100% Exhausted| OOM
-        OOM -->|Calculates oom_score | SIGKILL["kill -9 (Brutal Termination of Heavy Process)"]
-    end
+    APP -->|Accessed via| MMU
+    MMU -->|Translates using| PT
+    PT -->|Maps to| RAM
+    PT -.->|Swaps to| SWAP
+    
+    RAM -->|Exhausted| OOM
+    SWAP -->|Exhausted| OOM
+    OOM -->|Sends SIGKILL to| APP
 ```
 
 ---

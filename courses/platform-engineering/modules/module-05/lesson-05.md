@@ -100,22 +100,36 @@ True automation mastery requires combining your entire Module 05 knowledge into 
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperLaptop [Developer Local Repository]
-        COMMIT["git commit -m 'update tf'"] --> HOOK["Interception: .git/hooks/pre-commit"]
-        HOOK -->|Executes pre-commit| YAML[".pre-commit-config.yaml (Terraform fmt / Detect Secrets)"]
-        YAML -->|Fail| ABORT["Commit Aborted (Developer Fixes Code)"]
-        YAML -->|Pass| OBJECTS["Generates Commit Object in .git/objects"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef remoteEnv fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
+
+    subgraph Local [Local Developer Workflow]
+        COMMIT["git commit"]:::userSpace
+        PRE_COMMIT["pre-commit Hooks"]:::userSpace
+        CONFIG[".pre-commit-config.yaml"]:::file
+        OBJ_DB[".git/objects Database"]:::file
+        
+        COMMIT --> PRE_COMMIT
+        PRE_COMMIT -.->|Reads| CONFIG
+        PRE_COMMIT -->|Pass| OBJ_DB
     end
 
-    subgraph MultiRepoLinkage [Git Submodule Architecture]
-        OBJECTS -->|Contains Submodule| MOD[".gitmodules File (URL: github.com/tf-module)"]
-        MOD -->|Tree Entry 160000| SHA["Points to External Submodule Commit SHA-1"]
+    subgraph Submodules [Submodule Linkage]
+        GITMOD[".gitmodules"]:::file
+        TREE["Tree Entry (160000)"]:::file
+        OBJ_DB -.->|Includes| GITMOD
+        GITMOD -.->|Points to| TREE
     end
 
-    subgraph CloudCI [GitHub Pull Request Quality Gate]
-        OBJECTS -->|git push| PR["Pull Request Opened"]
-        PR -->|Cloud Validation| CI["CI/CD Pipeline (Runs Identical pre-commit Checks)"]
-        CI -->|Pass| MERGE["Squash and Merge into Trunk (main)"]
+    subgraph Cloud [Cloud Validation (GitOps)]
+        PUSH["git push"]:::userSpace
+        CI["CI/CD Pipeline"]:::remoteEnv
+        MAIN["Trunk (main)"]:::remoteEnv
+        
+        OBJ_DB --> PUSH
+        PUSH --> CI
+        CI -->|Pass| MAIN
     end
 ```
 

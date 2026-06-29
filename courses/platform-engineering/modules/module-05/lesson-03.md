@@ -98,21 +98,27 @@ To verify that your rebasing operations successfully maintained a clean, linear 
 
 ```mermaid
 flowchart TD
-    subgraph MessyFeature [Messy Feature Branch History]
-        C1["Commit: add vpc (SHA: 1a2b)"] --> C2["Commit: fix typo (SHA: 3c4d)"]
-        C2 --> C3["Commit: fix typo again (SHA: 5e6f)"]
+    classDef commit fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Feature [Original Feature Branch]
+        BASE["Base Commit (7a8b)"]:::commit --> C1["add vpc (1a2b)"]:::commit
+        C1 --> C2["fix typo (3c4d)"]:::commit
+        C2 --> C3["fix again (5e6f)"]:::commit
     end
 
-    subgraph InteractiveRebase [git rebase -i HEAD~3]
-        C1 -->|pick| EDIT["Interactive Editor Table"]
-        C2 -->|squash| EDIT
-        C3 -->|squash| EDIT
+    subgraph Rebase [Interactive Rebase Engine]
+        REBASE["git rebase -i (pick, squash, squash)"]:::action
     end
 
-    subgraph CleanTrunk [Clean Linear Trunk: main]
-        EDIT -->|Generates Atomic Commit| ATOMIC["Commit: feat(aws): deploy VPC (Brand-New SHA: 9f8e)"]
-        BASE["Trunk Commit: main (SHA: 7a8b)"] --> ATOMIC
+    subgraph Linear [New Linear History]
+        BASE2["Base Commit (7a8b)"]:::commit --> ATOMIC["feat(aws): deploy VPC (New SHA: 9f8e)"]:::commit
     end
+
+    C1 -.-> REBASE
+    C2 -.-> REBASE
+    C3 -.-> REBASE
+    REBASE -->|Creates| ATOMIC
 ```
 
 ---

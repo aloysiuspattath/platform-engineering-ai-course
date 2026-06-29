@@ -112,21 +112,38 @@ To verify that containers are just standard Linux processes wrapped in namespace
 
 ```mermaid
 flowchart TD
-    subgraph UserTerminal [Engineer Terminal]
-        CLI["Docker CLI (docker run -d nginx)"] -->|REST API over docker.sock| DOCKERD["Docker Daemon (dockerd)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef container fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    subgraph HostUserSpace [Host Operating System - User Space]
+        CLI["Docker CLI"]
+        DOCKERD["Docker Daemon (dockerd)"]
+        CONTAINERD["containerd (Supervisor)"]
+        RUNC["runc (OCI Runtime)"]
+        
+        CLI -->|REST API via docker.sock| DOCKERD
+        DOCKERD -->|gRPC API| CONTAINERD
+        CONTAINERD -->|Executes OCI Spec| RUNC
     end
 
-    subgraph ContainerEngine [Docker Engine Hierarchy]
-        DOCKERD -->|gRPC API| CONTAINERD["containerd (Runtime Supervisor)"]
-        CONTAINERD -->|Executes OCI Spec| RUNC["runc (Low-level Container Runtime)"]
+    subgraph HostKernelSpace [Host Linux Kernel - Kernel Space]
+        NS["Kernel Namespaces (Isolation)"]
+        CG["Control Groups (Resource Limits)"]
+        
+        RUNC -.->|System Calls| NS
+        RUNC -.->|System Calls| CG
     end
 
-    subgraph HostLinuxKernel [Host Linux Kernel Primitives]
-        RUNC -->|Sets up Namespaces| NS["Kernel Namespaces (pid, net, mnt)"]
-        RUNC -->|Sets up Cgroups| CG["Control Groups (/sys/fs/cgroup)"]
-        NS --> PROC["Running Container Process: nginx (Host PID: 23450 / Container PID: 1)"]
-        CG --> PROC
+    subgraph ContainerSpace [Container Environment]
+        PROC["nginx (Container Process)"]
+        NS ====>|Isolates| PROC
+        CG ====>|Limits| PROC
     end
+
+    class CLI,DOCKERD,CONTAINERD,RUNC userSpace;
+    class NS,CG kernelSpace;
+    class PROC container;
 ```
 
 ---

@@ -119,23 +119,44 @@ A true enterprise Platform Engineering IaC pipeline incorporates every single qu
 
 ```mermaid
 flowchart TD
-    subgraph RefactorWorkspace [Developer Refactoring Workspace]
-        HCL["main.tf (Blocks: import, moved)"] --> PR["Git Commit && Submit Pull Request"]
+    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef gitops fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph DevWorkspace [Developer Workspace]
+        HCL["main.tf (import/moved blocks)"]
+        PR["Submit Pull Request"]
+        HCL --> PR
     end
 
-    subgraph AtlantisEngine [Atlantis GitOps Engine (Kubernetes)]
-        PR -->|GitHub Webhook| ATLANTIS["Atlantis Webhook Receiver"]
-        ATLANTIS --> LINT["1. tflint && tfsec (Static Analysis Gate)"]
-        LINT --> PLAN["2. terraform plan (Calculates moved / import Diffs)"]
-        PLAN -->|Posts PR Comment| COMMENT["PR Comment: Plan: 0 to add, 0 to change, 0 to destroy (State Move Only!)"]
+    subgraph GitOpsEngine [Atlantis GitOps Controller]
+        HOOK["Webhook Receiver"]
+        LINT["tflint & tfsec"]
+        PLAN["terraform plan"]
+        COMMENT["Post PR Comment (Plan Diff)"]
+        
+        PR -.-> HOOK
+        HOOK --> LINT
+        LINT --> PLAN
+        PLAN --> COMMENT
     end
 
-    subgraph ProductionExecution [GitOps Approval & Apply]
-        COMMENT --> APPROVE["Peer Engineer Reviews & Approves PR"]
-        APPROVE --> COMMENT_APPLY["Developer Comments: 'atlantis apply'"]
-        COMMENT_APPLY --> APPLY["3. terraform apply (Executes inside secure runner)"]
-        APPLY --> MERGE["PR Automatically Merged & Closed!"]
+    subgraph ExecutionPhase [Approval & Apply]
+        APPROVE["Peer Review & Approval"]
+        APPLY_CMD["Comment: 'atlantis apply'"]
+        APPLY_EXEC["terraform apply (Secure Runner)"]
+        MERGE["Auto-Merge PR"]
+        
+        COMMENT -.-> APPROVE
+        APPROVE --> APPLY_CMD
+        APPLY_CMD -.-> HOOK
+        HOOK -->|Trigger Apply| APPLY_EXEC
+        APPLY_EXEC --> MERGE
     end
+
+    class HCL,PR,APPROVE,APPLY_CMD dev;
+    class HOOK,LINT,PLAN,COMMENT,MERGE gitops;
+    class APPLY_EXEC engine;
 ```
 
 ---

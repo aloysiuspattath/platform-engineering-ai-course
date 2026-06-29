@@ -118,19 +118,41 @@ How do developers know what input variables your module accepts or what outputs 
 
 ```mermaid
 flowchart TD
-    subgraph EnterpriseModuleRepo [Shared Module Repository: terraform-aws-vpc]
-        MOD_VARS["variables.tf (Validation: cidr regex, instance types)"] --> MOD_MAIN["main.tf (Resources: aws_vpc, aws_subnet)"]
-        MOD_MAIN --> MOD_OUT["outputs.tf (Outputs: vpc_id, subnet_ips)"]
-        MOD_OUT -->|git tag v1.0.0| GIT["GitHub Release Tag: v1.0.0"]
-        MOD_VARS --> DOCS["terraform-docs markdown table . (Generates README.md)"]
+    classDef repo fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef doc fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef env fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph ModuleRepo [Shared Enterprise Module (e.g. AWS VPC)]
+        MOD_VARS["variables.tf (Validation)"]
+        MOD_MAIN["main.tf (Resources)"]
+        MOD_OUT["outputs.tf"]
+        
+        MOD_VARS --> MOD_MAIN --> MOD_OUT
+        GIT["Git Release Tag (v1.0.0)"]
+        MOD_OUT -.-> GIT
     end
 
-    subgraph CallingEnvironment [Team Production Environment]
-        PROD["main.tf (module 'vpc' { source = 'git::...vpc.git?ref=v1.0.0' })"] --> INIT["terraform init (Pulls v1.0.0 Git Tarball)"]
-        INIT --> PLAN["terraform plan (Validates Variables & Calculates DAG)"]
-        PLAN -->|Input Validation Failed| ABORT["Exit Code 1: Custom Error Message!"]
-        PLAN -->|Input Validation Passed| APPLY["terraform apply (Applies Pristine Module)"]
+    subgraph AutoDocs [Automated Documentation]
+        DOCS["terraform-docs"]
+        README["README.md (Auto-generated tables)"]
+        MOD_VARS --> DOCS
+        MOD_OUT --> DOCS
+        DOCS --> README
     end
+
+    subgraph ConsumerEnv [Team Production Environment]
+        PROD["main.tf (module source = ref=v1.0.0)"]
+        PLAN["terraform plan (Validates Inputs)"]
+        APPLY["terraform apply"]
+        
+        PROD --> PLAN
+        PLAN -->|Inputs Passed| APPLY
+        GIT -.->|Downloaded during init| PROD
+    end
+
+    class MOD_VARS,MOD_MAIN,MOD_OUT,GIT repo;
+    class DOCS,README doc;
+    class PROD,PLAN,APPLY env;
 ```
 
 ---

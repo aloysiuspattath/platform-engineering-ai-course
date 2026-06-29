@@ -109,22 +109,31 @@ True Platform Engineering mastery requires practicing professional team etiquett
 
 ```mermaid
 flowchart TD
-    subgraph DivergentBranches [Divergent Branch Commits]
-        BASE["Merge Base Commit (Line 45: t2.micro)"] -->|Ours| HEAD["Local HEAD Commit (Line 45: t3.medium)"]
-        BASE -->|Theirs| FEAT["Incoming Commit (Line 45: m5.large)"]
+    classDef commit fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef action fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
+
+    subgraph Graph [Divergent Commits]
+        BASE["Merge Base Commit"]:::commit --> HEAD["Local HEAD"]:::commit
+        BASE --> FEAT["Incoming Commit"]:::commit
     end
 
-    subgraph MergeEngine [Git 3-Way Merge Engine]
-        HEAD -->|git merge feature| MERGE["Git Compares Trees against Merge Base"]
+    subgraph Engine [3-Way Merge Engine]
+        MERGE["git merge"]:::action
+        CONFLICT["Merge Conflict Markers"]:::file
+        HEAD --> MERGE
         FEAT --> MERGE
-        MERGE -->|Identifies Collision| CONFLICT["Throws CONFLICT (content) / Injects Markers"]
+        MERGE -->|Collision| CONFLICT
     end
 
-    subgraph ResolutionWorkflow [Engineer Resolution Workflow]
-        CONFLICT --> STATUS["1. git status (both modified: main.tf)"]
-        STATUS --> EDIT["2. Open File / Delete Markers (Choose m5.large)"]
-        EDIT --> ADD["3. git add main.tf (Marks Resolved in Index)"]
-        ADD --> COMMIT["4. git commit (Finalizes Merge Commit Object)"]
+    subgraph Resolution [Resolution Workflow]
+        EDIT["Text Editor (Resolve Makers)"]:::action
+        ADD["git add (Stage)"]:::action
+        NEW_COMMIT["Final Merge Commit"]:::commit
+        
+        CONFLICT --> EDIT
+        EDIT --> ADD
+        ADD --> NEW_COMMIT
     end
 ```
 

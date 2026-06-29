@@ -84,21 +84,31 @@ What happens if a parent process suddenly crashes and dies while its child proce
 
 ```mermaid
 flowchart TD
-    subgraph ProcessCreation [The Fork-Exec Sequence]
-        PARENT["Parent Process (Bash / PID 1000)"] -->|1. sys_fork| CHILD_CLONE["Child Clone (Bash / PID 1001)"]
-        CHILD_CLONE -->|2. sys_execve| CHILD_NEW["New Process (Python / PID 1001)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+
+    subgraph KernelSpace [Kernel Process Management]
+        FORK["sys_fork()"]:::kernelSpace
+        WAIT["sys_wait()"]:::kernelSpace
+        PID_TBL["Kernel PID Table"]:::kernelSpace
     end
 
-    subgraph ZombieLifecycle [Zombie & Reaping Mechanics]
-        CHILD_NEW -->|Process Exits| ZOMBIE["Zombie State (defunct / State Z)"]
-        ZOMBIE -->|Parent calls wait| REAPED["Kernel Reaps PID Table Entry"]
+    subgraph ProcessCreation [Process Creation]
+        PARENT["Parent (PID 1000)"]:::userSpace -->|Calls| FORK
+        FORK -->|Creates Clone| CHILD["Child (PID 1001)"]:::userSpace
+        FORK -->|Registers| PID_TBL
     end
 
-    subgraph OrphanAdoption [Orphan Adoption]
-        PARENT -->|Parent Crashes / Dies| ORPHAN["Orphan Process (Python / PPID lost)"]
-        ORPHAN -->|Adopted by| PID1["PID 1 (systemd / Master Init)"]
-        PID1 -->|Calls wait when orphan dies| REAPED
+    subgraph Lifecycle [Zombie & Orphan States]
+        CHILD -->|Exits| ZOMBIE["Zombie (State Z)"]:::userSpace
+        PARENT -->|Crashes| ORPHAN["Orphan (PID 1001)"]:::userSpace
+        ORPHAN -->|Adopted by| PID1["systemd (PID 1)"]:::userSpace
     end
+
+    PARENT -.->|Calls| WAIT
+    PID1 -.->|Calls| WAIT
+    WAIT -->|Reaps| ZOMBIE
+    WAIT -->|Clears entry in| PID_TBL
 ```
 
 ---

@@ -75,19 +75,24 @@ In the professional Platform Engineering world, you rarely run heavy enterprise 
 
 ```mermaid
 flowchart TD
-    subgraph LocalSetup [Local Desktop Setup]
-        WIN[Windows Host OS] --> WSL[WSL2 Lightweight Hypervisor]
-        WSL --> LIN_WSL[Real Ubuntu Linux Kernel]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph LocalSetup [Local WSL2 Setup]
+        WIN[Windows Host OS]:::hardware --> WSL[Hyper-V Hypervisor]:::kernelSpace
+        WSL --> LIN_WSL[Ubuntu Linux Kernel]:::kernelSpace
+        LIN_WSL --> BASH[Bash Terminal]:::userSpace
     end
 
     subgraph CloudSetup [Remote Cloud Setup]
-        BROWSER[Web Browser / Terminal] --> SSH[Secure Shell / HTTPS]
-        SSH --> CLOUD_VM[Remote AWS / GCP Linux VM]
+        TERM[Local Terminal]:::userSpace -- SSH --> CLOUD_VM[Remote Linux VM]:::kernelSpace
+        BROWSER[Web Browser]:::userSpace -- HTTPS --> WEB_IDE[Cloud IDE / Codespace]:::userSpace
     end
 
     subgraph DesktopVM [Traditional Virtual Machine]
-        HOST[Host OS: Windows / macOS] --> HYP[VirtualBox / VMware]
-        HYP --> GUEST[Guest OS: Rocky Linux VM]
+        HOST[Host OS]:::hardware --> HYP[Type-2 Hypervisor]:::userSpace
+        HYP --> GUEST_KERN[Guest Linux Kernel]:::kernelSpace
     end
 ```
 

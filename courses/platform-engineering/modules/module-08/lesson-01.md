@@ -119,22 +119,41 @@ Before committing HCL code to GitHub, true Platform Engineers enforce automated 
 
 ```mermaid
 flowchart TD
+    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef gate fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef engine fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef cloud fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
     subgraph DeveloperWorkspace [Developer IaC Workspace]
-        HCL["main.tf (Blocks: terraform, provider, resource, data)"] --> INIT["1. terraform init (Downloads Provider Plugins)"]
-        INIT --> FMT["2. terraform fmt && terraform validate (Syntax Check)"]
+        HCL["main.tf"]
+        INIT["terraform init"]
+        FMT["terraform fmt / validate"]
+        HCL --> INIT --> FMT
     end
 
     subgraph SecurityGate [Automated Static Analysis]
-        FMT --> TFLINT["3. tflint (Validates Cloud Instance Types & Rules)"]
-        TFLINT --> TFSEC["4. tfsec / trivy iac (Scans for IaC Security Flaws)"]
+        TFLINT["tflint (Cloud Rules)"]
+        TFSEC["tfsec / trivy (Security Scans)"]
+        FMT --> TFLINT --> TFSEC
     end
 
     subgraph ExecutionEngine [Terraform Execution Engine]
-        TFSEC --> PLAN["5. terraform plan (Calculates DAG & Prints Dry-Run Diff)"]
-        PLAN -->|Inspects Cloud APIs| DIFF["Plan Diff: +1 to add, ~0 to change, -0 to destroy"]
-        DIFF --> APPLY["6. terraform apply (Executes Idempotent Cloud API Calls)"]
-        APPLY --> CLOUD["Pristine AWS Cloud Infrastructure"]
+        PLAN["terraform plan (DAG & Diff)"]
+        APPLY["terraform apply"]
+        TFSEC --> PLAN
+        PLAN -.->|Dry-run output| APPLY
     end
+
+    subgraph CloudAPI [Cloud Infrastructure APIs]
+        CLOUD["AWS / GCP / Azure"]
+        PLAN -.->|Inspect API state| CLOUD
+        APPLY ====>|Execute Idempotent Calls| CLOUD
+    end
+
+    class HCL,INIT,FMT dev;
+    class TFLINT,TFSEC gate;
+    class PLAN,APPLY engine;
+    class CLOUD cloud;
 ```
 
 ---

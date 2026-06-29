@@ -50,28 +50,47 @@ Let's examine the master decoupled system topology for our Secure Proxy Infrastr
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperWorkstation [Layer 1: Developer Workstation]
-        CURL["cURL / API Client"]
-        DNS["Local DNS Override (/etc/hosts)"]
-        CURL -.-> |Resolves api.fintech.local| DNS
+    classDef userSpace fill:#e3f2fd,stroke:#1565c0,color:#000
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,color:#000
+    classDef hwSpace fill:#fff3e0,stroke:#ef6c00,color:#000
+    
+    subgraph User Space [User Space]
+        Curl[cURL Client]
+        Nginx[Nginx Reverse Proxy]
+        Backend[Mock Trading API]
+        Tcpdump[tcpdump Observability]
     end
 
-    subgraph ProxyEngine [Layer 2: Edge Proxy (Nginx)]
-        NGINX["Nginx Proxy Engine (Port 443 / SSL)"]
-        CERT["X.509 SSL Certificate"]
-        NGINX --- CERT
-        CURL --> |HTTPS Request| NGINX
+    subgraph Kernel Space [Kernel Space]
+        VFS[Virtual File System]
+        subgraph NetStack [Kernel Network Stack]
+            TCP_IP[TCP/IP Protocol Suite]
+            BPF[Berkeley Packet Filter]
+        end
     end
 
-    subgraph ObservabilityLayer [Layer 3: Network Observability]
-        TCPDUMP["tcpdump (Ring 0 Packet Capture)"]
-        TCPDUMP -.-> |Monitors Loopback| NGINX
+    subgraph Hardware [Hardware / Virtual Interfaces]
+        Loopback[Loopback Interface lo]
+        Disk[Disk Storage]
     end
 
-    subgraph InternalNetwork [Layer 4: Internal Microservice]
-        BACKEND["Mock Trading API (Port 8080)"]
-        NGINX --> |HTTP proxy_pass (Port 8080)| BACKEND
-    end
+    Curl -->|Reads /etc/hosts| VFS
+    VFS <--> Disk
+    Curl -->|HTTPS Request| TCP_IP
+    TCP_IP <--> Loopback
+    
+    Nginx -->|Reads X.509 Cert| VFS
+    TCP_IP -->|Delivers Payload| Nginx
+    
+    Nginx -->|HTTP proxy_pass| TCP_IP
+    TCP_IP -->|Delivers Payload| Backend
+    
+    Tcpdump -->|Attaches to socket| BPF
+    BPF -->|Captures Frames| Loopback
+
+    class Curl,Nginx,Backend,Tcpdump userSpace
+    class VFS,NetStack,TCP_IP,BPF kernelSpace
+    class Loopback,Disk hwSpace
 ```
 
 ### Architectural Breakdown

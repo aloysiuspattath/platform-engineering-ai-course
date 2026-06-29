@@ -114,22 +114,43 @@ How do you prevent developers from merging expensive Terraform configurations in
 
 ```mermaid
 flowchart TD
-    subgraph DeveloperWorkspace [Developer FinOps Workspace]
-        HCL["main.tf (Blocks: aws_instance 'spot', aws_budgets_budget)"] --> PR["Git Commit && Submit Pull Request"]
+    classDef dev fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef pipeline fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef cloud fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph DeveloperFinOps [Developer Workspace]
+        HCL["main.tf (Spot Instances & Budgets)"]
+        PR["Submit Pull Request"]
+        HCL --> PR
     end
 
-    subgraph CI_CD_Engine [GitOps CI/CD Pipeline (Infracost)]
-        PR -->|GitHub Webhook| INFRACOST["Infracost Plan Analyzer"]
-        INFRACOST -->|Check AWS Pricing APIs| DIFF["Calculates Monthly Pricing Diff"]
-        DIFF -->|Posts PR Comment| COMMENT["PR Comment: Monthly Cost Diff: +$150/mo (Spot Instance Savings!)"]
+    subgraph GitOpsCI [GitOps Pipeline (Infracost)]
+        HOOK["GitHub Webhook"]
+        INFRACOST["Infracost Analyzer"]
+        DIFF["Calculate Monthly Pricing Diff"]
+        COMMENT["Post PR Comment (Cost Impact)"]
+        
+        PR -.-> HOOK
+        HOOK --> INFRACOST
+        INFRACOST -.->|Query AWS Price API| DIFF
+        DIFF --> COMMENT
     end
 
-    subgraph ProductionCloud [Production AWS Cloud Boundary]
-        COMMENT -->|Peer Approves PR| APPLY["terraform apply (Executes Cleanly)"]
-        APPLY --> SPOT["Spot Instance Pool (Up to 90% Discount!)"]
-        APPLY --> BUDGET["AWS Budget Guardrail ($1,000 Limit)"]
-        BUDGET -->|Actual Spend > $800| ALERT["Dispatches PagerDuty / Slack Alert instantly!"]
+    subgraph ProductionCloud [Production AWS Cloud]
+        APPLY["terraform apply"]
+        SPOT["EC2 Spot Instances"]
+        BUDGET["AWS Budget Guardrail"]
+        ALERT["Cost Alert (Slack/PagerDuty)"]
+        
+        COMMENT -.->|Peer Approves| APPLY
+        APPLY --> SPOT
+        APPLY --> BUDGET
+        BUDGET -->|Threshold Exceeded| ALERT
     end
+
+    class HCL,PR dev;
+    class HOOK,INFRACOST,DIFF,COMMENT pipeline;
+    class APPLY,SPOT,BUDGET,ALERT cloud;
 ```
 
 ---

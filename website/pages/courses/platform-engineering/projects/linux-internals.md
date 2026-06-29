@@ -26,22 +26,52 @@ Your enterprise is experiencing severe "noisy neighbor" issues on legacy shared-
 The custom container runtime relies exclusively on kernel-level primitives to build isolation layers around an application payload.
 
 ```mermaid
-graph TD
-    subgraph Host OS [Host Operating System / Root Kernel]
-        A[Root Process Tree] --> B(Root cgroup slice)
-        A --> C(Root Namespace)
-    end
+flowchart TD
+    classDef userSpace fill:#e3f2fd,stroke:#1565c0,color:#000
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,color:#000
+    classDef hwSpace fill:#fff3e0,stroke:#ef6c00,color:#000
     
-    subgraph Custom Runtime [Bash Container Engine]
-        direction TB
-        B -->|Limits Memory & CPU| D(cgroup: /custom_runtime_cg)
-        C -->|unshare| E(Namespaces: PID, UTS, Mount, Net)
+    subgraph User Space [User Space]
+        HostShell[Host Bash Shell]
+        Engine[run_container.sh]
+        Strace[strace / lsof]
+        App[Isolated App Process]
     end
+
+    subgraph Kernel Space [Kernel Space]
+        Syscalls[System Call Interface]
+        subgraph Cgroups [Cgroups v2]
+            MemMax[memory.max Limit]
+        end
+        subgraph Namespaces [Linux Namespaces]
+            PIDNS[PID Namespace]
+            UTSNS[UTS Namespace]
+            NetNS[Network Namespace]
+        end
+    end
+
+    subgraph Hardware [Hardware Resources]
+        RAM[Physical Memory]
+        CPU[CPU Cores]
+    end
+
+    HostShell -->|Executes| Engine
+    Engine -->|unshare() & write()| Syscalls
+    Strace -->|ptrace()| Syscalls
+    App -->|Requests Memory/Execution| Syscalls
     
-    subgraph Containerized Application
-        D --> F[Isolated App Process PID 1]
-        E --> F
-    end
+    Syscalls --> Cgroups
+    Syscalls --> Namespaces
+    
+    Cgroups -->|Enforces Limits| RAM
+    Cgroups -->|Enforces Limits| CPU
+    
+    Namespaces -.->|Isolates View| App
+    Cgroups -.->|Constrains Resources| App
+
+    class HostShell,Engine,Strace,App userSpace
+    class Syscalls,Cgroups,Namespaces,MemMax,PIDNS,UTSNS,NetNS kernelSpace
+    class RAM,CPU hwSpace
 ```
 
 **Architecture Breakdown:**

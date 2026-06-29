@@ -89,32 +89,28 @@ Linux Kernel ──┼──► RHEL ─────┬──► Fedora (Cutting
 # Architecture
 
 ```mermaid
-flowchart TD
-    subgraph UseCases [Target Engineering Workloads]
-        UC_DEV[AI Dev & Cloud VMs]
-        UC_ENT[Regulated Enterprise Servers]
-        UC_CONT[Minimal Microservice Containers]
+flowchart LR
+    classDef distro fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef component fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+
+    subgraph Ubuntu [Ubuntu / Debian]
+        APT[apt]:::component
+        GLIBC1[glibc]:::component
     end
 
-    subgraph Distros [Selected Linux Distribution]
-        D_UBUNTU[Ubuntu / Debian]
-        D_RHEL[RHEL / Rocky Linux]
-        D_ALPINE[Alpine Linux]
+    subgraph RHEL [RHEL / Rocky Linux]
+        DNF[dnf]:::component
+        GLIBC2[glibc]:::component
     end
 
-    subgraph Packages [Package Manager & C-Library]
-        P_APT[apt / glibc]
-        P_DNF[dnf / glibc]
-        P_APK[apk / musl libc]
+    subgraph Alpine [Alpine Linux]
+        APK[apk]:::component
+        MUSL[musl libc]:::component
     end
 
-    UC_DEV --> D_UBUNTU
-    UC_ENT --> D_RHEL
-    UC_CONT --> D_ALPINE
-
-    D_UBUNTU --> P_APT
-    D_RHEL --> P_DNF
-    D_ALPINE --> P_APK
+    UC_DEV[AI Dev & Cloud VMs]:::distro --> Ubuntu
+    UC_ENT[Regulated Enterprise Servers]:::distro --> RHEL
+    UC_CONT[Minimal Microservice Containers]:::distro --> Alpine
 ```
 
 ---

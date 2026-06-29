@@ -75,30 +75,27 @@ Modern cloud platforms (Amazon Web Services, Google Cloud, Microsoft Azure) and 
 
 ```mermaid
 flowchart TD
-    subgraph Layer4 [Cloud & AI Infrastructure]
-        AI[vLLM AI GPU Clusters]
-        K8S[Kubernetes Orchestration]
-        CLOUD[AWS / GCP Cloud VPCs]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Layer3 [Cloud & AI Workloads]
+        AI[vLLM AI GPU Clusters]:::userSpace
+        K8S[Kubernetes Orchestration]:::userSpace
     end
 
-    subgraph Layer3 [The Linux Operating System]
-        STAB[High Stability / Zero Reboots]
-        SEC[Advanced Kernel Security]
-        PERF[High-Performance I/O]
+    subgraph Layer2 [Linux Operating System]
+        UserSpaceTools[GNU User Space]:::userSpace
+        Kernel[Linux Kernel]:::kernelSpace
+        UserSpaceTools <--> Kernel
     end
 
-    subgraph Layer2 [The Open Source Engine]
-        OSS[Open Source Source Code]
-        COMM[Global Developer Collaboration]
+    subgraph Layer1 [Physical & Cloud Hardware]
+        HW[Servers / GPUs / Cloud VMs]:::hardware
     end
 
-    subgraph Layer1 [Zero Licensing Cost]
-        ECON[Massive Enterprise Scale]
-    end
-
-    Layer4 --> Layer3
-    Layer3 --> Layer2
-    Layer2 --> Layer1
+    Layer3 --> UserSpaceTools
+    Kernel --> HW
 ```
 
 ---

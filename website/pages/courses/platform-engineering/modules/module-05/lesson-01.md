@@ -95,18 +95,28 @@ To navigate this massive graph of objects, Git relies on two master mechanisms:
 
 ```mermaid
 flowchart TD
-    subgraph GitReferences [.git/HEAD & Branch Refs]
-        HEAD["HEAD Pointer (.git/HEAD)"] -->|ref: refs/heads/main| MAIN["Branch Ref: main (.git/refs/heads/main)"]
-        MAIN -->|Commit SHA-1| COMMIT["Commit Object: 534b466"]
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
+    classDef object fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+
+    subgraph Refs [Git References]
+        HEAD["HEAD (.git/HEAD)"]:::file -->|ref: refs/heads/main| MAIN["main branch (.git/refs/heads/main)"]:::file
     end
 
-    subgraph GitDatabase [.git/objects Database]
-        COMMIT -->|Points to Root Tree| TREE_ROOT["Tree Object: c8f49a1 (Root Directory)"]
-        COMMIT -->|Points to Parent Commit| PARENT["Parent Commit: 7f1a2c3"]
-        TREE_ROOT -->|100644 blob e69de29| BLOB_1["Blob Object: e69de29 ('print(Hello World)')"]
-        TREE_ROOT -->|040000 tree a1b2c3d| TREE_SUB["Tree Object: a1b2c3d (src/ subdirectory)"]
-        TREE_SUB -->|100644 blob 9f8e7d6| BLOB_2["Blob Object: 9f8e7d6 ('def add(a, b): return a + b')"]
+    subgraph Objects [Git Object Database (.git/objects)]
+        COMMIT["Commit (534b466)"]:::object
+        PARENT["Parent Commit (7f1a2c3)"]:::object
+        TREE_ROOT["Root Tree (c8f49a1)"]:::object
+        TREE_SUB["Tree: src/ (a1b2c3d)"]:::object
+        BLOB_1["Blob: main.py (e69de29)"]:::object
+        BLOB_2["Blob: utils.py (9f8e7d6)"]:::object
     end
+
+    MAIN -->|SHA-1| COMMIT
+    COMMIT -->|Parent| PARENT
+    COMMIT -->|Root Tree| TREE_ROOT
+    TREE_ROOT -->|blob| BLOB_1
+    TREE_ROOT -->|tree src| TREE_SUB
+    TREE_SUB -->|blob| BLOB_2
 ```
 
 ---

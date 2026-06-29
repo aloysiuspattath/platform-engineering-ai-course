@@ -120,34 +120,44 @@ If Base64 Kubernetes Secret manifests are unencrypted, how do you store your Kub
 
 ```mermaid
 flowchart TD
-    subgraph GitOpsRepository [GitOps Repository (Public / Internal Git)]
-        CM["ConfigMap: app-settings (LOG_LEVEL: debug)"]
-        ES["ExternalSecret: db-credentials (Key: prod/db/password)"]
+    classDef git fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef cloud fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef k8s fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef secure fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    subgraph GitOpsRepository [GitOps Repository]
+        CM["ConfigMap (Clear text settings)"]
+        ES["ExternalSecret (Pointer to AWS Secret)"]
     end
 
-    subgraph AWSCloud [AWS Public Cloud Boundary]
-        ASM["AWS Secrets Manager (Store: prod/db/password = SuperSecret999)"]
+    subgraph AWSCloud [AWS Public Cloud]
+        ASM["AWS Secrets Manager"]
     end
 
     subgraph K8sCluster [Kubernetes Production Cluster]
-        ESO["External Secrets Operator (ESO Daemon)"]
-        API["kube-apiserver (EncryptionConfiguration: aescbc)"]
-        ETCD["etcd Master Database (Stored Secrets: Encrypted at Rest!)"]
+        ESO["External Secrets Operator"]
+        API["kube-apiserver"]
+        ETCD["etcd (Encrypted at Rest)"]
+        SEC["Native K8s Secret (Auto-generated)"]
         
-        subgraph WorkerNode [Worker Node Physical Execution]
-            POD["Pod: payment-api-abc"]
+        subgraph WorkerNode [Worker Node]
+            POD["Application Pod"]
         end
-
-        CM -->|kubectl apply| API
-        ES -->|kubectl apply| ESO
-        ESO -->|1. sts:AssumeRoleWithWebIdentity| ASM
-        ASM -->|2. Returns Plain-Text Secret| ESO
-        ESO -->|3. Auto-creates kind: Secret| API
-        API -->|4. Encrypts with AES-CBC| ETCD
         
-        POD -->|envFrom: ConfigMap| CM
-        POD -->|envFrom: Secret| API
+        ESO -.->|Watches| ES
+        ESO -->|Fetches credentials| ASM
+        ESO -->|Generates| SEC
+        SEC -.->|API Write| API
+        API ====>|AES-CBC Encrypted| ETCD
+        
+        CM -.->|Mounted as ENV/Vol| POD
+        SEC -.->|Mounted as ENV/Vol| POD
     end
+
+    class CM,ES git;
+    class ASM cloud;
+    class ESO,API,ETCD k8s;
+    class SEC,POD secure;
 ```
 
 ---

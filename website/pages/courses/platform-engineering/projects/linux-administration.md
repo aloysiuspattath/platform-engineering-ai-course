@@ -24,20 +24,38 @@ Your enterprise is rapidly expanding its engineering workforce, bringing on doze
 The project establishes a secure access control baseline where developers and service accounts are isolated, followed by an automated scheduled backup engine running via Bash.
 
 ```mermaid
-graph TD
-    subgraph Access Control Layer
-        A[Root Administrator] -->|Manages| B(cloud-admins group)
-        B -->|Contains| C[Human Engineers]
-        A -->|Isolates| D(Service Accounts e.g., ai-worker)
-    end
+flowchart TD
+    classDef userSpace fill:#e3f2fd,stroke:#1565c0,color:#000
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,color:#000
+    classDef hwSpace fill:#fff3e0,stroke:#ef6c00,color:#000
     
-    subgraph Data & Automation Layer
-        E[(Platform Vault /secrets)]
-        C -->|Read/Write Access| E
-        D -->|No Access| E
-        F[Backup Automation Bash Script] -->|Reads & Archives| E
-        F -->|Outputs| G[(Secure Vault Archive)]
+    subgraph User Space [User Space]
+        Engineer[Human Engineer (cloud-admins)]
+        Service[Service Account (ai-worker)]
+        Backup[Backup Automation Script]
     end
+
+    subgraph Kernel Space [Kernel Space]
+        VFS[Virtual File System]
+        VFS_Perms{Kernel Permission Check}
+    end
+
+    subgraph Hardware [Hardware Storage]
+        Vault[(Vault Directory /secrets)]
+        Archive[(Backup Archive)]
+    end
+
+    Engineer -->|System Calls (read/write)| VFS
+    Service -.->|System Calls (access denied)| VFS
+    Backup -->|System Calls (read/write)| VFS
+
+    VFS <--> VFS_Perms
+    VFS_Perms <--> Vault
+    VFS_Perms <--> Archive
+    
+    class Engineer,Service,Backup userSpace
+    class VFS,VFS_Perms kernelSpace
+    class Vault,Archive hwSpace
 ```
 
 ### Architectural Breakdown

@@ -101,20 +101,30 @@ True Platform Engineering mastery requires maintaining a clean, highly optimized
 
 ```mermaid
 flowchart TD
-    subgraph CrashingContainer [Crashing Container Lifecycle]
-        CRASH["Container Process Terminates (Captures Exit Code)"] --> CODE["docker ps -a (Exited 137 / 139)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef process fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+
+    subgraph ContainerLifecycle [Container Process]
+        CRASH["Container Process Terminates"]
+        CODE["Captures Exit Code (e.g. 137, 139)"]
+        CRASH --> CODE
     end
 
-    subgraph DiagnosticWorkflow [Engineer Diagnostic Workflow]
-        CODE --> LOGS["1. docker logs --tail 100 -f (Inspects stderr / stdout)"]
-        LOGS --> INSPECT["2. docker inspect (Verifies State.Health & Config.Env)"]
-        INSPECT --> EXEC["3. docker exec -it /bin/sh (Attaches Live Debugging Shell)"]
+    subgraph EngineCommands [Docker Engine CLI (User Space)]
+        LOGS["docker logs (View stdout/stderr)"]
+        INSPECT["docker inspect (Verify Config)"]
+        EXEC["docker exec (Live Shell)"]
+        PRUNE["docker system prune (Reclaim Space)"]
+        
+        CODE -.->|Debug Step 1| LOGS
+        LOGS -.->|Debug Step 2| INSPECT
+        INSPECT -.->|Debug Step 3| EXEC
+        EXEC -.->|Maintenance| PRUNE
     end
 
-    subgraph EngineOptimization [Production Daemon Maintenance]
-        EXEC --> PRUNE["4. docker system prune -a --volumes (Cleans Engine Cache)"]
-        PRUNE --> STABLE["Pristine Production Daemon Engine"]
-    end
+    class CRASH,CODE process;
+    class LOGS,INSPECT,EXEC,PRUNE userSpace;
 ```
 
 ---

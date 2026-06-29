@@ -93,21 +93,33 @@ True diagnostic mastery requires combining your entire Module 04 knowledge into 
 
 ```mermaid
 flowchart TD
-    subgraph NetworkInterface [Physical Network Card: eth0]
-        WIRE["Physical Internet Wire"] -->|Raw Packets| ETH0["eth0 Interface (Promiscuous Mode)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+    classDef file fill:#eeeeee,stroke:#999999,stroke-width:2px;
+
+    subgraph UserSpace [Diagnostic Tools]
+        TCPDUMP["tcpdump CLI"]:::userSpace
+        WIRESHARK["Wireshark / tshark"]:::userSpace
+        FILE["capture.pcap"]:::file
     end
 
-    subgraph KernelEngine [Linux Kernel Ring 0]
-        ETH0 -->|Raw Socket Copy| BPF["Berkeley Packet Filter Engine (BPF: 'port 80')"]
-        BPF -->|Drops Non-Matching| DROP["Dropped Packets (e.g., Port 22 SSH)"]
-        BPF -->|Passes Matches| RING3["User Space Ring 3"]
+    subgraph KernelSpace [Kernel Packet Processing]
+        BPF["BPF Engine ('port 80')"]:::kernelSpace
+        SOCK["Raw Packet Socket"]:::kernelSpace
     end
 
-    subgraph UserSpace [User Space Ring 3 / Analysis]
-        RING3 --> TCPDUMP["tcpdump CLI (-w capture.pcap)"]
-        TCPDUMP -->|Writes PCAP| FILE["capture.pcap File"]
-        FILE -->|Export & Open| WIRESHARK["Wireshark GUI / tshark CLI (Protocol Dissection)"]
+    subgraph Hardware [Physical Interface]
+        ETH0["eth0 (Promiscuous Mode)"]:::hardware
+        WIRE["Network Cable"]:::hardware
     end
+
+    WIRE -->|Raw Frames| ETH0
+    ETH0 -->|Copied to| BPF
+    BPF -->|Matches passed to| SOCK
+    SOCK -->|Read by| TCPDUMP
+    TCPDUMP -->|Writes| FILE
+    FILE -.->|Analyzed by| WIRESHARK
 ```
 
 ---

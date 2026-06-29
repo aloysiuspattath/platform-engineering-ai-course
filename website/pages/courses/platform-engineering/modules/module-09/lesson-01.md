@@ -108,25 +108,19 @@ To protect your servers from unauthorized network packets, Platform Engineers en
 
 ```mermaid
 flowchart TD
+    classDef external fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef vpc fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef public fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef private fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef gateway fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+
     subgraph Internet [Public Internet]
         CLIENT["Client Web Browser (0.0.0.0/0)"]
     end
 
-    subgraph AWS_VPC [AWS Virtual Private Cloud: 10.0.0.0/16]
+    subgraph AWS_VPC [AWS Virtual Private Cloud (10.0.0.0/16)]
         IGW["Internet Gateway (IGW)"]
         
-        subgraph PublicSubnet [Public Subnet: 10.0.1.0/24]
-            PUB_RT["Public Route Table (0.0.0.0/0 -> IGW)"]
-            ALB["Application Load Balancer (Public IP: 54.20.10.5)"]
-            NAT["NAT Gateway (Elastic IP: 52.30.40.50)"]
-        end
-
-        subgraph PrivateSubnet [Private Subnet: 10.0.10.0/24]
-            PRIV_RT["Private Route Table (0.0.0.0/0 -> NAT Gateway)"]
-            APP["Backend AI Microservice (Private IP: 10.0.10.55)"]
-            DB["Master PostgreSQL Database (Private IP: 10.0.10.99)"]
-        end
-    end
 
     CLIENT -->|HTTPS: Port 443| IGW
     IGW --> PUB_RT

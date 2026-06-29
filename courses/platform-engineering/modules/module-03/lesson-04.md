@@ -91,20 +91,35 @@ When you need to see exactly which software processes are actively holding file 
 
 ```mermaid
 flowchart TD
-    subgraph UserSpace [Ring 3: Process I/O]
-        PROC["Process (PID 1050)"] -->|Standard FDs| FD0["0: stdin / 1: stdout / 2: stderr"]
-        PROC -->|Custom FDs| FD3["3: /var/log/app.log / 4: TCP Port 80"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph UserSpace [Process (Ring 3)]
+        PROC["Process (PID 1050)"]:::userSpace
     end
 
-    subgraph VSLayer [Ring 0: Virtual Filesystem (VFS)]
-        FD3 -->|sys_open / sys_write| VFS["VFS Abstraction Layer"]
-        VFS -->|Translates to| INODE["Inode Table (Inode #548912)"]
+    subgraph KernelSpace [Kernel (Ring 0)]
+        FDT["File Descriptor Table"]:::kernelSpace
+        FD0["0: stdin, 1: stdout, 2: stderr"]:::kernelSpace
+        FD3["3: /var/log/app.log, 4: Port 80"]:::kernelSpace
+        VFS["Virtual Filesystem (VFS)"]:::kernelSpace
+        INODE["Inode Table (e.g. #548912)"]:::kernelSpace
+        
+        FDT --- FD0
+        FDT --- FD3
+        FD3 --> VFS
+        VFS --> INODE
     end
 
-    subgraph PhysicalDisks [Physical Storage Drivers]
-        INODE --> EXT4["EXT4 Driver (Primary NVMe Disk)"]
-        INODE --> NFS["NFS Driver (Cloud Network Storage)"]
+    subgraph Hardware [Physical Storage]
+        EXT4["NVMe Disk (EXT4)"]:::hardware
+        NFS["Network Storage (NFS)"]:::hardware
     end
+
+    PROC -->|Syscalls| FDT
+    INODE -->|Driver I/O| EXT4
+    INODE -->|Driver I/O| NFS
 ```
 
 ---

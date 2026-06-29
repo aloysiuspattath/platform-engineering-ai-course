@@ -104,20 +104,38 @@ By default, Docker executes container processes as the `root` user (`UID 0`). Be
 
 ```mermaid
 flowchart TD
-    subgraph MultiStageDockerfile [Multi-Stage Dockerfile Execution]
-        B_FROM["Stage 1: FROM golang:1.21 AS builder (1GB Base)"] --> B_RUN["RUN go mod download (Cached Layer)"]
-        B_RUN --> B_COPY["COPY . . (Invalidated when code changes)"]
-        B_COPY --> B_BUILD["RUN go build -o /app/bin main.go"]
+    classDef buildStage fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef prodStage fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef artifact fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
 
-        P_FROM["Stage 2: FROM gcr.io/distroless/static:nonroot (2MB Base)"] --> P_USER["USER 65532:65532 (Non-Root Security)"]
-        B_BUILD -->|COPY --from=builder /app/bin /app/bin| P_COPY["COPY --from=builder (Plucks ONLY Binary)"]
-        P_USER --> P_COPY
-        P_COPY --> P_CMD["CMD ['/app/bin']"]
+    subgraph Stage1 [Builder Stage (Discarded)]
+        B_FROM["FROM golang:1.21 AS builder"]
+        B_RUN["RUN go mod download"]
+        B_COPY["COPY . ."]
+        B_BUILD["RUN go build -o /app/bin main.go"]
+        
+        B_FROM --> B_RUN --> B_COPY --> B_BUILD
     end
 
-    subgraph FinalProductionImage [Final Production Artifact]
-        P_CMD -->|Produces Ultra-Secure Image| IMAGE["Pristine Production Image: myapp:v1.0 (Size: 15MB)"]
+    subgraph Stage2 [Production Stage (Final Image)]
+        P_FROM["FROM gcr.io/distroless/static:nonroot"]
+        P_USER["USER 65532:65532"]
+        P_COPY["COPY --from=builder /app/bin /app/bin"]
+        P_CMD["CMD ['/app/bin']"]
+        
+        P_FROM --> P_USER --> P_COPY --> P_CMD
     end
+    
+    B_BUILD -.->|Extracts Binary Only| P_COPY
+
+    subgraph Output [Final Artifact]
+        IMAGE["myapp:v1.0 (Size: 15MB)"]
+        P_CMD ====> IMAGE
+    end
+
+    class B_FROM,B_RUN,B_COPY,B_BUILD buildStage;
+    class P_FROM,P_USER,P_COPY,P_CMD prodStage;
+    class IMAGE artifact;
 ```
 
 ---

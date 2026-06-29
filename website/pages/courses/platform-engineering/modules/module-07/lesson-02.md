@@ -108,22 +108,42 @@ True security mastery requires verifying **Image Provenance** (proving exactly w
 
 ```mermaid
 flowchart TD
-    subgraph LocalBuild [Developer Dockerfile Build]
-        DF["Dockerfile (FROM python:3.8-slim)"] --> BUILD["docker build -t myapp:v1 ."]
+    classDef ciPhase fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef scanner fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef gatekeeper fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph CIEnvironment [CI/CD Build Environment]
+        DF["Dockerfile"]
+        BUILD["docker build"]
+        DF --> BUILD
     end
 
-    subgraph ScannerEngine [Trivy Vulnerability Scanner Engine]
-        BUILD --> TRIVY["trivy image --severity HIGH,CRITICAL myapp:v1"]
-        TRIVY -->|Unpacks Layers| PARSE["Parses /var/lib/dpkg & requirements.txt"]
-        PARSE -->|Queries NVD| NVD["National Vulnerability Database (NVD)"]
+    subgraph ScanningEngine [Trivy Vulnerability Scanner]
+        TRIVY["trivy image --severity HIGH,CRITICAL"]
+        PARSE["Parse OS packages & App deps"]
+        NVD["Query Vulnerability DB (NVD)"]
+        
+        BUILD --> TRIVY
+        TRIVY --> PARSE
+        PARSE --> NVD
     end
 
-    subgraph CIQualityGate [Automated CI/CD Gatekeeper]
-        NVD -->|Matches CVE-2021-3452 (Score: 9.8)| REPORT["Outputs CRITICAL CVE Report"]
-        REPORT -->|--exit-code 1| ABORT["Exit Code 1: Pipeline Forcefully Aborted!"]
-        ABORT --> REMEDY["Developer Updates Base: FROM python:3.11-slim"]
-        REMEDY --> TRIVY2["trivy image (Outputs 0 Criticals) -> Exit Code 0 (Merge Approved!)"]
+    subgraph QualityGate [Automated Quality Gate]
+        REPORT["Generate CVE Report"]
+        ABORT["Exit 1 (Pipeline Aborted)"]
+        REMEDY["Dev Updates Base Image"]
+        PASS["Exit 0 (Merge Approved)"]
+        
+        NVD --> REPORT
+        REPORT -->|Critical CVEs Found| ABORT
+        ABORT -.-> REMEDY
+        REMEDY -.->|Rebuild & Rescan| TRIVY
+        REPORT -->|No Criticals| PASS
     end
+
+    class DF,BUILD ciPhase;
+    class TRIVY,PARSE,NVD scanner;
+    class REPORT,ABORT,REMEDY,PASS gatekeeper;
 ```
 
 ---

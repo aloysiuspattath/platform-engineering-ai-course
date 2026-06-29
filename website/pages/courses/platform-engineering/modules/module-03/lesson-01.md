@@ -90,27 +90,29 @@ There are over 300 standard system calls in the Linux kernel. Here are the most 
 
 ```mermaid
 flowchart TD
-    subgraph Ring3 [Ring 3 User Space Sandboxed Execution]
-        APP[Python Script and Web App]
-        LIBC[C Standard Library glibc]
-        APP -->|Calls open| LIBC
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Ring3 [Ring 3 / User Space]
+        APP["Application (Python/Web)"]:::userSpace
+        LIBC["glibc (C Library)"]:::userSpace
+        APP <-->|Wrapper call: open()| LIBC
     end
 
-    subgraph SyscallGateway [System Call Gateway]
-        LIBC -->|CPU Instruction syscall| TRAP[Kernel Trap Context Switch Ring 3 to Ring 0]
+    subgraph Ring0 [Ring 0 / Kernel Space]
+        SYSCALL["Syscall Interface"]:::kernelSpace
+        VFS["Virtual Filesystem (VFS)"]:::kernelSpace
+        DRIVER["Device Drivers"]:::kernelSpace
+        SYSCALL <-->|sys_open| VFS <--> DRIVER
     end
 
-    subgraph Ring0 [Ring 0 Kernel Space Unrestricted Execution]
-        TRAP --> KERNEL[Linux Kernel Syscall Table sys_open]
-        KERNEL --> VFS[Kernel Virtual Filesystem Device Drivers]
+    subgraph Hardware [Physical Hardware]
+        DISK["NVMe Storage"]:::hardware
     end
 
-    subgraph PhysicalHW [Physical Hardware]
-        VFS --> DISK[Physical Hard Drive NVMe Storage]
-    end
-
-    DISK -->|Returns File Descriptor| KERNEL
-    KERNEL -->|Context Switch Ring 0 to Ring 3| LIBC
+    LIBC <-->|Trap / Context Switch| SYSCALL
+    DRIVER <-->|Bus I/O / Interrupts| DISK
 ```
 
 ---

@@ -84,22 +84,37 @@ When the Linux kernel boots up the physical hardware, or when physical device dr
 
 ```mermaid
 flowchart TD
-    subgraph Ring3_UserSpace [Ring 3: User Space Execution]
-        APP["Application Binary (/usr/bin/python3)"] -->|Dynamic Linker| LDD["ldd (Inspects required .so libraries)"]
-        APP -->|Library Call: malloc / strcmp| LTRACE["ltrace (Intercepts Shared Library Calls)"]
-        LTRACE -->|Shared Object: libc.so| LIBC["C Standard Library (glibc)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Diagnostics [User Space Tools]
+        LDD["ldd"]:::userSpace
+        LTRACE["ltrace"]:::userSpace
+        STRACE["strace"]:::userSpace
+        DMESG["dmesg"]:::userSpace
     end
 
-    subgraph Ring0_KernelSpace [Ring 0: Kernel Space]
-        LIBC -->|System Call: sys_brk / sys_write| STRACE["strace (Intercepts System Calls)"]
-        STRACE --> KERNEL["Linux Kernel Execution Engine"]
+    subgraph Execution [Application]
+        APP["Application"]:::userSpace
+        LIBC["glibc (.so)"]:::userSpace
+        APP -->|Library Calls| LIBC
     end
 
-    subgraph PhysicalHW_DriverLayer [Hardware Driver Layer]
-        KERNEL --> DRIVERS["Physical Device Drivers (NVMe / Network NIC)"]
-        DRIVERS -->|Hardware Events / OOM | RINGBUF["Kernel Ring Buffer (Ring 0 Memory)"]
-        RINGBUF -->|Inspected by| DMESG["dmesg -T (Kernel Driver Messages)"]
+    subgraph KernelSpace [Linux Kernel]
+        SYSCALL["Syscall Interface"]:::kernelSpace
+        DRIVERS["Device Drivers"]:::kernelSpace
+        RINGBUF["Kernel Ring Buffer"]:::kernelSpace
+        
+        LIBC -->|Syscalls| SYSCALL
+        SYSCALL --> DRIVERS
+        DRIVERS -.->|Logs Events| RINGBUF
     end
+
+    LDD -.->|Reads ELF headers| APP
+    LTRACE -.->|ptrace() hook| LIBC
+    STRACE -.->|ptrace() hook| SYSCALL
+    DMESG -.->|Reads| RINGBUF
 ```
 
 ---

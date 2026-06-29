@@ -114,22 +114,39 @@ When attaching storage to a container, Docker supports two CLI flags:
 
 ```mermaid
 flowchart TD
-    subgraph HostNetworking [Host Networking Stack: eth0]
-        WIRE["Incoming Packet (IP: 192.168.1.50:8080)"] --> IPT["Linux Kernel iptables (NAT Prerouting)"]
-        IPT -->|Rewrites Dest: 172.17.0.2:80| BRIDGE["Virtual Switch: docker0 (Bridge Driver)"]
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef container fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+
+    subgraph HostNetwork [Host Kernel Networking]
+        WIRE["Physical Interface: eth0"]
+        IPT["Kernel iptables (NAT Prerouting)"]
+        BRIDGE["Virtual Switch (docker0)"]
+        
+        WIRE --> IPT --> BRIDGE
     end
 
-    subgraph ContainerStorage [Running Container: Postgres]
-        BRIDGE --> PROC["Container Process: postgres (IP: 172.17.0.2)"]
-        PROC -->|Writes ephemeral logs| COW["Temporary Read-Write Layer (Deleted on docker rm)"]
-        PROC -->|Writes database tables| MOUNT["Mounted Storage Target: /var/lib/postgresql/data"]
+    subgraph ContainerSpace [Container Environment (Postgres)]
+        PROC["Container Process: postgres"]
+        COW["OverlayFS Read-Write Layer"]
+        
+        BRIDGE <==> PROC
+        PROC -.->|Ephemeral writes| COW
     end
 
-    subgraph HostFilesystem [Physical Host Filesystem]
-        MOUNT -->|Named Volume Mount| VOL["/var/lib/docker/volumes/pgdata/_data (Persists forever!)"]
-        PROC -->|Reads live code| BIND["Bind Mount: /home/user/app_source (Live Reloading)"]
-        PROC -->|Writes secret keys| TMPFS["tmpfs Mount: System RAM (Never touches disk!)"]
+    subgraph HostStorage [Host OS Filesystem / RAM]
+        VOL["Named Volume (/var/lib/docker/volumes/)"]
+        BIND["Bind Mount (/home/user/app_source)"]
+        TMPFS["tmpfs Mount (System RAM)"]
+        
+        PROC <====>|Persistent Data| VOL
+        PROC <====>|Live Code Reloading| BIND
+        PROC <====>|Secret Keys| TMPFS
     end
+
+    class WIRE,IPT,BRIDGE kernelSpace;
+    class PROC,COW container;
+    class VOL,BIND,TMPFS hardware;
 ```
 
 ---

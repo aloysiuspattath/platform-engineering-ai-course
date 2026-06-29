@@ -126,33 +126,50 @@ Standard Deployments are completely inadequate for stateful database clusters (e
 
 ```mermaid
 flowchart TD
-    subgraph K8sCluster [Kubernetes Production Cluster]
-        STS["StatefulSet: mongodb-cluster (replicas: 2, volumeClaimTemplates)"]
+    classDef controller fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef compute fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef hardware fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    subgraph K8sCluster [Kubernetes Cluster]
+        STS["StatefulSet (mongodb)"]
         
-        subgraph Node1 [Worker Node 1: 10.0.10.15]
-            POD0["Pod: mongodb-cluster-0 (Stable Identity)"]
+        subgraph Node1 [Worker Node 1]
+            POD0["Pod: mongodb-0"]
         end
 
-        subgraph Node2 [Worker Node 2: 10.0.10.16]
-            POD1["Pod: mongodb-cluster-1 (Stable Identity)"]
+        subgraph Node2 [Worker Node 2]
+            POD1["Pod: mongodb-1"]
         end
 
-        STS -->|Spawns Sequentially| POD0
-        STS -->|Spawns Sequentially| POD1
+        STS -->|Spawns| POD0
+        STS -->|Spawns| POD1
     end
 
-    subgraph StorageEngine [Dynamic Storage Provisioning Engine]
-        SC["StorageClass: ebs-gp3 (Provisioner: ebs.csi.aws.com)"]
+    subgraph StorageEngine [Dynamic Storage Provisioning]
+        SC["StorageClass (ebs.csi.aws.com)"]
         
-        PVC0["PVC: data-mongodb-cluster-0 (RWO)"] <-->|Binds| PV0["PV: pvc-abc1 (Physical AWS EBS gp3 Disk: 100GB)"]
-        PVC1["PVC: data-mongodb-cluster-1 (RWO)"] <-->|Binds| PV1["PV: pvc-xyz2 (Physical AWS EBS gp3 Disk: 100GB)"]
+        PVC0["PVC: data-mongodb-0"]
+        PV0["PV: Physical AWS EBS Volume (Node 1)"]
         
-        POD0 -->|Mounts /data/db| PVC0
-        POD1 -->|Mounts /data/db| PVC1
+        PVC1["PVC: data-mongodb-1"]
+        PV1["PV: Physical AWS EBS Volume (Node 2)"]
         
-        SC -->|AWS API Calls| PV0
-        SC -->|AWS API Calls| PV1
+        STS -.->|volumeClaimTemplates| SC
+        SC -.->|Provisions| PVC0
+        SC -.->|Provisions| PVC1
+        
+        PVC0 ====> PV0
+        PVC1 ====> PV1
     end
+    
+    POD0 -.->|Mounts| PVC0
+    POD1 -.->|Mounts| PVC1
+
+    class STS controller;
+    class POD0,POD1 compute;
+    class SC,PVC0,PVC1 storage;
+    class PV0,PV1 hardware;
 ```
 
 ---

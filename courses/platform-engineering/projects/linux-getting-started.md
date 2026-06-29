@@ -50,31 +50,44 @@ Let's examine the master decoupled directory topology and data flow architecture
 
 ```mermaid
 flowchart TD
-    subgraph GoldenPathWorkspace [Layer 1: Master Workspace Root (~/nexus-workspace)]
-        CFG["/config (Configuration Engine)"]
-        SRC["/src (Application Code)"]
-        LOG["/logs (Audit Telemetry)"]
-        SCR["/scripts (Automation Scripts)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1565c0,color:#000
+    classDef kernelSpace fill:#e8f5e9,stroke:#2e7d32,color:#000
+    classDef hwSpace fill:#fff3e0,stroke:#ef6c00,color:#000
+    
+    subgraph User Space [User Space]
+        Bash[Bash Shell]
+        Cat[cat Process]
+        Grep[grep Process]
+        Cp[cp / mv Processes]
     end
 
-    subgraph ConfigEngine [Layer 2: Environment Generation]
-        PROD["prod.env (Active Production)"]
-        STG["staging.env (Active Staging)"]
-        CFG --> |echo > Redirection| PROD
-        CFG --> |echo > Redirection| STG
+    subgraph Kernel Space [Kernel Space]
+        Syscalls[System Call Interface]
+        VFS[Virtual File System]
+        Pipe[Kernel Pipe]
     end
 
-    subgraph BackupLayer [Layer 3: Resilience & Archiving]
-        BAK["prod.env.backup (Hot Backup)"]
-        ARC["prod.env.archive_2026 (Permanent Archive)"]
-        PROD --> |cp Duplicate| BAK
-        BAK --> |mv Archiving| ARC
+    subgraph Hardware [Hardware Storage / Directory Structure]
+        Workspace[~/nexus-workspace/]
+        ProdEnv[prod.env]
+        BackupEnv[prod.env.backup]
     end
 
-    subgraph AuditPipeline [Layer 4: Telemetry Audit Engine]
-        PIPE["cat prod.env | grep PORT"]
-        PROD --> |Stream Inspection| PIPE
-    end
+    Bash -->|open, write (echo >)| Syscalls
+    Cp -->|open, read, write| Syscalls
+    Cat -->|read| Syscalls
+    Cat -->|write| Pipe
+    Pipe -->|read| Grep
+    Grep -->|write (stdout)| Bash
+    
+    Syscalls <--> VFS
+    VFS <--> Workspace
+    VFS <--> ProdEnv
+    VFS <--> BackupEnv
+
+    class Bash,Cat,Grep,Cp userSpace
+    class Syscalls,VFS,Pipe kernelSpace
+    class Workspace,ProdEnv,BackupEnv hwSpace
 ```
 
 ---

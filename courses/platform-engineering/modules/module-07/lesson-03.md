@@ -111,21 +111,40 @@ How does an application read secrets from Vault without writing massive custom A
 
 ```mermaid
 flowchart TD
-    subgraph GitOpsStorage [GitOps Secret Storage (SOPS)]
-        PLAIN["Plain-Text: db_pass: Secret99"] -->|sops -e| SOPS["sops Encrypted: db_pass: ENC[AES256...]"]
-        SOPS -->|Safe to Commit!| GIT["GitHub Repository (Public or Private)"]
+    classDef storage fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef engine fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef runtime fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph GitOps [GitOps Secret Management (SOPS)]
+        PLAIN["Plain-Text Secret"]
+        SOPS["sops Encrypted File"]
+        GIT["Git Repository"]
+        
+        PLAIN -->|sops -e| SOPS
+        SOPS -->|Commit| GIT
     end
 
-    subgraph DynamicEngine [HashiCorp Vault Secret Engine]
-        UNSEAL["Vault Unsealed (Shamir's Secret Sharing)"] --> KV["Vault KV Store (vault kv put secret/myapp api_key=AI999)"]
+    subgraph VaultEngine [HashiCorp Vault Engine]
+        KV["Vault KV Secret Store"]
+        UNSEAL["Vault Unsealed"]
+        UNSEAL --> KV
     end
 
-    subgraph RuntimeInjection [Active Application Namespace]
-        GIT -->|sops -d| DECRYPT["CI/CD Runner Decrypts via AWS KMS / Master Key"]
-        KV -->|Dynamic Lease| AGENT["Vault Agent Sidecar (Fetches Token)"]
-        AGENT -->|Writes to RAM| TMPFS["tmpfs Mount: /app/secrets/api.json (Never touches disk!)"]
-        TMPFS --> PROC["Application Process (Executes with Pristine Secrets)"]
+    subgraph ExecutionEnv [Application Runtime Namespace]
+        DECRYPT["CI/CD Runner Decrypts (SOPS)"]
+        AGENT["Vault Agent Sidecar"]
+        TMPFS["tmpfs RAM Mount (/app/secrets)"]
+        PROC["Application Process"]
+        
+        GIT -.-> DECRYPT
+        KV -.->|Dynamic Auth & Fetch| AGENT
+        AGENT -->|Writes JSON| TMPFS
+        TMPFS -->|Reads Secrets| PROC
     end
+
+    class PLAIN,SOPS,GIT storage;
+    class KV,UNSEAL engine;
+    class DECRYPT,AGENT,TMPFS,PROC runtime;
 ```
 
 ---

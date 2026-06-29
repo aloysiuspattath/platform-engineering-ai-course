@@ -112,33 +112,42 @@ If your application runs across multiple dynamic servers in multiple AZs, how do
 
 ```mermaid
 flowchart TD
+    classDef external fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef network fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef compute fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef storage fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
     subgraph Internet [Public Internet]
-        CLIENT["Client Web Browser (HTTPS: Port 443)"]
+        CLIENT["Client Web Browser"]
     end
 
-    subgraph AWS_Region [AWS Region: us-east-1]
-        ALB["Application Load Balancer (ALB)"]
+    subgraph AWSRegion [AWS Region (us-east-1)]
+        ALB["Application Load Balancer"]
+        S3["Amazon S3 (Regional Object Storage)"]
         
-        subgraph AZ_A [Availability Zone: us-east-1a (Active)]
-            EC2_A["EC2 Instance A (Auto-Scaling Group)"]
-            EBS_A["Attached EBS Disk A (Operating System Root)"]
+        subgraph AZ_A [Availability Zone A (us-east-1a)]
+            EC2_A["EC2 Instance A"]
+            EBS_A["EBS Volume A"]
+            EC2_A -.->|Block Storage| EBS_A
         end
 
-        subgraph AZ_B [Availability Zone: us-east-1b (Active)]
-            EC2_B["EC2 Instance B (Auto-Scaling Group)"]
-            EBS_B["Attached EBS Disk B (Operating System Root)"]
+        subgraph AZ_B [Availability Zone B (us-east-1b)]
+            EC2_B["EC2 Instance B"]
+            EBS_B["EBS Volume B"]
+            EC2_B -.->|Block Storage| EBS_B
         end
-
-        S3["Amazon S3 Bucket (Multi-AZ Replicated Storage: AI Datasets)"]
     end
 
-    CLIENT --> ALB
-    ALB -->|Health Check: HTTP 200| EC2_A
-    ALB -->|Health Check: HTTP 200| EC2_B
-    EC2_A --> EBS_A
-    EC2_B --> EBS_B
-    EC2_A -->|HTTP PUT / GET| S3
-    EC2_B -->|HTTP PUT / GET| S3
+    CLIENT -->|HTTPS| ALB
+    ALB -->|HTTP 200 (Healthcheck Passed)| EC2_A
+    ALB -->|HTTP 200 (Healthcheck Passed)| EC2_B
+    EC2_A -->|HTTP API| S3
+    EC2_B -->|HTTP API| S3
+
+    class CLIENT external;
+    class ALB network;
+    class EC2_A,EC2_B,AZ_A,AZ_B compute;
+    class S3,EBS_A,EBS_B storage;
 ```
 
 ---

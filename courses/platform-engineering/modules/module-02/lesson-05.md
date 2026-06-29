@@ -87,19 +87,35 @@ When you need to make an HTTP request to a web server or REST API directly from 
 
 ```mermaid
 flowchart TD
-    subgraph NetworkStack [Linux Network Stack]
-        IP["ip addr (Assigned IP / Interface eth0)"] --> ROUTE["ip route (Default Gateway)"]
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
+
+    subgraph Utilities [User Space Networking Tools]
+        IP_CMD["ip addr / route"]:::userSpace
+        SS_CMD["ss (Socket Stats)"]:::userSpace
+        CLIENTS["curl / ping"]:::userSpace
+        DAEMON["nginx Daemon"]:::userSpace
     end
 
-    subgraph SocketBinding [Socket Binding]
-        DAEMON["Active Daemon (PID 712 / nginx)"] -->|Binds to| PORT["Port 80 (Listening Socket)"]
-        PORT -->|Inspected by| SS["ss -tulpn (Socket Statistics)"]
+    subgraph KernelStack [Kernel Network Stack]
+        SOCKETS["TCP/UDP Sockets"]:::kernelSpace
+        ROUTING["Routing Table"]:::kernelSpace
+        NET_IFC["Network Interfaces (eth0)"]:::kernelSpace
     end
 
-    subgraph OutboundTraffic [Outbound Communications]
-        PING["ping -c 4 (ICMP Echo Request)"] --> REMOTE_HOST["Remote Server / Database"]
-        CURL["curl -I (HTTP GET Request)"] --> WEB_API["REST API Endpoint"]
+    subgraph Physical [Physical Network]
+        NIC["Physical NIC Hardware"]:::hardware
     end
+
+    IP_CMD -.->|Reads/Configures| NET_IFC
+    IP_CMD -.->|Reads/Configures| ROUTING
+    SS_CMD -.->|Reads state| SOCKETS
+    CLIENTS -->|Syscalls| SOCKETS
+    DAEMON -->|Binds to| SOCKETS
+    SOCKETS --> ROUTING
+    ROUTING --> NET_IFC
+    NET_IFC --> NIC
 ```
 
 ---

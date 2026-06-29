@@ -88,27 +88,28 @@ The final character of your prompt is a critical safety indicator:
 
 ```mermaid
 flowchart TD
-    subgraph HumanInput [Human Interaction]
-        KEYBOARD[Keyboard Keystrokes]
-    end
+    classDef userSpace fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px;
+    classDef kernelSpace fill:#e8f5e9,stroke:#43a047,stroke-width:2px;
+    classDef hardware fill:#fff3e0,stroke:#fb8c00,stroke-width:2px;
 
+    KEYBOARD[Keyboard Keystrokes]:::hardware --> GUI
+    
     subgraph TerminalEmulator [Terminal Emulator Window]
-        GUI[Graphical Terminal App]
+        GUI[Graphical Terminal App]:::userSpace
     end
 
     subgraph ShellProgram [The Shell Program: Bash / Zsh]
-        PARSE[Syntax Parser & Lexer]
-        PROMPT[Prompts: user@host:~$]
+        PARSE[Syntax Parser & Lexer]:::userSpace
+        PROMPT[Prompts: user@host:~$]:::userSpace
     end
 
     subgraph OSKernel [Linux Kernel]
-        EXEC[Process Execution Engine]
+        EXEC[Process Execution Engine]:::kernelSpace
     end
 
-    KEYBOARD --> GUI
     GUI --> PARSE
-    PARSE --> EXEC
-    EXEC --> PROMPT
+    PARSE -->|Syscalls| EXEC
+    EXEC -->|Returns result| PROMPT
     PROMPT --> GUI
 ```
 
